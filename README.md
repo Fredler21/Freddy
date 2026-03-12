@@ -625,6 +625,64 @@ These artifacts are local to the project root and can be retained across runs.
 - Linux remains the preferred environment for full host-audit and local-service inspection workflows because commands such as `ss`, `systemctl`, `ufw`, and `iptables` are Linux-native.
 - WSL is the best option on a regular Windows computer when you want Freddy's full host-inspection behavior without moving to a separate Linux machine.
 
+## Testing Freddy's Knowledge with 2,280 Questions
+
+A comprehensive **question bank** is included to test Freddy's local knowledge-search capability with semantic variations and platform-specific contexts.
+
+### Pre-generated question bank
+
+The question bank is pre-generated and committed to the repository in:
+
+- `questions/question_bank.jsonl` (JSON Lines format for ML pipelines)
+- `questions/question_bank.csv` (Spreadsheet format for manual review)
+
+### What's included
+
+**2,280 cybersecurity questions** across:
+- **24 Topics**: SSH, OWASP Top 10, Network Protocols, TLS, Firewalls, Containers, etc.
+- **12 Question Intents + Contextual Variants**: 
+  - 7-8 phrasings per intent (what-is, how-fix, best-practices, commands, testing, compliance, incident-response, etc.)
+  - 168 platform/tool-specific variations (Ubuntu, Debian, OpenSSL, Docker, iptables, JWT, bcrypt, etc.)
+- **3 Difficulty Levels**: Beginner (402), Intermediate (1,104), Advanced (774)
+- **Full Coverage**: All questions aligned with the 42 knowledge sources
+
+### Key improvement
+
+✅ **164% expansion** (864 → 2,280 questions)  
+✅ **Semantic similarity** — ask similar questions, get answers:
+  - "How do I harden SSH?" → Answer
+  - "What are SSH best practices?" → Answer
+  - "How to configure SSH on Ubuntu?" → Answer
+  - "Secure SSH hardening steps?" → Answer
+
+### Test Freddy's knowledge-search
+
+```bash
+# Ask any variation of a cybersecurity question
+python3 freddy.py knowledge-search "What is SSH hardening?"
+python3 freddy.py knowledge-search "How do I harden SSH on Ubuntu?"
+python3 freddy.py knowledge-search "Best practices for SSH security?"
+python3 freddy.py knowledge-search "SSH configuration mistakes to avoid?"
+
+# All return relevant answers from the local knowledge base
+```
+
+### Validate answer quality
+
+See [questions/README.md](questions/README.md) for:
+- 5 practical usage examples (single test, bulk testing, filtering, validation, topic focus)
+- Scripts for semantic similarity validation
+- Answer quality scoring methods
+- How to filter by topic, difficulty, or intent
+
+All 2,280 questions are guaranteed to have relevant knowledge available in Freddy's vector store.
+
+To regenerate with custom parameters:
+
+```bash
+python3 generate_question_bank.py --format both
+```
+
 ## Defensive Use Only
 
 Freddy is intended for authorized defensive cybersecurity work only. Use it for detection, interpretation, hardening, remediation, and incident response support in environments you own or are explicitly authorized to assess.

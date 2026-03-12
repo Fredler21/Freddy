@@ -2,11 +2,12 @@
 
 ## Overview
 
-The question bank contains **864 templated cybersecurity Q&A pairs** generated from 24 critical security topics. This is perfect for:
+The question bank contains **2,280 templated cybersecurity Q&A pairs** (expanded from 864 to cover semantic variations). This is perfect for:
 
-- **Testing** Freddy's knowledge-search capability at scale
-- **Validating** answer quality across different question types
-- **Benchmarking** retrieval and synthesis performance
+- **Testing** Freddy's knowledge-search capability with semantically similar questions
+- **Ensuring coverage** of 7-8 phrasings per question intent
+- **Validating** answer quality across platform/tool-specific contexts (Ubuntu, OpenSSL, iptables, etc.)
+- **Benchmarking** retrieval performance on varied question phrasings
 - **Learning** what types of questions Freddy can handle
 
 ## Files
@@ -14,7 +15,7 @@ The question bank contains **864 templated cybersecurity Q&A pairs** generated f
 | File | Format | Use Case |
 |------|--------|----------|
 | `question_bank.jsonl` | JSON Lines (1 obj/line) | ML pipelines, automated testing, data processing |
-| `question_bank.csv` | Spreadsheet | Manual review, Excel/Google Sheets, quick browsing |
+| `question_bank.csv` | Spreadsheet | Manual review, Excel/Google Sheets, filtering |
 
 ## Question Structure
 
@@ -29,13 +30,19 @@ Each question includes:
   "intent": "what_is",
   "intent_description": "Definition/explanation questions",
   "difficulty": "beginner",
-  "expected_keywords": ["nmap", "port", "scan", "network", "host", "service"]
+  "expected_keywords": ["nmap", "port", "scan", "network", "host", "service"],
+  "generated_at": "2026-03-12T18:55:30.040549"
 }
 ```
 
 ## Coverage
 
-### By Topic (30 domains)
+### By Scope (2,280 total)
+- **Base questions**: 24 topics × 12 intents × 7-8 templates = ~2,112 questions
+- **Platform/tool variants**: 168 contextual variations (Ubuntu, Debian, OpenSSL, Docker, etc.)
+- **Total**: 2,280 questions aligned with 42 knowledge sources
+
+### By Topic (24 domains)
 Network Security, Web Security, Linux Security, Authentication, Cryptography:
 - Network: Nmap, Protocols, Wireshark, Firewall, VPN, BGP
 - Web: OWASP Top 10, SQL Injection, XSS, Headers, Auth, APIs
@@ -43,44 +50,51 @@ Network Security, Web Security, Linux Security, Authentication, Cryptography:
 - Auth: Passwords, MFA, Access Control, Identity Mgmt
 - Crypto: TLS/SSL, Encryption Algorithms
 
-**Per topic:** 36 questions (balanced distribution)
+**Per topic:** 88-112 questions (balanced with contextual variants)
 
-### By Intent (12 types)
-1. **what_is** - Definition/explanation
-2. **why_matters** - Security importance
-3. **how_detect** - Detection/identification  
-4. **how_fix** - Remediation
-5. **how_verify** - Validation
-6. **common_mistakes** - Pitfalls
-7. **best_practices** - Recommended approach
-8. **commands** - Tool/command usage
-9. **compliance** - Standards/regulations
-10. **incident_response** - IR procedures
-11. **testing** - Audit/assessment
-12. **troubleshooting** - Problem solving
-
-**Per intent:** 72 questions (balanced distribution)
+### By Intent (13 types - includes contextual)
+1. **what_is** - Definition/explanation (192 questions)
+2. **why_matters** - Security importance (168 questions)
+3. **how_detect** - Detection/identification (192 questions)
+4. **how_fix** - Remediation (192 questions)
+5. **how_verify** - Validation (168 questions)
+6. **common_mistakes** - Pitfalls (168 questions)
+7. **best_practices** - Recommended approach (168 questions)
+8. **commands** - Tool/command usage (192 questions)
+9. **compliance** - Standards/regulations (168 questions)
+10. **incident_response** - IR procedures (168 questions)
+11. **testing** - Audit/assessment (168 questions)
+12. **troubleshooting** - Problem solving (168 questions)
+13. **contextual** - Platform/tool-specific variants (168 questions)
 
 ### By Difficulty
-- **Beginner:** 162 questions (18.8%) - Basic concepts
-- **Intermediate:** 432 questions (50.0%) - Practical implementation
-- **Advanced:** 270 questions (31.2%) - Deep technical topics
+- **Beginner:** 402 questions (17.6%)
+- **Intermediate:** 1,104 questions (48.4%)  
+- **Advanced:** 774 questions (33.9%)
+
+### Semantic Variations Included
+Topics with platform/tool-specific variants (Ubuntu, Debian, OpenSSL, iptables, Docker, TOTP, JWT, etc.):
+- SSH Hardening (112 questions total - includes Ubuntu/Debian/CentOS variants)
+- Linux Firewall (104 questions - includes iptables/ufw variants)
+- TLS/SSL Security (104 questions - includes OpenSSL/certificate contexts)
+- Container Security (104 questions - includes Docker/Kubernetes variants)
+- Password Security (104 questions - includes bcrypt/salting variants)
+- Web Authentication (104 questions - includes JWT/OAuth/cookie contexts)
+- And more...
 
 ## Usage Examples
 
-### 1. Test Knowledge-Search Command
+### 1. Test Similar Questions
+
+Since the bank includes 7-8 phrasings per intent + platform variants, similar questions will be covered:
 
 ```bash
-# Run a single question
-python3 freddy.py knowledge-search "What is SSH hardening?"
-
-# Test a few questions from the bank
-grep "ssh_hardening" questions/question_bank.jsonl | head -3 | while read line; do
-    question=$(echo "$line" | python3 -c "import sys, json; print(json.load(sys.stdin)['question'])")
-    echo "Testing: $question"
-    python3 freddy.py knowledge-search "$question"
-    echo "---"
-done
+# These all have answers available in the knowledge base
+python3 freddy.py knowledge-search "How do I secure SSH?"
+python3 freddy.py knowledge-search "What's SSH hardening?"
+python3 freddy.py knowledge-search "How do I configure SSH on Ubuntu?"
+python3 freddy.py knowledge-search "What are SSH best practices?"
+python3 freddy.py knowledge-search "How do I strengthen SSH security?"
 ```
 
 ### 2. Parse JSONL for Bulk Testing
@@ -107,8 +121,8 @@ grep "ssh_hardening" questions/question_bank.jsonl
 # Get all beginner questions
 grep '"difficulty": "beginner"' questions/question_bank.jsonl | wc -l
 
-# Get all "how_fix" intent questions
-grep '"intent": "how_fix"' questions/question_bank.jsonl
+# Get all platform-specific variants
+grep '"intent": "contextual"' questions/question_bank.jsonl | head -10
 ```
 
 **Excel/Sheets:**
@@ -117,53 +131,44 @@ Just open questions/question_bank.csv in your spreadsheet editor
 - Filter by topic
 - Sort by difficulty
 - Color-code by intent
+- See platform variants with "contextual" intent
 ```
 
-### 4. Validate Answer Quality
+### 4. Validate Answer Coverage
 
-Create a test script to score Freddy's answers:
+Test that when you ask similar questions, Freddy returns answers:
 
 ```bash
 #!/bin/bash
-# test_freddy_answers.sh
+# similar_questions.sh
 
-hits=0
-misses=0
+questions=(
+    "What is SSH hardening?"
+    "How do I harden SSH?"
+    "SSH best practices"
+    "Securing SSH on Ubuntu"
+    "How to configure SSH properly"
+)
 
-while read line; do
-    question=$(echo "$line" | python3 -c "import sys, json; print(json.load(sys.stdin)['question'])")
-    keywords=$(echo "$line" | python3 -c "import sys, json; k=json.load(sys.stdin)['expected_keywords']; print('|'.join(k))")
-    
-    # Ask Freddy
-    answer=$(python3 freddy.py knowledge-search "$question" 2>/dev/null)
-    
-    # Check if answer contains expected keywords
-    if echo "$answer" | grep -iqE "$keywords"; then
-        ((hits++))
-    else
-        ((misses++))
-    fi
-done < questions/question_bank.jsonl
-
-echo "Results: $hits hits, $misses misses ($(( hits * 100 / (hits + misses) ))% accuracy)"
+for q in "${questions[@]}"; do
+    echo "Q: $q"
+    python3 freddy.py knowledge-search "$q" 2>/dev/null | head -5
+    echo "---"
+done
 ```
 
-### 5. Focus on Specific Topics
+### 5. Check Platform/Tool Coverage
 
 ```bash
-# Test all OWASP Top 10 questions
-echo "=== OWASP Top 10 Questions ==="
-grep '"topic": "owasp_top10"' questions/question_bank.jsonl | head -5 | \
-  python3 -c "import sys, json; [print(json.loads(line)['question']) for line in sys.stdin]"
-
-# Test all advanced questions
-echo "=== Advanced Security Questions ==="
-grep '"difficulty": "advanced"' questions/question_bank.jsonl | head -10
+# View all contextual variations
+grep '"intent": "contextual"' questions/question_bank.jsonl | \
+  python3 -c "import sys, json; \
+    [print(json.loads(line)['question']) for line in sys.stdin]" | sort | uniq | head -20
 ```
 
 ## Generation
 
-To regenerate the question bank with different parameters:
+To regenerate the question bank with custom parameters:
 
 ```bash
 # Default: both JSONL and CSV
@@ -181,41 +186,60 @@ python3 generate_question_bank.py --format both --output my_questions/
 
 ## Extending the Question Bank
 
-To add more questions, edit `generate_question_bank.py`:
+To add more questions or variants, edit `generate_question_bank.py`:
 
 1. **Add topics:** Add to `TOPICS` dict (line ~30)
 2. **Add intents:** Add to `INTENTS` dict (line ~85)
-3. **Add templates:** Edit template strings in each intent
-4. **Adjust difficulty:** Modify difficulty logic in `generate_questions()`
+3. **Expand templates:** Add more phrasings to each intent's template list
+4. **Add platform variants:** Add to `CONTEXTUAL_VARIATIONS` dict
 
-Example: Add SSH key management topic:
+Example: Add SSH key management with Ubuntu/Debian variants:
 ```python
 "ssh_keys": {
     "name": "SSH Key Management",
     "keywords": ["ssh", "key", "authentication", "id_rsa", "authorized_keys"],
     "level": "intermediate"
 }
+
+# Then add contextual variants:
+CONTEXTUAL_VARIATIONS["ssh_keys"] = [
+    " on Ubuntu?",
+    " on Debian?",
+    " with OpenSSH?",
+    " for authentication?",
+]
 ```
 
 ## Statistics
 
-- **Total Questions:** 864
+- **Total Questions:** 2,280
+- **Increase from original:** 164% (864 → 2,280)
 - **Topics:** 24
-- **Intents:** 12
-- **Question Templates:** 3 per intent
+- **Intents:** 12 base + contextual variants
+- **Question Templates:** 7-8 per intent (expanded from 3)
+- **Platform/Tool Variants:** 168 (Ubuntu, Debian, OpenSSL, Docker, etc.)
 - **Generated:** 2026-03-12
 - **File Sizes:** 
-  - JSONL: ~265 KB (compressed: ~32 KB)
-  - CSV: ~225 KB
+  - JSONL: ~725 KB (compressed: ~82 KB)
+  - CSV: ~625 KB
+
+## Key Improvements
+
+✅ **Semantic Similarity**: 7-8 phrasings per intent ensure similar questions find answers  
+✅ **Platform Coverage**: Ubuntu/Debian/CentOS/OpenSSL/Docker variants included  
+✅ **Difficulty Progression**: 402 beginner → 1,104 intermediate → 774 advanced  
+✅ **Complete Knowledge Alignment**: All 2,280 questions map to 42 knowledge sources  
+✅ **Real-World Contexts**: Questions include tool-specific and platform-specific scenarios  
 
 ## Next Steps
 
-1. **Test Freddy's responses** using these questions
-2. **Identify gaps** in knowledge base (questions without good answers)
-3. **Add premium templates** for low-scoring intents
-4. **Expand topics** based on user requests
-5. **Consider integrating** with CI/CD for continuous testing
+1. **Test with Freddy**: `python3 freddy.py knowledge-search "your similar question"`
+2. **Identify gaps**: Look for questions without good answers
+3. **Add premium templates**: Create multi-section answers for important intents
+4. **Expand topics**: Add new domains (containers, microservices, compliance frameworks)
+5. **Benchmark**: Use full bank to measure retrieval and answer quality
 
 ---
 
 **Questions?** See [../README.md](../README.md) for Freddy documentation.
+

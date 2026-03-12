@@ -166,6 +166,11 @@ INTENTS = {
             "What is {topic}?",
             "Can you explain {topic}?",
             "Define {topic}.",
+            "What does {topic} mean?",
+            "Tell me about {topic}.",
+            "Describe {topic}.",
+            "What exactly is {topic}?",
+            "Give me an overview of {topic}.",
         ]
     },
     "why_matters": {
@@ -174,6 +179,10 @@ INTENTS = {
             "Why is {topic} important for security?",
             "What security risks does {topic} address?",
             "Why should I care about {topic}?",
+            "What's the security impact of {topic}?",
+            "How does {topic} affect my security posture?",
+            "What security value does {topic} provide?",
+            "Why is {topic} critical to defend against?",
         ]
     },
     "how_detect": {
@@ -182,6 +191,11 @@ INTENTS = {
             "How do I detect {topic}?",
             "What tools can identify {topic}?",
             "How can I check for {topic} vulnerabilities?",
+            "How do I find {topic} issues on my system?",
+            "What's the way to scan for {topic}?",
+            "How can I verify if {topic} is present?",
+            "What indicators show {topic} problems?",
+            "How do I test for {topic} exposure?",
         ]
     },
     "how_fix": {
@@ -190,6 +204,11 @@ INTENTS = {
             "How do I fix {topic}?",
             "What are the steps to secure {topic}?",
             "How can I resolve {topic} issues?",
+            "What's the fix for {topic} problems?",
+            "How do I patch {topic} vulnerabilities?",
+            "What remediation steps apply to {topic}?",
+            "How should I address {topic} weaknesses?",
+            "What's the solution to {topic} exposure?",
         ]
     },
     "how_verify": {
@@ -198,6 +217,10 @@ INTENTS = {
             "How do I verify {topic} is secure?",
             "What commands check {topic}?",
             "How can I validate {topic} configurations?",
+            "How do I confirm {topic} is properly secured?",
+            "What's the verification method for {topic}?",
+            "How do I test {topic} after hardening?",
+            "What proves {topic} is correctly configured?",
         ]
     },
     "common_mistakes": {
@@ -206,6 +229,10 @@ INTENTS = {
             "What are common mistakes with {topic}?",
             "What should I avoid with {topic}?",
             "What are the typical {topic} misconfigurations?",
+            "What errors occur with {topic}?",
+            "What do people get wrong about {topic}?",
+            "What's the most common {topic} security failure?",
+            "How do admins usually misconfigure {topic}?",
         ]
     },
     "best_practices": {
@@ -214,6 +241,10 @@ INTENTS = {
             "What are best practices for {topic}?",
             "How should I configure {topic}?",
             "What's the recommended approach to {topic}?",
+            "What are security best practices for {topic}?",
+            "How do I implement {topic} correctly?",
+            "What standards recommend for {topic}?",
+            "What's the secure way to set up {topic}?",
         ]
     },
     "commands": {
@@ -222,6 +253,11 @@ INTENTS = {
             "What commands are used for {topic}?",
             "How do I use tools for {topic}?",
             "What's the syntax for {topic} commands?",
+            "What command line tools support {topic}?",
+            "How do I invoke {topic} via CLI?",
+            "What are {topic} command examples?",
+            "Show me how to use {topic} tools.",
+            "What programs manage {topic}?",
         ]
     },
     "compliance": {
@@ -230,6 +266,10 @@ INTENTS = {
             "What compliance standards address {topic}?",
             "How does {topic} relate to regulatory requirements?",
             "What frameworks cover {topic}?",
+            "What regulations mention {topic}?",
+            "How does {topic} fit compliance mandates?",
+            "What controls apply to {topic}?",
+            "What standards require {topic} hardening?",
         ]
     },
     "incident_response": {
@@ -238,6 +278,10 @@ INTENTS = {
             "How do I respond to {topic} incidents?",
             "What's the IR procedure for {topic}?",
             "How should I handle {topic} breaches?",
+            "What's the {topic} incident response timeline?",
+            "How do I contain a {topic} incident?",
+            "What steps follow discovery of {topic} issues?",
+            "How do I investigate {topic} compromises?",
         ]
     },
     "testing": {
@@ -246,6 +290,10 @@ INTENTS = {
             "How do I test {topic}?",
             "What's the audit process for {topic}?",
             "How should I assess {topic} security?",
+            "What's the security test for {topic}?",
+            "How do I audit {topic} implementations?",
+            "What benchmarks measure {topic}?",
+            "How should I validate {topic} security?",
         ]
     },
     "troubleshooting": {
@@ -254,6 +302,10 @@ INTENTS = {
             "How do I troubleshoot {topic} issues?",
             "What's wrong with my {topic} setup?",
             "How can I debug {topic} problems?",
+            "Why isn't {topic} working?",
+            "How do I diagnose {topic} errors?",
+            "What causes {topic} failures?",
+            "How do I fix {topic} errors?",
         ]
     },
 }
@@ -269,16 +321,83 @@ PHRASINGS = [
 ]
 
 # ==============================================================================
-# QUESTION GENERATION
+# CONTEXTUAL VARIATIONS (Platform/Tool-specific phrasings)
 # ==============================================================================
 
+CONTEXTUAL_VARIATIONS = {
+    "ssh_hardening": [
+        " on Ubuntu?",
+        " on Debian?",
+        " on CentOS?",
+        " on Red Hat?",
+        " in the sshd_config file?",
+        " with OpenSSH?",
+    ],
+    "firewall_linux": [
+        " with iptables?",
+        " with ufw?",
+        " on Ubuntu?",
+        " on Debian?",
+    ],
+    "kernel_hardening": [
+        " with sysctl?",
+        " in Linux?",
+        " with AppArmor?",
+        " with SELinux?",
+    ],
+    "tls_security": [
+        " with OpenSSL?",
+        " for HTTPS?",
+        " in certificates?",
+        " for ciphers?",
+    ],
+    "log_analysis": [
+        " in syslog?",
+        " in auth.log?",
+        " with journalctl?",
+        " in Linux logs?",
+    ],
+    "container_security": [
+        " with Docker?",
+        " with Kubernetes?",
+        " in images?",
+        " in registries?",
+    ],
+    "password_security": [
+        " with bcrypt?",
+        " with salting?",
+        " with hashing?",
+        " with key derivation?",
+    ],
+    "mfa_implementation": [
+        " with TOTP?",
+        " with U2F?",
+        " on Linux?",
+        " for SSH?",
+    ],
+    "web_authentication": [
+        " with JWT?",
+        " with OAuth?",
+        " with cookies?",
+        " with sessions?",
+    ],
+    "network_protocols": [
+        " in TCP?",
+        " in UDP?",
+        " in IP?",
+        " in DNS?",
+    ],
+}
+
 def generate_questions() -> List[Dict]:
-    """Generate all templated questions from topics × intents × phrasings."""
+    """Generate 2000+ templated questions from topics × intents × phrasings with contextual variations."""
     questions = []
     question_id = 1
+    seen_questions = set()  # Avoid duplicates
     
     for topic_key, topic_data in TOPICS.items():
         for intent_key, intent_data in INTENTS.items():
+            # Base templates
             for template in intent_data["templates"]:
                 # Determine difficulty
                 difficulty = topic_data["level"]
@@ -288,13 +407,18 @@ def generate_questions() -> List[Dict]:
                     elif difficulty == "intermediate":
                         difficulty = "advanced"
                 
-                # Create the question
+                # Create the base question
                 question_text = template.format(topic=topic_data["name"].lower())
+                
+                # Skip if exact duplicate
+                if question_text in seen_questions:
+                    continue
+                seen_questions.add(question_text)
                 
                 # Determine expected keywords
                 expected_keywords = topic_data["keywords"].copy()
                 
-                # Add some intent-specific keywords
+                # Add intent-specific keywords
                 if intent_key == "how_fix":
                     expected_keywords.extend(["configure", "enable", "disable", "setup"])
                 elif intent_key == "how_detect":
@@ -303,6 +427,8 @@ def generate_questions() -> List[Dict]:
                     expected_keywords.extend(["should", "must", "recommended", "standard"])
                 elif intent_key == "compliance":
                     expected_keywords.extend(["NIST", "OWASP", "RFC", "standard", "regulation"])
+                elif intent_key == "commands":
+                    expected_keywords.extend(["command", "tool", "syntax", "cli"])
                 
                 question_obj = {
                     "id": question_id,
@@ -311,6 +437,52 @@ def generate_questions() -> List[Dict]:
                     "topic_display": topic_data["name"],
                     "intent": intent_key,
                     "intent_description": intent_data["description"],
+                    "difficulty": difficulty,
+                    "expected_keywords": expected_keywords,
+                    "generated_at": datetime.now().isoformat(),
+                }
+                
+                questions.append(question_obj)
+                question_id += 1
+    
+    # Add contextual variations for specific topics
+    for topic_key, variations in CONTEXTUAL_VARIATIONS.items():
+        if topic_key not in TOPICS:
+            continue
+        
+        topic_data = TOPICS[topic_key]
+        
+        for template in ["How do I {base}{context}?", "What's the {base}{context}?", 
+                        "Tell me about {base}{context}.", "Explain {base}{context}."]:
+            for variation in variations:
+                # Create contextual question
+                base = topic_data["name"].lower()
+                question_text = template.format(base=base, context=variation)
+                
+                # Skip if exact duplicate
+                if question_text in seen_questions:
+                    continue
+                seen_questions.add(question_text)
+                
+                # Determine difficulty (slightly higher for contextual)
+                difficulty = topic_data["level"]
+                if difficulty == "beginner":
+                    difficulty = "intermediate"
+                elif difficulty == "intermediate":
+                    difficulty = "advanced"
+                
+                # Extract keywords
+                expected_keywords = topic_data["keywords"].copy()
+                variation_word = variation.strip("? ").replace(" ", "_")
+                expected_keywords.append(variation_word)
+                
+                question_obj = {
+                    "id": question_id,
+                    "question": question_text,
+                    "topic": topic_key,
+                    "topic_display": topic_data["name"],
+                    "intent": "contextual",
+                    "intent_description": "Platform/tool-specific variation",
                     "difficulty": difficulty,
                     "expected_keywords": expected_keywords,
                     "generated_at": datetime.now().isoformat(),
