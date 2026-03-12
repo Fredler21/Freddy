@@ -38,6 +38,7 @@ class KnowledgeEngine:
     CHUNK_SIZE = 900
     CHUNK_OVERLAP = 120
     MAX_CHUNKS_PER_FILE = 1000
+    UPSERT_BATCH_SIZE = 5000
 
     def __init__(
         self,
@@ -116,13 +117,26 @@ class KnowledgeEngine:
 
         self._reset_collection()
         if ids:
-            self.collection.upsert(
-                ids=ids,
-                documents=documents,
-                embeddings=embeddings,
-                metadatas=metadatas,
-            )
+            self._upsert_in_batches(ids, documents, embeddings, metadatas)
         return {"files": indexed_files, "chunks": len(ids), "skipped": skipped_files}
+
+    def _upsert_in_batches(
+        self,
+        ids: list[str],
+        documents: list[str],
+        embeddings: list[list[float]],
+        metadatas: list[dict[str, str]],
+    ) -> None:
+        """Upsert vectors in bounded batches to satisfy Chroma max batch limits."""
+        batch_size = self.UPSERT_BATCH_SIZE
+        for start in range(0, len(ids), batch_size):
+            end = start + batch_size
+            self.collection.upsert(
+                ids=ids[start:end],
+                documents=documents[start:end],
+                embeddings=embeddings[start:end],
+                metadatas=metadatas[start:end],
+            )
 
     def query(self, query: str, top_k: int = 5) -> list[KnowledgeMatch]:
         if not query.strip() or self.collection.count() == 0:
