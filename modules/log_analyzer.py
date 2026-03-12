@@ -20,3 +20,18 @@ def detect_brute_force(lines: list[str], threshold: int = 5) -> list[str]:
 def detect_root_logins(lines: list[str]) -> list[str]:
     """Return lines showing successful root logins."""
     return [line.strip() for line in lines if "Accepted" in line and "root" in line]
+
+
+def detect_invalid_users(lines: list[str]) -> list[str]:
+    """Return lines showing login attempts for non-existent users."""
+    return [line.strip() for line in lines if "invalid user" in line.lower()]
+
+
+def summarize_log(lines: list[str]) -> dict:
+    """Return a quick summary dict of key indicators found in log lines."""
+    return {
+        "brute_force_ips": detect_brute_force(lines),
+        "root_logins": detect_root_logins(lines),
+        "invalid_user_attempts": detect_invalid_users(lines),
+        "total_lines": len(lines),
+    }
