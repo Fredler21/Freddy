@@ -33,6 +33,7 @@ class KnowledgeEngine:
     COLLECTION_NAME = "freddy_knowledge"
     CHUNK_SIZE = 900
     CHUNK_OVERLAP = 120
+    MAX_CHUNKS_PER_FILE = 1000
 
     def __init__(
         self,
@@ -139,21 +140,47 @@ class KnowledgeEngine:
     @classmethod
     def chunk_text(cls, text: str) -> list[str]:
         normalized = re.sub(r"\n{3,}", "\n\n", text.strip())
-        if len(normalized) <= cls.CHUNK_SIZE:
+        if not normalized:
+            return []
+
+        chunk_size = cls.CHUNK_SIZE
+        chunk_overlap = cls.CHUNK_OVERLAP
+        max_chunks = cls.MAX_CHUNKS_PER_FILE
+
+        if chunk_size <= 0:
+            raise ValueError("CHUNK_SIZE must be greater than 0")
+        if chunk_overlap < 0:
+            raise ValueError("CHUNK_OVERLAP cannot be negative")
+        if chunk_overlap >= chunk_size:
+            raise ValueError("CHUNK_OVERLAP must be smaller than CHUNK_SIZE")
+        if max_chunks <= 0:
+            raise ValueError("MAX_CHUNKS_PER_FILE must be greater than 0")
+
+        if len(normalized) <= chunk_size:
             return [normalized]
+
         chunks: list[str] = []
+        seen_chunks: set[str] = set()
         start = 0
-        while start < len(normalized):
-            end = min(start + cls.CHUNK_SIZE, len(normalized))
+        while start < len(normalized) and len(chunks) < max_chunks:
+            end = min(start + chunk_size, len(normalized))
             boundary = normalized.rfind("\n", start, end)
-            if boundary <= start:
+            if boundary <= start or boundary - start <= chunk_overlap:
                 boundary = end
             chunk = normalized[start:boundary].strip()
-            if chunk:
+
+            if chunk and chunk not in seen_chunks:
                 chunks.append(chunk)
+                seen_chunks.add(chunk)
+
             if boundary >= len(normalized):
                 break
-            start = max(boundary - cls.CHUNK_OVERLAP, 0)
+
+            next_start = max(boundary - chunk_overlap, 0)
+            if next_start <= start:
+                next_start = boundary
+            start = next_start
+
         return chunks
 
     def _reset_collection(self) -> None:
