@@ -415,6 +415,99 @@ After it completes, pull updates on any machine:
 git pull origin main
 ```
 
+## Quick Start on Kali Linux
+
+Use this sequence on a fresh Kali machine after cloning or pulling updates:
+
+```bash
+cd /home/<your-user>/Freddy
+git fetch origin
+git checkout main
+git pull --ff-only origin main
+
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+pip install --no-cache-dir -r requirements.txt
+
+python3 freddy.py learn
+python3 freddy.py --help
+```
+
+## Troubleshooting
+
+### ModuleNotFoundError: No module named typer
+
+This means dependencies were not installed in your active Python environment.
+
+```bash
+cd /home/<your-user>/Freddy
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --no-cache-dir -r requirements.txt
+```
+
+### No space left on device while installing nvidia_cublas_cu12
+
+Your system is trying to install GPU CUDA wheels. If you do not need GPU acceleration, install CPU-only PyTorch.
+
+```bash
+pip uninstall -y torch torchvision torchaudio nvidia-cublas-cu12 nvidia-cudnn-cu12 nvidia-cuda-runtime-cu12 nvidia-cufft-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-nccl-cu12 nvidia-nvtx-cu12 triton
+rm -rf ~/.cache/pip
+pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch torchvision torchaudio
+pip install --no-cache-dir -r requirements.txt
+```
+
+### Learn command looks stuck after model download
+
+The first run may take a while on CPU with a large knowledge set. This is normal.
+
+Check that indexing is still active:
+
+```bash
+ps -ef | grep "freddy.py learn" | grep -v grep
+top
+watch -n 3 'du -sh .freddy/vector_store'
+```
+
+If there is no change for 10+ minutes, stop and rerun with unbuffered output:
+
+```bash
+python3 -u freddy.py learn
+```
+
+### Hugging Face warning about unauthenticated requests
+
+This warning is informational. Freddy still works without a token.
+
+- Without token: lower rate limits, slower model downloads.
+- With token: faster and more reliable downloads from Hugging Face.
+
+### Where extracted knowledge text is stored
+
+The GitHub knowledge workflow stores extracted text directly in:
+
+- `knowledge/*/*.txt`
+
+Examples:
+
+- `knowledge/nmap/nist_sp800-115_security_testing.txt`
+- `knowledge/web_security/nist_sp800-44v2_web_server_security.txt`
+- `knowledge/vulnerabilities/nist_sp800-40r4_patch_management.txt`
+
+After pulling from GitHub, run:
+
+```bash
+python3 freddy.py learn
+```
+
+### Verify knowledge is searchable
+
+```bash
+python3 freddy.py knowledge-search "patch management"
+python3 freddy.py knowledge-search "tls hardening"
+```
+
 ## Adding Cybersecurity Knowledge Documents
 
 Freddy can ingest and index cybersecurity reference material in **PDF, Markdown, and plain text** formats. Place documents into the relevant folder under `knowledge/` and re-run the index command.
