@@ -1,0 +1,85 @@
+╔════════════════════════════════════════════════════════════════════╗
+║  FREDDY KALI LINUX UPDATE - 2,280 Question Bank Ready!            ║
+╚════════════════════════════════════════════════════════════════════╝
+
+📋 ON YOUR KALI MACHINE - RUN THIS:
+
+┌────────────────────────────────────────────────────────────────────┐
+│ OPTION 1: Automated Update (Recommended)                          │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  $ cd ~/Freddy                                                     │
+│  $ bash update_freddy_kali.sh                                      │
+│                                                                    │
+│  This handles everything automatically:                           │
+│  ✓ Pulls latest from GitHub                                       │
+│  ✓ Sets up Python environment                                     │
+│  ✓ Indexes knowledge (2,280 questions)                            │
+│  ✓ Verifies installation                                          │
+│  ✓ Tests knowledge-search                                         │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────┐
+│ OPTION 2: Manual Step-by-Step                                     │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  $ cd ~/Freddy                                                     │
+│  $ git pull origin main                                            │
+│  $ python3 -m venv .venv                                           │
+│  $ source .venv/bin/activate                                       │
+│  $ pip install -r requirements.txt                                 │
+│  $ python3 freddy.py learn                                         │
+│                                                                    │
+│  Wait 5-15 minutes for knowledge indexing...                      │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
+
+✨ WHAT'S READY FOR YOU:
+
+  📊 Question Bank:        2,280 questions (was 864)
+  🔍 Semantic Variations:  7-8 phrasings per intent
+  🛠️  Platform Contexts:    Ubuntu, Debian, OpenSSL, Docker, etc.
+  📚 Knowledge Sources:    42 documents (NIST, RFC, OWASP)
+  ✅ All Aligned:          Every question has answer coverage
+
+🧪 AFTER UPDATE - TEST WITH:
+
+  $ python3 freddy.py knowledge-search "How do I harden SSH?"
+  $ python3 freddy.py knowledge-search "What are SSH best practices?"
+  $ python3 freddy.py knowledge-search "SSH on Ubuntu configuration?"
+
+  All three return answers from the local knowledge base!
+
+📊 VIEW QUESTION BANK STATS:
+
+  $ python3 verify_question_coverage.py
+  $ python3 show_question_samples.py
+  $ grep "ssh_hardening" questions/question_bank.jsonl | wc -l
+
+📖 DOCUMENTATION:
+
+  - KALI_UPDATE_GUIDE.md   ← Complete guide with troubleshooting
+  - questions/README.md    ← Question bank usage examples
+  - README.md              ← Main Freddy documentation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ready? Just run:  bash update_freddy_kali.sh
+
+This will:
+  1. Pull all updates (2,280 questions, 42 knowledge sources)
+  2. Install dependencies (typer, ChromaDB, sentence-transformers)
+  3. Index knowledge locally (5-15 minutes)
+  4. Verify everything works
+  5. Test knowledge-search functionality
+
+Once complete, you can use:
+  python3 freddy.py knowledge-search "your question"
+  python3 freddy.py scan <target>
+  python3 freddy.py analyze <logfile>
+  python3 freddy.py ports
+  python3 freddy.py audit
+  And more!
+
+Questions? See KALI_UPDATE_GUIDE.md on your Kali machine.
