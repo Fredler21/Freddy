@@ -48,18 +48,18 @@ def _confirm_action(prompt_text: str, assume_yes: bool = False) -> bool:
     return typer.confirm(prompt_text, default=True)
 
 
-def _maybe_print_startup_banner(no_banner: bool) -> None:
+def _maybe_print_startup_banner(no_banner: bool, banner_style: str = "auto") -> None:
     """Render startup banner once per process unless disabled."""
     global _STARTUP_SHOWN
     if no_banner or _STARTUP_SHOWN:
         return
-    formatter.print_startup_screen(version="2.0.0")
+    formatter.print_startup_screen(version="2.0.0", banner_style=banner_style)
     _STARTUP_SHOWN = True
 
 
-def _run_welcome_flow(no_banner: bool) -> None:
+def _run_welcome_flow(no_banner: bool, banner_style: str = "auto") -> None:
     """Show introduction and ask what the user wants to start."""
-    _maybe_print_startup_banner(no_banner)
+    _maybe_print_startup_banner(no_banner, banner_style=banner_style)
 
     formatter.print_section(
         "Welcome",
@@ -70,10 +70,13 @@ def _run_welcome_flow(no_banner: bool) -> None:
 
     formatter.print_section(
         "What Freddy Can Do",
-        "- Guided mode for scan, recon, audit, and checks\n"
-        "- Local knowledge answers from your indexed cybersecurity library\n"
-        "- Analysis of logs, tool output, and security artifacts\n"
-        "- History and memory stats for recurring issues",
+        "- Guided workflows: walkthrough + safety confirmations before execution\n"
+        "- Network and recon: scan, recon, ports, webcheck, tlscheck, dnscheck, whois\n"
+        "- Host assessment: audit and host-audit for local security posture\n"
+        "- Artifact analysis: analyze, logs, investigate for files and tool outputs\n"
+        "- Knowledge system: learn indexing + knowledge-search from local docs\n"
+        "- Operational memory: history and memory-stats for recurring issues\n"
+        "- Premium terminal UX: adaptive banner, startup intro, and quick-start menu",
         style="blue",
     )
 
@@ -116,14 +119,19 @@ def _run_welcome_flow(no_banner: bool) -> None:
 def main(
     ctx: typer.Context,
     no_banner: bool = typer.Option(False, "--no-banner", help="Disable Freddy startup banner"),
+    banner_style: str = typer.Option(
+        "auto",
+        "--banner-style",
+        help="Banner style: auto, max, or compact",
+    ),
 ) -> None:
     """Global Freddy options applied before command execution."""
     if ctx.resilient_parsing:
         return
     if ctx.invoked_subcommand:
-        _maybe_print_startup_banner(no_banner)
+        _maybe_print_startup_banner(no_banner, banner_style=banner_style)
         return
-    _run_welcome_flow(no_banner)
+    _run_welcome_flow(no_banner, banner_style=banner_style)
 
 
 def _clean_knowledge_line(line: str) -> str:

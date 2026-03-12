@@ -22,12 +22,18 @@ class OutputFormatter:
         banner = Text(title, style="bold cyan")
         self.console.print(Panel(banner, border_style="cyan", padding=(0, 2)))
 
-    def print_startup_screen(self, version: str = "2.0.0") -> None:
+    def print_startup_screen(self, version: str = "2.0.0", banner_style: str = "auto") -> None:
         """Print a premium startup banner when Freddy launches a command."""
         width = self.console.size.width
+        # Panel borders and padding reduce usable width inside the box.
+        usable_width = max(20, width - 8)
+
+        style = banner_style.lower().strip()
+        if style not in {"auto", "max", "compact"}:
+            style = "auto"
 
         title = Text()
-        if width >= 120:
+        if style == "max" or (style == "auto" and usable_width >= 58):
             title.append(
                 "███████╗██████╗ ███████╗██████╗ ██████╗ ██╗   ██╗\n",
                 style="bold bright_yellow",
@@ -52,25 +58,20 @@ class OutputFormatter:
                 "╚═╝     ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═════╝    ╚═╝   ",
                 style="bold bright_blue",
             )
-        elif width >= 90:
-            title.append("███████╗██████╗ ███████╗██████╗ ██████╗ ██╗   ██╗\n", style="bold bright_yellow")
-            title.append("██╔════╝██╔══██╗██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝\n", style="bold yellow")
-            title.append("█████╗  ██████╔╝█████╗  ██║  ██║██║  ██║ ╚████╔╝ \n", style="bold bright_white")
-            title.append("██╔══╝  ██╔══██╗██╔══╝  ██║  ██║██║  ██║  ╚██╔╝  \n", style="bold bright_cyan")
-            title.append("██║     ██║  ██║███████╗██████╔╝██████╔╝   ██║   \n", style="bold cyan")
-            title.append("╚═╝     ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═════╝    ╚═╝   ", style="bold bright_blue")
         else:
-            title.append("███████╗██████╗ ███████╗██████╗ ██████╗ ██╗   ██╗\n", style="bold bright_cyan")
-            title.append("██╔════╝██╔══██╗██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝\n", style="bold cyan")
-            title.append("█████╗  ██████╔╝█████╗  ██║  ██║██║  ██║ ╚████╔╝ \n", style="bold blue")
-            title.append("╚══════╝ Compact Premium Mode", style="bold white")
+            title.append("███████╗ ██████╗ ███████╗██████╗ ██████╗ ██╗   ██╗\n", style="bold bright_cyan")
+            title.append("██╔════╝██╔═══██╗██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝\n", style="bold cyan")
+            title.append("█████╗  ██║   ██║█████╗  ██║  ██║██║  ██║ ╚████╔╝ \n", style="bold bright_blue")
+            title.append("██╔══╝  ██║   ██║██╔══╝  ██║  ██║██║  ██║  ╚██╔╝  \n", style="bold blue")
+            title.append("██║     ╚██████╔╝███████╗██████╔╝██████╔╝   ██║   \n", style="bold bright_white")
+            title.append("╚═╝      ╚═════╝ ╚══════╝╚═════╝ ╚═════╝    ╚═╝   ", style="bold white")
 
         subtitle = Text("AI Cybersecurity Terminal Copilot", style="bold white")
         meta = Text(
             f"Version {version}  |  Python {platform.python_version()}  |  Platform {platform.system()}",
             style="cyan",
         )
-        accent = Text("◆" * max(10, min(36, width // 4)), style="bold bright_magenta")
+        accent = Text("◆" * max(10, min(48, usable_width // 2)), style="bold bright_magenta")
         header = Text.assemble(accent, "\n", title, "\n\n", subtitle, "\n", meta, "\n", accent)
 
         chips = Table.grid(padding=(0, 2))
