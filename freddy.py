@@ -131,8 +131,10 @@ def learn() -> None:
     console.print("\n[bold cyan]Building Freddy knowledge index...[/bold cyan]\n")
     engine = KnowledgeEngine()
     stats = engine.index_all()
+    skipped = stats.get("skipped", 0)
+    skip_note = f" ({skipped} skipped)" if skipped else ""
     formatter.print_success(
-        f"Indexed {stats['files']} files into {stats['chunks']} chunks in the local vector store."
+        f"Indexed {stats['files']} files into {stats['chunks']} chunks in the local vector store{skip_note}."
     )
 
 

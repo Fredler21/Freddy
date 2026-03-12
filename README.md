@@ -336,6 +336,77 @@ python3 freddy.py ports
 3. Rebuild the index with `python3 freddy.py learn`
 4. Use `python3 freddy.py knowledge-search "<topic>"` to validate retrieval quality
 
+## Adding Cybersecurity Knowledge Documents
+
+Freddy can ingest and index cybersecurity reference material in **PDF, Markdown, and plain text** formats. Place documents into the relevant folder under `knowledge/` and re-run the index command.
+
+### Knowledge folder structure
+
+```text
+knowledge/
+|- networking/          <- TCP/IP, routing, packet analysis
+|- linux/               <- Linux administration, hardening, permissions
+|- ubuntu/              <- Ubuntu-specific guides
+|- wireshark/           <- Packet capture and protocol analysis
+|- nmap/                <- Port scanning, service detection
+|- nikto/               <- Web server scanning
+|- gobuster/            <- Directory and DNS brute-forcing
+|- ffuf/                <- Web fuzzing
+|- tcpdump/             <- Command-line packet capture
+|- metasploit/          <- Exploitation and post-exploitation
+|- burpsuite/           <- Web application testing
+|- hydra/               <- Credential brute-forcing
+|- john_the_ripper/     <- Password cracking
+|- aircrack/            <- Wireless security
+|- dns_tools/           <- DNS enumeration and reconnaissance
+|- web_security/        <- OWASP, web vulnerabilities, authentication
+|- log_analysis/        <- auth.log, nginx, apache, IDS logs
+|- incident_response/   <- IR playbooks and triage guides
+|- vulnerabilities/     <- Specific CVEs and vulnerability intel
+|- security_basics/     <- Foundational cybersecurity concepts
+```
+
+### Supported file types
+
+| Extension | How it is loaded |
+|---|---|
+| `.pdf` | Text extracted with PyMuPDF (falls back to pdfminer.six) |
+| `.md` | Read directly |
+| `.txt` | Read directly |
+
+### How to add documents
+
+1. Place the PDF (or `.md` / `.txt`) into the matching subfolder:
+   ```
+   knowledge/nmap/nmap_cheat_sheet.pdf
+   knowledge/wireshark/protocol_analysis_guide.pdf
+   knowledge/linux/linux_hardening.md
+   ```
+2. Rebuild the index:
+   ```bash
+   python3 freddy.py learn
+   ```
+3. Verify the document was indexed:
+   ```bash
+   python3 freddy.py knowledge-search "nmap scan types"
+   ```
+
+Freddy assigns the **category** automatically from the subfolder name. A file placed in `knowledge/nmap/` gets `category: nmap`. This category is stored with each chunk and surfaced in knowledge-search results and AI analysis context.
+
+### Install PDF dependencies
+
+If not already installed:
+
+```bash
+pip install PyMuPDF pdfminer.six
+```
+
+Or reinstall all requirements:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## How to Rebuild the Knowledge Index
 
 Whenever you change files in `knowledge/` or `vulnerabilities/`, rebuild the vector index:

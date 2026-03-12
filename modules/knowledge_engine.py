@@ -13,6 +13,10 @@ from chromadb.api.models.Collection import Collection
 from sentence_transformers import SentenceTransformer
 
 from config import BASE_DIR, VECTOR_DB_DIR, EMBEDDING_MODEL, KNOWLEDGE_DIR, VULNERABILITY_DIR
+from modules.file_loader import FileLoader
+
+
+SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf"}
 
 
 @dataclass(slots=True)
@@ -53,10 +57,27 @@ class KnowledgeEngine:
         )
 
     def iter_source_files(self) -> Iterable[tuple[Path, str]]:
-        for category, base_dir in (("knowledge", KNOWLEDGE_DIR), ("vulnerability", VULNERABILITY_DIR)):
-            if not base_dir.exists():
+        """Yield (file_path, category) for every supported file in knowledge and
+        vulnerability trees.  Category is derived from the immediate subfolder
+        name so that knowledge/nmap/guide.pdf → category 'nmap'."""
+        for root_dir, default_category in (
+            (KNOWLEDGE_DIR, "knowledge"),
+            (VULNERABILITY_DIR, "vulnerability"),
+        ):
+            if not root_dir.exists():
                 continue
-            for file_path in sorted(base_dir.glob("*.md")):
+            for file_path in sorted(root_dir.rglob("*")):
+                if file_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+                    continue
+                if not file_path.is_file():
+                    continue
+                # Derive category from the immediate subfolder of root_dir
+                try:
+                    relative = file_path.relative_to(root_dir)
+                    parts = relative.parts
+                    category = parts[0] if len(parts) > 1 else default_category
+                except ValueError:
+                    category = default_category
                 yield file_path, category
 
     def index_all(self) -> dict[str, int]:
@@ -65,11 +86,19 @@ class KnowledgeEngine:
         embeddings: list[list[float]] = []
         metadatas: list[dict[str, str]] = []
         indexed_files = 0
+        skipped_files = 0
 
         for file_path, category in self.iter_source_files():
-            text = file_path.read_text(encoding="utf-8")
+            text = FileLoader.load_document(file_path)
+            if not text or text.startswith("[!"):
+                skipped_files += 1
+                continue
             chunks = self.chunk_text(text)
+            if not chunks:
+                skipped_files += 1
+                continue
             indexed_files += 1
+            source_rel = str(file_path.relative_to(BASE_DIR)).replace("\\", "/")
             for index, chunk in enumerate(chunks):
                 chunk_id = self._chunk_id(file_path, index)
                 ids.append(chunk_id)
@@ -77,7 +106,8 @@ class KnowledgeEngine:
                 embeddings.append(self.embedder.encode(chunk).tolist())
                 metadatas.append(
                     {
-                        "source": str(file_path.relative_to(BASE_DIR)).replace('\\', '/'),
+                        "source": source_rel,
+                        "source_file": file_path.name,
                         "category": category,
                         "title": self._extract_title(text, file_path.stem),
                         "slug": file_path.stem,
@@ -92,7 +122,7 @@ class KnowledgeEngine:
                 embeddings=embeddings,
                 metadatas=metadatas,
             )
-        return {"files": indexed_files, "chunks": len(ids)}
+        return {"files": indexed_files, "chunks": len(ids), "skipped": skipped_files}
 
     def query(self, query: str, top_k: int = 5) -> list[KnowledgeMatch]:
         if not query.strip() or self.collection.count() == 0:
