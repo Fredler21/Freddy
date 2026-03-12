@@ -64,8 +64,6 @@ nano .env  # Add your API key
 python3 freddy.py analyze samples/sample_auth.log
 ```
 
----
-
 ## 📋 System Requirements
 
 ### ✅ OS
@@ -184,8 +182,6 @@ from single external IP over 5-minute period.
 CONFIRMED FINDINGS
 - Brute force attack underway
 - 1,240+ failed password attempts
-- Source: 203.0.113.50
-- Weak SSH password policy
 
 SEVERITY LEVEL
 🔴 HIGH - Active attack attempts
@@ -195,7 +191,6 @@ SSH allows weak password authentication and lacks rate limiting.
 
 REMEDIATION STEPS
 1. Install fail2ban: sudo apt install fail2ban
-2. Edit /etc/ssh/sshd_config: PasswordAuthentication no
 3. Use SSH keys only
 4. Reload SSH: sudo systemctl restart ssh
 
@@ -236,8 +231,6 @@ Checks:
 - ✅ System users
 - ✅ Iptables rules
 - ✅ System info
-
----
 
 ### Example 5: Check TLS Certificate
 ```bash
