@@ -34,6 +34,13 @@ python3 freddy.py --help
 ./freddy --help
 ```
 
+Run Freddy without a command to open the interactive welcome intro.
+It will show capabilities and ask: "Which one do you want to start today?"
+
+```bash
+python3 freddy.py
+```
+
 The launcher scripts included in the project root are:
 
 - `freddy.bat` for Windows terminals

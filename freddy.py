@@ -57,7 +57,62 @@ def _maybe_print_startup_banner(no_banner: bool) -> None:
     _STARTUP_SHOWN = True
 
 
-@app.callback()
+def _run_welcome_flow(no_banner: bool) -> None:
+    """Show introduction and ask what the user wants to start."""
+    _maybe_print_startup_banner(no_banner)
+
+    formatter.print_section(
+        "Welcome",
+        "Freddy is your AI cybersecurity terminal copilot.\n"
+        "I can guide you step-by-step, run checks safely, and explain results in plain language.",
+        style="cyan",
+    )
+
+    formatter.print_section(
+        "What Freddy Can Do",
+        "- Guided mode for scan, recon, audit, and checks\n"
+        "- Local knowledge answers from your indexed cybersecurity library\n"
+        "- Analysis of logs, tool output, and security artifacts\n"
+        "- History and memory stats for recurring issues",
+        style="blue",
+    )
+
+    console.print("[bold]Which one do you want to start today?[/bold]")
+    console.print("1) Guided walkthrough (recommended)")
+    console.print("2) Quick network scan")
+    console.print("3) Full recon")
+    console.print("4) Ask a knowledge question")
+    console.print("5) Local security audit")
+    console.print("0) Exit")
+
+    choice = typer.prompt("Enter choice", default="1").strip()
+
+    if choice == "0":
+        formatter.print_info("No problem. Run 'python3 freddy.py' anytime to start again.")
+        return
+    if choice == "1":
+        walkthrough()
+        return
+    if choice == "2":
+        target = typer.prompt("Target host/IP/subnet (example: 192.168.1.0/24)").strip()
+        scan(target, yes=True)
+        return
+    if choice == "3":
+        target = typer.prompt("Recon target host/IP/domain").strip()
+        recon(target, yes=True)
+        return
+    if choice == "4":
+        query = typer.prompt("Enter your cybersecurity question").strip()
+        knowledge_search(query, yes=True)
+        return
+    if choice == "5":
+        audit(yes=True)
+        return
+
+    formatter.print_warning("Invalid choice. Run 'python3 freddy.py' and choose 0-5.")
+
+
+@app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
     no_banner: bool = typer.Option(False, "--no-banner", help="Disable Freddy startup banner"),
@@ -67,6 +122,8 @@ def main(
         return
     if ctx.invoked_subcommand:
         _maybe_print_startup_banner(no_banner)
+        return
+    _run_welcome_flow(no_banner)
 
 
 def _clean_knowledge_line(line: str) -> str:
