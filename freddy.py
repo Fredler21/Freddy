@@ -6,7 +6,7 @@ from __future__ import annotations
 import typer
 from rich.console import Console
 
-from ai_engine import answer_question, load_system_prompt
+from ai_engine import load_system_prompt
 from commands.analyze import run_file_analysis
 from commands.audit import run_audit
 from commands.dnscheck import run_dnscheck
@@ -25,7 +25,7 @@ from modules.knowledge_engine import KnowledgeEngine
 from modules.memory_engine import MemoryEngine
 from modules.output_formatter import OutputFormatter
 from modules.platform_support import current_platform, is_linux_like
-from modules.retrieval_formatter import format_history, format_knowledge_context
+from modules.retrieval_formatter import format_history
 
 app = typer.Typer(
     name="freddy",
@@ -35,6 +35,45 @@ app = typer.Typer(
 )
 console = Console()
 formatter = OutputFormatter()
+MIN_KNOWLEDGE_SCORE = 0.12
+
+
+def _build_local_knowledge_answer(query: str, matches: list) -> str:
+    """Build a direct local answer from top retrieved knowledge chunks.
+
+    This avoids external API usage and keeps responses grounded in indexed docs.
+    """
+    top = matches[:3]
+    snippets: list[str] = []
+    sources: list[str] = []
+
+    for match in top:
+        sources.append(match.source)
+        for line in match.document.splitlines():
+            cleaned = line.strip()
+            if not cleaned:
+                continue
+            if cleaned.startswith("#"):
+                continue
+            snippets.append(cleaned)
+            if len(snippets) >= 8:
+                break
+        if len(snippets) >= 8:
+            break
+
+    if not snippets:
+        return (
+            f"I found knowledge sources relevant to '{query}', but could not extract enough "
+            "clear text to synthesize an answer. Try a more specific question."
+        )
+
+    unique_sources = ", ".join(dict.fromkeys(sources))
+    bullet_lines = "\n".join(f"- {line}" for line in snippets[:8])
+    return (
+        f"Based on Freddy's local knowledge, here's the best direct answer for: '{query}'\n\n"
+        f"{bullet_lines}\n\n"
+        f"Knowledge used: {unique_sources}"
+    )
 
 
 def print_result(result: AnalysisResult) -> None:
@@ -143,19 +182,18 @@ def learn() -> None:
 
 @app.command("knowledge-search")
 def knowledge_search(query: str = typer.Argument(..., help="Cybersecurity question or topic")) -> None:
-    """Ask Freddy a direct question using the local cybersecurity knowledge base."""
+    """Ask Freddy a direct question using only local indexed knowledge (no API call)."""
     validate_paths()
     engine = KnowledgeEngine()
     matches = engine.query(query)
-    if not matches:
+    if not matches or matches[0].score < MIN_KNOWLEDGE_SCORE:
         formatter.print_warning(
-            "No indexed knowledge found. Run Freddy's 'learn' command first or add relevant knowledge files."
+            "Freddy could not find enough relevant local knowledge to answer this question. "
+            "Try rewording your question or add/index more knowledge files with 'learn'."
         )
         return
 
-    # Provide a direct answer first, grounded in retrieved context.
-    knowledge_context = format_knowledge_context(matches)
-    answer = answer_question(question=query, knowledge_context=knowledge_context)
+    answer = _build_local_knowledge_answer(query, matches)
     formatter.print_section("Freddy Answer", answer, style="green")
 
     # Always show source transparency so users can inspect provenance.
