@@ -49,6 +49,10 @@ class ToolRunner:
             r"{ChocolateyInstall}\bin\curl.exe",
             r"{USERPROFILE}\scoop\shims\curl.exe",
         ],
+        "wget": [
+            r"{ChocolateyInstall}\bin\wget.exe",
+            r"{USERPROFILE}\scoop\shims\wget.exe",
+        ],
         "whatweb": [
             r"{ChocolateyInstall}\bin\whatweb.bat",
             r"{ChocolateyInstall}\bin\whatweb.exe",
@@ -59,9 +63,28 @@ class ToolRunner:
             r"{ChocolateyInstall}\bin\nikto.cmd",
             r"{USERPROFILE}\scoop\shims\nikto.cmd",
         ],
+        "gobuster": [
+            r"{ChocolateyInstall}\bin\gobuster.exe",
+            r"{USERPROFILE}\scoop\shims\gobuster.exe",
+            r"{USERPROFILE}\go\bin\gobuster.exe",
+        ],
+        "ffuf": [
+            r"{ChocolateyInstall}\bin\ffuf.exe",
+            r"{USERPROFILE}\scoop\shims\ffuf.exe",
+            r"{USERPROFILE}\go\bin\ffuf.exe",
+        ],
         "nslookup": [
             r"{SystemRoot}\System32\nslookup.exe",
         ],
+        "tracert": [
+            r"{SystemRoot}\System32\tracert.exe",
+        ],
+    }
+
+    # Tools that are Linux-only and should not be attempted on Windows
+    LINUX_ONLY_TOOLS = {
+        "ss", "ufw", "iptables", "nft", "ip", "journalctl",
+        "systemctl", "fail2ban-client", "tcpdump", "tshark",
     }
 
     @staticmethod

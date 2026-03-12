@@ -6,7 +6,7 @@ import os
 import platform
 
 
-LINUX_ONLY_COMMANDS = {"ports", "audit"}
+LINUX_ONLY_COMMANDS = {"ports", "audit", "host-audit"}
 
 
 def current_platform() -> str:

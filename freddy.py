@@ -10,8 +10,11 @@ from ai_engine import load_system_prompt
 from commands.analyze import run_file_analysis
 from commands.audit import run_audit
 from commands.dnscheck import run_dnscheck
+from commands.host_audit import run_host_audit
+from commands.investigate import run_investigate
 from commands.logs import run_logs
 from commands.ports import run_ports
+from commands.recon import run_recon
 from commands.scan import run_scan
 from commands.tlscheck import run_tlscheck
 from commands.webcheck import run_webcheck
@@ -179,6 +182,33 @@ def history(
             f"Severity: {record.severity}\nSummary: {record.findings_summary}\nRemediation: {record.remediation_summary}",
             style="green",
         )
+
+
+@app.command()
+def recon(target: str = typer.Argument(..., help="Target host, IP, or URL to recon")) -> None:
+    """Full external reconnaissance: nmap, whatweb, nikto, TLS, DNS, and WHOIS correlated."""
+    validate_config()
+    prompt = load_system_prompt()
+    console.print(f"\n[bold cyan]Running full recon against {target}...[/bold cyan]\n")
+    print_result(run_recon(target, prompt))
+
+
+@app.command("host-audit")
+def host_audit() -> None:
+    """Comprehensive local host security audit: firewall, services, SSH, containers, and more."""
+    validate_config()
+    prompt = load_system_prompt()
+    console.print("\n[bold cyan]Running comprehensive host audit...[/bold cyan]\n")
+    print_result(run_host_audit(prompt))
+
+
+@app.command()
+def investigate(file: str = typer.Argument(..., help="Path to artifact file (log, config, or tool output)")) -> None:
+    """Deep security investigation of a single artifact file with indicator extraction."""
+    validate_config()
+    prompt = load_system_prompt()
+    console.print(f"\n[bold cyan]Investigating {file}...[/bold cyan]\n")
+    print_result(run_investigate(file, prompt))
 
 
 @app.command("memory-stats")
