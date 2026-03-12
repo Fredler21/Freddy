@@ -286,6 +286,9 @@ python freddy.py memory-stats
 
 ```bash
 python3 freddy.py scan <target>
+python3 freddy.py recon <target>
+python3 freddy.py host-audit
+python3 freddy.py investigate <file>
 python3 freddy.py ports
 python3 freddy.py analyze <file>
 python3 freddy.py logs <file>
@@ -335,6 +338,52 @@ python3 freddy.py ports
 2. Use clear headings and concise defensive guidance
 3. Rebuild the index with `python3 freddy.py learn`
 4. Use `python3 freddy.py knowledge-search "<topic>"` to validate retrieval quality
+
+## Downloading the Cybersecurity Knowledge Library
+
+Freddy ships with an automated downloader that fetches real PDF documents from
+official sources (NIST CSRC, IETF RFC Editor, Wireshark project) into the
+correct knowledge subfolders.
+
+### Run the downloader
+
+```bash
+python3 download_freddy_knowledge.py
+```
+
+The script will:
+
+- Create any missing knowledge subfolders automatically
+- Skip files that are already present and valid
+- Show per-file download progress
+- Verify each file is a valid PDF before saving
+- Retry up to 3 times on network errors
+- Print a summary of downloaded / skipped / failed files
+
+### After downloading, build the index
+
+```bash
+python3 freddy.py learn
+```
+
+### What gets downloaded
+
+| Folder | Document |
+|---|---|
+| `nmap/` | NIST SP 800-115 — Security Testing & Assessment |
+| `wireshark/` | Official Wireshark User Guide |
+| `linux/` | NIST SP 800-123 — Guide to General Server Security |
+| `ubuntu/` | NIST SP 800-123 — Guide to General Server Security |
+| `networking/` | RFC 793 (TCP), RFC 1035 (DNS), RFC 2616 (HTTP/1.1), NIST SP 800-41r1 (Firewalls) |
+| `web_security/` | NIST SP 800-44v2 — Securing Public Web Servers |
+| `log_analysis/` | NIST SP 800-92 — Computer Security Log Management |
+| `incident_response/` | NIST SP 800-61r2 (Incident Handling), NIST SP 800-86 (Forensics) |
+| `threat_detection/` | NIST SP 800-94 (IDPS), SP 800-83r1 (Malware), SP 800-150 (Threat Intel) |
+| `hardening/` | NIST SP 800-128 (Configuration Management), SP 800-77r1 (IPsec VPN) |
+| `vulnerabilities/` | NIST SP 800-40r4 (Patch Management), SP 800-30r1 (Risk Assessment) |
+
+All sources are freely licensed government or open-source documentation.
+If a URL returns a 404, update the `CATALOG` list at the top of `download_freddy_knowledge.py`.
 
 ## Adding Cybersecurity Knowledge Documents
 

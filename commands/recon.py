@@ -64,15 +64,21 @@ def run_recon(target: str, system_prompt: str) -> AnalysisResult:
         tls_port = parts[1] if len(parts) > 1 else "443"
     if ToolRunner.is_installed("openssl"):
         formatter.print_info(f"[Recon] TLS check → {tls_host}:{tls_port}")
-        cmd = ["openssl", "s_client", "-connect", f"{tls_host}:{tls_port}", "-brief"]
-        stdout, stderr, _ = ToolRunner.run(cmd, input_data="Q\n", timeout=20)
+        # Use echo Q | openssl … so the client sends a close_notify and exits cleanly
+        connect_str = f"{tls_host}:{tls_port}"
+        stdout, stderr, _ = ToolRunner.run_shell(
+            f"echo Q | openssl s_client -connect {connect_str} -brief 2>&1",
+            timeout=20,
+        )
         out = (stdout or stderr or "").strip()
         if out:
             sections.append(f"=== TLS / CERTIFICATE ({tls_host}:{tls_port}) ===\n{out}")
         # Protocol downgrade checks
         for proto_flag, label in [("-tls1", "TLS 1.0"), ("-tls1_1", "TLS 1.1")]:
-            cmd_probe = ["openssl", "s_client", "-connect", f"{tls_host}:{tls_port}", proto_flag]
-            stdout2, _, rc2 = ToolRunner.run(cmd_probe, input_data="Q\n", timeout=10)
+            stdout2, _, rc2 = ToolRunner.run_shell(
+                f"echo Q | openssl s_client -connect {connect_str} {proto_flag} 2>&1",
+                timeout=10,
+            )
             status = "ACCEPTED" if rc2 == 0 else "REJECTED"
             sections.append(f"=== TLS DOWNGRADE PROBE ({label}) ===\nResult: {status}\n{(stdout2 or '').strip()[:400]}")
     else:
