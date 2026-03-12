@@ -45,6 +45,28 @@ python3 freddy.py --help
 
 ## What's New in This Update
 
+### Guided Mode for Tool Commands
+- Freddy now asks a confirmation question before running tool-heavy actions.
+- Example prompt: `Do you want me to scan this target: 192.168.1.0/24? [Y/n]`
+- This applies to: `scan`, `recon`, `ports`, `audit`, `host-audit`, `analyze`, `investigate`, `logs`, `webcheck`, `tlscheck`, `dnscheck`, and `whois`.
+- Use `--yes` or `-y` to skip prompts for scripting/automation.
+
+### Guided Mode Examples
+
+```bash
+# Interactive mode (Freddy asks first)
+python3 freddy.py scan 192.168.1.0/24
+# Prompt: Do you want me to scan this target: 192.168.1.0/24? [Y/n]
+
+python3 freddy.py recon example.com
+# Prompt: Do you want me to run full reconnaissance against: example.com? [Y/n]
+
+# Automation mode (skip prompts)
+python3 freddy.py scan 192.168.1.0/24 --yes
+python3 freddy.py recon example.com --yes
+python3 freddy.py audit --yes
+```
+
 ### 2,280-Question Bank (164% Expansion)
 - **864 → 2,280 questions** with semantic variations
 - **Platform/tool contexts**: Ubuntu, Debian, OpenSSL, Docker, iptables, JWT, bcrypt, etc.
@@ -178,16 +200,26 @@ python3 freddy.py memory-stats
 
 # Scan a target
 python3 freddy.py scan <target>
+python3 freddy.py scan <target> --yes
 
 # Analyze a log file
 python3 freddy.py analyze <logfile>
+python3 freddy.py analyze <logfile> --yes
 
 # Check open ports
 python3 freddy.py ports
+python3 freddy.py ports --yes
 
 # Run full host audit
 python3 freddy.py audit
+python3 freddy.py audit --yes
 ```
+
+### Prompt Behavior Quick Notes
+
+- Press `Enter` for default `Yes` (`[Y/n]` prompt).
+- Type `n` to cancel without running the command.
+- Add `--yes` to bypass confirmations in batch jobs.
 
 ### Question Bank Tools
 
