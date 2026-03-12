@@ -201,6 +201,164 @@ CATALOG: list[Entry] = [
         "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-30r1.pdf",
         "NIST SP 800-30r1 — Guide for Conducting Risk Assessments",
     ),
+    Entry(
+        "vulnerabilities",
+        "nist_sp800-53r5_security_controls.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf",
+        "NIST SP 800-53r5 — Security and Privacy Controls for Information Systems",
+    ),
+    Entry(
+        "vulnerabilities",
+        "nist_sp800-171r2_protecting_cui.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171r2.pdf",
+        "NIST SP 800-171r2 — Protecting Controlled Unclassified Information",
+    ),
+
+    # ── Nmap (additional scanning and enumeration) ────────────────────────
+    Entry(
+        "nmap",
+        "nist_sp800-53r5_security_controls.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf",
+        "NIST SP 800-53r5 — Security Controls (port/service control catalog)",
+    ),
+    Entry(
+        "nmap",
+        "ietf_rfc6335_port_assignments.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc6335.txt.pdf",
+        "RFC 6335 — Internet Assigned Numbers Authority (IANA) Port Assignments",
+    ),
+
+    # ── Wireshark (protocol references) ───────────────────────────────────
+    Entry(
+        "wireshark",
+        "ietf_rfc791_ip_protocol.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc791.txt.pdf",
+        "RFC 791 — Internet Protocol (IP) — core protocol for packet analysis",
+    ),
+    Entry(
+        "wireshark",
+        "ietf_rfc768_udp.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc768.txt.pdf",
+        "RFC 768 — User Datagram Protocol (UDP) Specification",
+    ),
+
+    # ── Linux (container and architecture security) ───────────────────────
+    Entry(
+        "linux",
+        "nist_sp800-190_container_security.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf",
+        "NIST SP 800-190 — Application Container Security Guide (Docker/Podman)",
+    ),
+    Entry(
+        "linux",
+        "nist_sp800-207_zero_trust.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-207.pdf",
+        "NIST SP 800-207 — Zero Trust Architecture",
+    ),
+
+    # ── Ubuntu (container and OS hardening) ───────────────────────────────
+    Entry(
+        "ubuntu",
+        "nist_sp800-190_container_security.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf",
+        "NIST SP 800-190 — Application Container Security Guide (Ubuntu-applicable)",
+    ),
+    Entry(
+        "ubuntu",
+        "nist_sp800-70r4_checklist_program.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-70r4.pdf",
+        "NIST SP 800-70r4 — National Checklist Program for IT Products (OS hardening)",
+    ),
+
+    # ── Networking (routing and additional protocols) ─────────────────────
+    Entry(
+        "networking",
+        "ietf_rfc791_ip_protocol.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc791.txt.pdf",
+        "RFC 791 — Internet Protocol (IP) Specification",
+    ),
+    Entry(
+        "networking",
+        "ietf_rfc2328_ospf.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc2328.txt.pdf",
+        "RFC 2328 — OSPFv2 (Open Shortest Path First Routing Protocol)",
+    ),
+    Entry(
+        "networking",
+        "ietf_rfc4271_bgp4.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc4271.txt.pdf",
+        "RFC 4271 — BGP-4 (Border Gateway Protocol)",
+    ),
+
+    # ── Web Security (OWASP Top 10 + web services) ────────────────────────
+    Entry(
+        "web_security",
+        "owasp_top10_2021.pdf",
+        "https://raw.githubusercontent.com/OWASP/Top10/master/2021/docs/OWASP_Top_10-2021.pdf",
+        "OWASP Top 10 2021 — Web Application Security Risks",
+    ),
+    Entry(
+        "web_security",
+        "nist_sp800-95_secure_web_services.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-95.pdf",
+        "NIST SP 800-95 — Guide to Secure Web Services",
+    ),
+
+    # ── Log Analysis (syslog protocol) ────────────────────────────────────
+    Entry(
+        "log_analysis",
+        "ietf_rfc5424_syslog_protocol.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc5424.txt.pdf",
+        "RFC 5424 — The Syslog Protocol",
+    ),
+    Entry(
+        "log_analysis",
+        "ietf_rfc3164_syslog_messages.pdf",
+        "https://www.rfc-editor.org/rfc/pdfrfc/rfc3164.txt.pdf",
+        "RFC 3164 — The BSD Syslog Protocol (legacy format)",
+    ),
+
+    # ── Threat Detection (continuous monitoring + threat intelligence) ─────
+    Entry(
+        "threat_detection",
+        "nist_sp800-137_continuous_monitoring.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf",
+        "NIST SP 800-137 — Information Security Continuous Monitoring (ISCM)",
+    ),
+
+    # ── Hardening (checklist program + TLS) ───────────────────────────────
+    Entry(
+        "hardening",
+        "nist_sp800-70r4_checklist_program.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-70r4.pdf",
+        "NIST SP 800-70r4 — National Checklist Program for IT Products",
+    ),
+    Entry(
+        "hardening",
+        "nist_sp800-52r2_tls_guidelines.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-52r2.pdf",
+        "NIST SP 800-52r2 — Guidelines for the Selection and Use of TLS",
+    ),
+
+    # ── John the Ripper (password security and cracking defense) ──────────
+    Entry(
+        "john_the_ripper",
+        "nist_sp800-63b_authentication.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63b.pdf",
+        "NIST SP 800-63B — Digital Identity Guidelines: Authentication and Lifecycle Management",
+    ),
+    Entry(
+        "john_the_ripper",
+        "nist_sp800-132_password_key_derivation.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf",
+        "NIST SP 800-132 — Recommendation for Password-Based Key Derivation",
+    ),
+    Entry(
+        "john_the_ripper",
+        "nist_sp800-63-3_digital_identity.pdf",
+        "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf",
+        "NIST SP 800-63-3 — Digital Identity Guidelines (passwords, MFA, credentials)",
+    ),
 ]
 
 # Folders to ensure exist (including new ones not yet in the repo)

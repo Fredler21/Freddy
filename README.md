@@ -370,17 +370,18 @@ python3 freddy.py learn
 
 | Folder | Document |
 |---|---|
-| `nmap/` | NIST SP 800-115 — Security Testing & Assessment |
-| `wireshark/` | Official Wireshark User Guide |
-| `linux/` | NIST SP 800-123 — Guide to General Server Security |
-| `ubuntu/` | NIST SP 800-123 — Guide to General Server Security |
-| `networking/` | RFC 793 (TCP), RFC 1035 (DNS), RFC 2616 (HTTP/1.1), NIST SP 800-41r1 (Firewalls) |
-| `web_security/` | NIST SP 800-44v2 — Securing Public Web Servers |
-| `log_analysis/` | NIST SP 800-92 — Computer Security Log Management |
-| `incident_response/` | NIST SP 800-61r2 (Incident Handling), NIST SP 800-86 (Forensics) |
-| `threat_detection/` | NIST SP 800-94 (IDPS), SP 800-83r1 (Malware), SP 800-150 (Threat Intel) |
-| `hardening/` | NIST SP 800-128 (Configuration Management), SP 800-77r1 (IPsec VPN) |
-| `vulnerabilities/` | NIST SP 800-40r4 (Patch Management), SP 800-30r1 (Risk Assessment) |
+| `nmap/` | NIST SP 800-115 (security testing), NIST SP 800-53r5 (controls), RFC 6335 (port assignments) |
+| `wireshark/` | Official Wireshark User Guide, RFC 791 (IP), RFC 768 (UDP) |
+| `linux/` | NIST SP 800-123 (server security), SP 800-190 (containers), SP 800-207 (zero trust) |
+| `ubuntu/` | NIST SP 800-123, SP 800-190 (containers), SP 800-70r4 (OS checklists) |
+| `networking/` | RFC 793 (TCP), RFC 1035 (DNS), RFC 2616 (HTTP/1.1), RFC 791 (IP), RFC 2328 (OSPF), RFC 4271 (BGP), NIST SP 800-41r1 (firewalls) |
+| `web_security/` | OWASP Top 10 2021, NIST SP 800-44v2 (web servers), SP 800-95 (web services) |
+| `log_analysis/` | NIST SP 800-92 (log management), RFC 5424 (syslog), RFC 3164 (BSD syslog) |
+| `incident_response/` | NIST SP 800-61r2 (incident handling), SP 800-86 (forensics) |
+| `threat_detection/` | NIST SP 800-94 (IDPS), SP 800-83r1 (malware), SP 800-150 (threat intel), SP 800-137 (continuous monitoring) |
+| `hardening/` | NIST SP 800-128 (config management), SP 800-77r1 (IPsec VPN), SP 800-70r4 (checklists), SP 800-52r2 (TLS) |
+| `vulnerabilities/` | NIST SP 800-40r4 (patch mgmt), SP 800-30r1 (risk), SP 800-53r5 (controls), SP 800-171r2 (CUI) |
+| `john_the_ripper/` | NIST SP 800-63B (authentication), SP 800-132 (password key derivation), SP 800-63-3 (digital identity) |
 
 All sources are freely licensed government or open-source documentation.
 If a URL returns a 404, update the `CATALOG` list at the top of `download_freddy_knowledge.py`.
