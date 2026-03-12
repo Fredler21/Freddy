@@ -1,12 +1,12 @@
 """Web check command — analyzes web server security."""
 
-import shlex
-from modules.tool_runner import ToolRunner
+from modules.intelligence_pipeline import AnalysisResult, run_intelligence_analysis
 from modules.output_formatter import OutputFormatter
-from ai_engine import analyze
+from modules.platform_support import install_hint
+from modules.tool_runner import ToolRunner
 
 
-def run_webcheck(target: str, system_prompt: str) -> str:
+def run_webcheck(target: str, system_prompt: str) -> AnalysisResult:
     """
     Run web security checks on a target using available tools.
     
@@ -20,12 +20,10 @@ def run_webcheck(target: str, system_prompt: str) -> str:
     formatter = OutputFormatter()
     web_data = []
 
-    safe_target = shlex.quote(target)
-
     # 1. whatweb
     if ToolRunner.is_installed("whatweb"):
         formatter.print_info("Running whatweb...")
-        stdout, stderr, _ = ToolRunner.run(["whatweb", safe_target], timeout=60)
+        stdout, stderr, _ = ToolRunner.run(ToolRunner.build_command("whatweb", target), timeout=60)
         if stdout.strip():
             web_data.append("=== WHATWEB OUTPUT ===\n" + stdout)
     else:
@@ -35,7 +33,7 @@ def run_webcheck(target: str, system_prompt: str) -> str:
     if ToolRunner.is_installed("nikto"):
         formatter.print_info("Running nikto (this may take a while)...")
         stdout, stderr, _ = ToolRunner.run(
-            ["nikto", "-h", safe_target], timeout=120
+            ToolRunner.build_command("nikto", "-h", target), timeout=120
         )
         if stdout.strip():
             web_data.append("=== NIKTO OUTPUT ===\n" + stdout)
@@ -46,7 +44,7 @@ def run_webcheck(target: str, system_prompt: str) -> str:
     if ToolRunner.is_installed("curl"):
         formatter.print_info("Checking HTTP headers...")
         stdout, stderr, _ = ToolRunner.run(
-            ["curl", "-I", "-s", safe_target],
+            ToolRunner.build_command("curl", "-I", "-s", target),
             timeout=30,
         )
         if stdout.strip():
@@ -55,11 +53,20 @@ def run_webcheck(target: str, system_prompt: str) -> str:
     combined_output = "\n".join(web_data)
 
     if not combined_output.strip():
-        return (
-            "[!] Web check produced no output.\n"
-            "    Install security tools: nikto, whatweb, curl\n"
-            "    sudo apt install nikto whatweb curl"
+        return AnalysisResult(
+            report=(
+                "[!] Web check produced no usable output. "
+                f"Tool hints: {install_hint('whatweb')} {install_hint('nikto')} {install_hint('curl')}"
+            ),
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Send to AI for analysis
-    return analyze(combined_output, system_prompt)
+    return run_intelligence_analysis(
+        raw_evidence=combined_output,
+        system_prompt=system_prompt,
+        command_name="webcheck",
+        target=target,
+        task_instruction="Analyze this web security evidence with emphasis on exposed admin paths, HTTP hardening gaps, and web attack surface reduction.",
+    )

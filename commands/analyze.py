@@ -1,11 +1,10 @@
 """Analyze command — reads any file and sends it for AI analysis."""
 
 from modules.file_loader import FileLoader
-from modules.output_formatter import OutputFormatter
-from ai_engine import analyze
+from modules.intelligence_pipeline import AnalysisResult, run_intelligence_analysis
 
 
-def run_file_analysis(file_path: str, system_prompt: str) -> str:
+def run_file_analysis(file_path: str, system_prompt: str) -> AnalysisResult:
     """
     Read a file and return AI analysis.
     
@@ -16,27 +15,36 @@ def run_file_analysis(file_path: str, system_prompt: str) -> str:
     Returns:
         AI analysis of the file contents
     """
-    formatter = OutputFormatter()
-
-    # Load the file
     content = FileLoader.load(file_path)
 
     if content is None:
-        return f"[!] File not found: {file_path}"
+        return AnalysisResult(
+            report=f"[!] File not found: {file_path}",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
+        )
 
     if content.startswith("[!]"):  # Error message from FileLoader
-        return content
+        return AnalysisResult(
+            report=content,
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
+        )
 
     if not content.strip():
-        return f"[!] File is empty: {file_path}"
+        return AnalysisResult(
+            report=f"[!] File is empty: {file_path}",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
+        )
 
-    # Send to AI for analysis
-    return analyze(content, system_prompt)
-
-        return f"[!] Could not read file: {e}"
-
-    if not lines:
-        return f"[!] File is empty: {file_path}"
-
-    content = "".join(lines)
-    return analyze(content, prompt)
+    return run_intelligence_analysis(
+        raw_evidence=content,
+        system_prompt=system_prompt,
+        command_name="analyze",
+        target=file_path,
+        task_instruction="Analyze this security-relevant file, classify findings, and provide precise remediation and hardening guidance.",
+    )

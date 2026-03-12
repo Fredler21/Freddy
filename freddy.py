@@ -1,42 +1,29 @@
 #!/usr/bin/env python3
-"""
-Freddy — AI Cybersecurity Terminal Copilot for Linux.
+"""Freddy CLI entrypoint."""
 
-A powerful terminal assistant for security professionals that analyzes
-security tool outputs, logs, and system configurations to detect vulnerabilities,
-misconfigurations, and attack indicators.
-
-Usage:
-    python3 freddy.py scan <target>
-    python3 freddy.py ports
-    python3 freddy.py analyze <file>
-    python3 freddy.py audit
-    python3 freddy.py webcheck <target>
-    python3 freddy.py tlscheck <target>
-    python3 freddy.py dnscheck <domain>
-    python3 freddy.py whois <domain>
-    python3 freddy.py logs <file>
-"""
+from __future__ import annotations
 
 import typer
 from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
 
-from config import validate_config, get_config
 from ai_engine import load_system_prompt
-from modules.output_formatter import OutputFormatter
-from commands.scan import run_scan
-from commands.ports import run_ports
 from commands.analyze import run_file_analysis
 from commands.audit import run_audit
-from commands.webcheck import run_webcheck
-from commands.tlscheck import run_tlscheck
 from commands.dnscheck import run_dnscheck
-from commands.whois_lookup import run_whois
 from commands.logs import run_logs
+from commands.ports import run_ports
+from commands.scan import run_scan
+from commands.tlscheck import run_tlscheck
+from commands.webcheck import run_webcheck
+from commands.whois_lookup import run_whois
+from config import get_config, validate_config, validate_paths
+from modules.intelligence_pipeline import AnalysisResult
+from modules.knowledge_engine import KnowledgeEngine
+from modules.memory_engine import MemoryEngine
+from modules.output_formatter import OutputFormatter
+from modules.platform_support import current_platform, is_linux_like
+from modules.retrieval_formatter import format_history
 
-# --- Setup ---
 app = typer.Typer(
     name="freddy",
     help="Freddy — AI Cybersecurity Terminal Copilot",
@@ -47,180 +34,179 @@ console = Console()
 formatter = OutputFormatter()
 
 
-def print_result(analysis: str):
-    """Print the AI analysis with rich formatting."""
-    formatter.print_analysis(analysis)
-
-
-# --- CLI Commands ---
+def print_result(result: AnalysisResult) -> None:
+    """Render an analysis result with Freddy formatting."""
+    formatter.print_analysis(
+        result.report,
+        knowledge_applied=result.knowledge_used,
+        rule_finding_count=len(result.rule_findings),
+    )
 
 
 @app.command()
-def scan(target: str = typer.Argument(..., help="Target host or IP address")):
-    """Scan a target with Nmap and analyze open ports/services."""
+def scan(target: str = typer.Argument(..., help="Target host or IP address")) -> None:
+    """Scan a target with Nmap and analyze open ports and services."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print(f"\n[bold cyan]🔍 Scanning {target} with Nmap...[/bold cyan]\n")
-    analysis = run_scan(target, prompt)
-    print_result(analysis)
+    console.print(f"\n[bold cyan]Scanning {target} with Nmap...[/bold cyan]\n")
+    print_result(run_scan(target, prompt))
 
 
 @app.command()
-def ports():
+def ports() -> None:
     """List and analyze open ports on the local system."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print("\n[bold cyan]📍 Analyzing open ports...[/bold cyan]\n")
-    analysis = run_ports(prompt)
-    print_result(analysis)
+    console.print("\n[bold cyan]Analyzing local open ports...[/bold cyan]\n")
+    print_result(run_ports(prompt))
 
 
 @app.command()
-def analyze(
-    file: str = typer.Argument(..., help="Path to the file to analyze")
-):
-    """Analyze any file (logs, nmap output, etc.)."""
+def analyze(file: str = typer.Argument(..., help="Path to the file to analyze")) -> None:
+    """Analyze any file such as logs, Nmap output, or tool results."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print(f"\n[bold cyan]📋 Analyzing {file}...[/bold cyan]\n")
-    analysis = run_file_analysis(file, prompt)
-    print_result(analysis)
+    console.print(f"\n[bold cyan]Analyzing {file}...[/bold cyan]\n")
+    print_result(run_file_analysis(file, prompt))
 
 
 @app.command()
-def audit():
-    """Run a comprehensive local system security audit."""
+def audit() -> None:
+    """Run a combined local system security audit."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print(
-        "\n[bold cyan]🔐 Running system security audit...[/bold cyan]\n"
-    )
-    analysis = run_audit(prompt)
-    print_result(analysis)
+    console.print("\n[bold cyan]Running local security audit...[/bold cyan]\n")
+    print_result(run_audit(prompt))
 
 
 @app.command()
-def webcheck(target: str = typer.Argument(..., help="Target URL or domain")):
-    """Run web security checks (whatweb, nikto, etc.)."""
+def webcheck(target: str = typer.Argument(..., help="Target URL or domain")) -> None:
+    """Run web security checks and analyze the results."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print(f"\n[bold cyan]🌐 Checking web security for {target}...[/bold cyan]\n")
-    analysis = run_webcheck(target, prompt)
-    print_result(analysis)
+    console.print(f"\n[bold cyan]Checking web security for {target}...[/bold cyan]\n")
+    print_result(run_webcheck(target, prompt))
 
 
 @app.command()
-def tlscheck(target: str = typer.Argument(..., help="Target host:port or domain")):
-    """Check TLS/SSL certificate and configuration."""
+def tlscheck(target: str = typer.Argument(..., help="Target host:port or domain")) -> None:
+    """Check TLS and certificate security."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print(
-        f"\n[bold cyan]🔒 Checking TLS/SSL for {target}...[/bold cyan]\n"
-    )
-    analysis = run_tlscheck(target, prompt)
-    print_result(analysis)
+    console.print(f"\n[bold cyan]Checking TLS for {target}...[/bold cyan]\n")
+    print_result(run_tlscheck(target, prompt))
 
 
 @app.command()
-def dnscheck(domain: str = typer.Argument(..., help="Domain to check")):
-    """Check DNS records and configuration."""
+def dnscheck(domain: str = typer.Argument(..., help="Domain to check")) -> None:
+    """Check DNS records and defensive posture."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print(f"\n[bold cyan]📡 Checking DNS for {domain}...[/bold cyan]\n")
-    analysis = run_dnscheck(domain, prompt)
-    print_result(analysis)
+    console.print(f"\n[bold cyan]Checking DNS for {domain}...[/bold cyan]\n")
+    print_result(run_dnscheck(domain, prompt))
 
 
 @app.command()
-def whois(domain: str = typer.Argument(..., help="Domain to look up")):
-    """Look up WHOIS information for a domain."""
+def whois(domain: str = typer.Argument(..., help="Domain to look up")) -> None:
+    """Look up WHOIS information and analyze it."""
     validate_config()
     prompt = load_system_prompt()
-
-    console.print(f"\n[bold cyan]🔎 Looking up WHOIS for {domain}...[/bold cyan]\n")
-    analysis = run_whois(domain, prompt)
-    print_result(analysis)
+    console.print(f"\n[bold cyan]Looking up WHOIS for {domain}...[/bold cyan]\n")
+    print_result(run_whois(domain, prompt))
 
 
 @app.command()
-def logs(
-    file: str = typer.Argument(..., help="Path to the log file to analyze")
-):
+def logs(file: str = typer.Argument(..., help="Path to the log file to analyze")) -> None:
     """Analyze a log file for security issues."""
     validate_config()
     prompt = load_system_prompt()
+    console.print(f"\n[bold cyan]Analyzing logs from {file}...[/bold cyan]\n")
+    print_result(run_logs(file, prompt))
 
-    console.print(f"\n[bold cyan]📜 Analyzing logs from {file}...[/bold cyan]\n")
-    analysis = run_logs(file, prompt)
-    print_result(analysis)
+
+@app.command("learn")
+def learn() -> None:
+    """Index Freddy knowledge and vulnerability markdown into the local vector store."""
+    validate_paths()
+    console.print("\n[bold cyan]Building Freddy knowledge index...[/bold cyan]\n")
+    engine = KnowledgeEngine()
+    stats = engine.index_all()
+    formatter.print_success(
+        f"Indexed {stats['files']} files into {stats['chunks']} chunks in the local vector store."
+    )
+
+
+@app.command("knowledge-search")
+def knowledge_search(query: str = typer.Argument(..., help="Cybersecurity question or topic")) -> None:
+    """Search Freddy's local cybersecurity knowledge base."""
+    validate_paths()
+    engine = KnowledgeEngine()
+    matches = engine.query(query)
+    if not matches:
+        formatter.print_warning(
+            "No indexed knowledge found. Run Freddy's 'learn' command first or add relevant knowledge files."
+        )
+        return
+
+    rows = [(match.category, match.source, f"{match.score:.2f}") for match in matches]
+    formatter.print_table(rows, ["Category", "Source", "Score"], title="Knowledge Search Results")
+    for match in matches:
+        formatter.print_section(match.title, match.document, style="cyan")
 
 
 @app.command()
-def version():
-    """Show version information."""
-    console.print("\n[bold cyan]Freddy[/bold cyan] v1.0.0")
-    console.print("AI Cybersecurity Terminal Copilot")
-    console.print("https://github.com/yourname/Freddy\n")
+def history(
+    target: str | None = typer.Option(None, "--target", help="Filter stored history by target"),
+    limit: int = typer.Option(20, "--limit", min=1, max=100, help="Maximum records to show"),
+) -> None:
+    """Show Freddy's stored scan and analysis history."""
+    validate_paths()
+    memory = MemoryEngine()
+    records = memory.get_recent_scan_history(limit=limit, target=target)
+    if not records:
+        formatter.print_warning("No Freddy history records found yet.")
+        return
+
+    formatter.print_history_table(
+        format_history(records),
+        title="Freddy Scan History" if not target else f"Freddy Scan History: {target}",
+    )
+    for record in records[:5]:
+        formatter.print_section(
+            f"{record.command} -> {record.target}",
+            f"Severity: {record.severity}\nSummary: {record.findings_summary}\nRemediation: {record.remediation_summary}",
+            style="green",
+        )
 
 
 @app.command()
-def info():
-    """Show configuration information."""
+def version() -> None:
+    """Show Freddy version information."""
+    console.print("\n[bold cyan]Freddy[/bold cyan] v2.0.0")
+    console.print("Knowledge-driven AI Cybersecurity Copilot\n")
+
+
+@app.command()
+def info() -> None:
+    """Show Freddy configuration and runtime locations."""
     console.print("\n[bold cyan]Freddy Configuration[/bold cyan]\n")
-    try:
-        config = get_config()
-        console.print(f"API Key Set: {'✓' if config['api_key_set'] else '✗'}")
-        console.print(f"Model: {config['model']}")
-        console.print(f"Max Tokens: {config['max_tokens']}")
-        console.print(f"System Prompt: {config['system_prompt_path']}")
-    except Exception as e:
-        console.print(f"[red]Error loading config: {e}[/red]")
+    config = get_config()
+    platform_name = current_platform()
+    console.print(f"API Key Set: {'yes' if config['api_key_set'] else 'no'}")
+    console.print(f"Current Platform: {platform_name}")
+    console.print(f"Model: {config['model']}")
+    console.print(f"Max Tokens: {config['max_tokens']}")
+    console.print(f"Embedding Model: {config['embedding_model']}")
+    console.print(f"System Prompt: {config['system_prompt_path']}")
+    console.print(f"Knowledge Directory: {config['knowledge_dir']}")
+    console.print(f"Vulnerability Directory: {config['vulnerability_dir']}")
+    console.print(f"Vector Database: {config['vector_db_dir']}")
+    console.print(f"Memory Database: {config['memory_db_path']}")
+    if not is_linux_like():
+        console.print(
+            "Preferred Full-Feature Mode: use Linux or WSL for local host inspection commands such as ports and audit"
+        )
     console.print()
-
-
-if __name__ == "__main__":
-    app()
-
-
-
-@app.command()
-def ports():
-    """List open ports and services, then analyze them."""
-    validate_config()
-    prompt = load_system_prompt()
-
-    console.print("\n[bold cyan]🔍 Listing open ports...[/bold cyan]\n")
-    analysis = run_ports(prompt)
-    _print_result(analysis)
-
-
-@app.command()
-def analyze(file_path: str = typer.Argument(..., help="Path to file (log, scan output, etc.)")):
-    """Analyze a file (logs, scan output) for security issues."""
-    validate_config()
-    prompt = load_system_prompt()
-
-    console.print(f"\n[bold cyan]🔍 Analyzing {file_path}...[/bold cyan]\n")
-    analysis = run_file_analysis(file_path, prompt)
-    _print_result(analysis)
-
-
-@app.command()
-def audit():
-    """Run a full system security audit (ports, firewall, services, users)."""
-    validate_config()
-    prompt = load_system_prompt()
-
-    console.print("\n[bold cyan]🔍 Running system security audit...[/bold cyan]\n")
-    analysis = run_audit(prompt)
-    _print_result(analysis)
 
 
 if __name__ == "__main__":

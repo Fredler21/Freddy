@@ -1,12 +1,12 @@
 """WHOIS lookup command — queries domain WHOIS information."""
 
-import shlex
-from modules.tool_runner import ToolRunner
+from modules.intelligence_pipeline import AnalysisResult, run_intelligence_analysis
 from modules.output_formatter import OutputFormatter
-from ai_engine import analyze
+from modules.platform_support import install_hint
+from modules.tool_runner import ToolRunner
 
 
-def run_whois(domain: str, system_prompt: str) -> str:
+def run_whois(domain: str, system_prompt: str) -> AnalysisResult:
     """
     Query WHOIS information for a domain.
     
@@ -17,30 +17,36 @@ def run_whois(domain: str, system_prompt: str) -> str:
     Returns:
         AI analysis of WHOIS information
     """
-    formatter = OutputFormatter()
-
-    # Verify whois is installed
     if not ToolRunner.is_installed("whois"):
-        return (
-            "[!] Whois is not installed.\n"
-            "    Install it with: sudo apt install whois"
+        return AnalysisResult(
+            report=f"[!] Whois is not installed. {install_hint('whois')}",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    safe_domain = shlex.quote(domain)
+    formatter = OutputFormatter()
 
     formatter.print_info(f"Querying WHOIS for {domain}...")
 
-    stdout, stderr, returncode = ToolRunner.run(["whois", safe_domain], timeout=60)
+    stdout, stderr, returncode = ToolRunner.run(ToolRunner.build_command("whois", domain), timeout=60)
 
     output = stdout if stdout.strip() else ""
     if not output.strip() and stderr:
         output = stderr
 
     if not output.strip():
-        return (
-            "[!] No WHOIS data obtained.\n"
-            "    Check that the domain is valid and the whois server is accessible."
+        return AnalysisResult(
+            report="[!] No WHOIS data obtained. Check that the domain is valid and the whois server is accessible.",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Send to AI for analysis
-    return analyze(output, system_prompt)
+    return run_intelligence_analysis(
+        raw_evidence=output,
+        system_prompt=system_prompt,
+        command_name="whois",
+        target=domain,
+        task_instruction="Analyze this WHOIS information from a defensive perspective, focusing on exposure, ownership context, and operational risk clues.",
+    )

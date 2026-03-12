@@ -1,11 +1,11 @@
 """Ports command — lists open ports/services and sends them for AI analysis."""
 
+from modules.intelligence_pipeline import AnalysisResult, run_intelligence_analysis
+from modules.platform_support import is_linux_like, linux_only_message
 from modules.tool_runner import ToolRunner
-from modules.output_formatter import OutputFormatter
-from ai_engine import analyze
 
 
-def run_ports(system_prompt: str) -> str:
+def run_ports(system_prompt: str) -> AnalysisResult:
     """
     List open ports/services with ss and return AI analysis.
     
@@ -15,9 +15,14 @@ def run_ports(system_prompt: str) -> str:
     Returns:
         AI analysis of open ports
     """
-    formatter = OutputFormatter()
+    if not is_linux_like():
+        return AnalysisResult(
+            report=linux_only_message("ports"),
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
+        )
 
-    # Try ss first (preferred), fall back to netstat
     if ToolRunner.is_installed("ss"):
         stdout, stderr, returncode = ToolRunner.run(
             ["ss", "-tulpn"],
@@ -29,10 +34,11 @@ def run_ports(system_prompt: str) -> str:
             timeout=30,
         )
     else:
-        return (
-            "[!] Neither 'ss' nor 'netstat' found.\n"
-            "    Install with: sudo apt install iproute2 (or net-tools)\n"
-            "    Note: 'ss' is recommended on modern Linux systems."
+        return AnalysisResult(
+            report="[!] Neither 'ss' nor 'netstat' found. Install iproute2 or net-tools.",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
     output = stdout
@@ -40,10 +46,17 @@ def run_ports(system_prompt: str) -> str:
         output += f"\n[stderr]\n{stderr}"
 
     if not output.strip():
-        return (
-            "[!] No output from port listing.\n"
-            "    You may need to run Freddy with sudo: sudo python3 freddy.py ports"
+        return AnalysisResult(
+            report="[!] No output from port listing. You may need elevated privileges for local port enumeration.",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Send to AI for analysis
-    return analyze(output, system_prompt)
+    return run_intelligence_analysis(
+        raw_evidence=output,
+        system_prompt=system_prompt,
+        command_name="ports",
+        target="local",
+        task_instruction="Analyze these local listening ports for defensive risk, service exposure, and hardening priorities.",
+    )

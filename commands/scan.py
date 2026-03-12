@@ -1,12 +1,11 @@
 """Scan command — runs Nmap service detection against a target."""
 
-import shlex
+from modules.intelligence_pipeline import AnalysisResult, run_intelligence_analysis
+from modules.platform_support import install_hint
 from modules.tool_runner import ToolRunner
-from modules.output_formatter import OutputFormatter
-from ai_engine import analyze
 
 
-def run_scan(target: str, system_prompt: str) -> str:
+def run_scan(target: str, system_prompt: str) -> AnalysisResult:
     """
     Run an Nmap service version scan on the target and return AI analysis.
     
@@ -17,22 +16,16 @@ def run_scan(target: str, system_prompt: str) -> str:
     Returns:
         AI analysis of the scan results
     """
-    formatter = OutputFormatter()
-
-    # Verify nmap is installed
     if not ToolRunner.is_installed("nmap"):
-        return (
-            "[!] Nmap is not installed.\n"
-            "    Install it with:  sudo apt install nmap\n"
-            "    (Available in Kali Linux by default)"
+        return AnalysisResult(
+            report=f"[!] Nmap is not installed. {install_hint('nmap')}",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Sanitize target
-    safe_target = shlex.quote(target)
-
-    # Run nmap scan
     stdout, stderr, returncode = ToolRunner.run(
-        ["nmap", "-sV", safe_target],
+        ToolRunner.build_command("nmap", "-sV", target),
         timeout=300,
     )
 
@@ -41,10 +34,17 @@ def run_scan(target: str, system_prompt: str) -> str:
         output += f"\n[stderr]\n{stderr}"
 
     if not output.strip():
-        return (
-            "[!] Nmap produced no output.\n"
-            "    Check that the target is reachable and spelled correctly."
+        return AnalysisResult(
+            report="[!] Nmap produced no output. Check that the target is reachable and spelled correctly.",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Send to AI for analysis
-    return analyze(output, system_prompt)
+    return run_intelligence_analysis(
+        raw_evidence=output,
+        system_prompt=system_prompt,
+        command_name="scan",
+        target=target,
+        task_instruction="Analyze this scan output as a defensive cybersecurity analyst. Prioritize exposed services, likely risks, and remediation steps.",
+    )

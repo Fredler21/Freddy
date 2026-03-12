@@ -69,10 +69,21 @@ class OutputFormatter:
         """Print a failure message."""
         self.console.print(f"[bold red]✗ {message}[/bold red]")
 
-    def print_analysis(self, analysis: str):
+    def print_analysis(
+        self,
+        analysis: str,
+        knowledge_applied: bool = False,
+        rule_finding_count: int = 0,
+    ):
         """Print the AI analysis as the main report."""
         self.console.print()
         self.print_banner()
+        if knowledge_applied:
+            self.console.print("[bold green]Knowledge context applied[/bold green]")
+        if rule_finding_count:
+            self.console.print(
+                f"[bold yellow]Rule findings generated:[/bold yellow] {rule_finding_count}"
+            )
         self.console.print()
         self.print_section("Analysis", analysis)
         self.console.print()
@@ -90,6 +101,17 @@ class OutputFormatter:
         table = Table(title=title, show_header=True, header_style="bold cyan")
         for header in headers:
             table.add_column(header)
+        for row in rows:
+            table.add_row(*row)
+        self.console.print(table)
+
+    def print_history_table(self, rows: list[tuple[str, str, str, str]], title: str):
+        """Print scan history records."""
+        table = Table(title=title, show_header=True, header_style="bold cyan")
+        table.add_column("Timestamp")
+        table.add_column("Target")
+        table.add_column("Command")
+        table.add_column("Severity")
         for row in rows:
             table.add_row(*row)
         self.console.print(table)

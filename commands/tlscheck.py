@@ -1,12 +1,12 @@
 """TLS check command — analyzes TLS/SSL certificate and configuration."""
 
-import shlex
-from modules.tool_runner import ToolRunner
+from modules.intelligence_pipeline import AnalysisResult, run_intelligence_analysis
 from modules.output_formatter import OutputFormatter
-from ai_engine import analyze
+from modules.platform_support import install_hint
+from modules.tool_runner import ToolRunner
 
 
-def run_tlscheck(target: str, system_prompt: str) -> str:
+def run_tlscheck(target: str, system_prompt: str) -> AnalysisResult:
     """
     Check TLS/SSL certificate and configuration.
     
@@ -17,38 +17,45 @@ def run_tlscheck(target: str, system_prompt: str) -> str:
     Returns:
         AI analysis of TLS/SSL configuration
     """
-    formatter = OutputFormatter()
-
-    # Verify openssl is installed
     if not ToolRunner.is_installed("openssl"):
-        return (
-            "[!] OpenSSL is not installed.\n"
-            "    Install it with: sudo apt install openssl"
+        return AnalysisResult(
+            report=f"[!] OpenSSL is not installed. {install_hint('openssl')}",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Ensure we have a port
+    formatter = OutputFormatter()
+
     if ":" not in target:
         target = f"{target}:443"
 
-    safe_target = shlex.quote(target)
+    host, port = target.rsplit(":", 1)
+    openssl_path = ToolRunner.resolve_tool("openssl") or "openssl"
 
-    # Run openssl s_client
     formatter.print_info(f"Checking TLS certificate for {target}...")
 
-    stdout, stderr, _ = ToolRunner.run_shell(
-        f"echo | openssl s_client -connect {safe_target} -servername {safe_target.split(':')[0]} 2>&1",
+    stdout, stderr, _ = ToolRunner.run(
+        [openssl_path, "s_client", "-connect", f"{host}:{port}", "-servername", host],
         timeout=30,
     )
 
     output = stdout if stdout.strip() else ""
-    if stderr and not stdout:
-        output = stderr
+    if stderr:
+        output = f"{output}\n{stderr}".strip()
 
     if not output.strip():
-        return (
-            "[!] No TLS certificate data obtained.\n"
-            "    Check that the target is reachable on port 443."
+        return AnalysisResult(
+            report="[!] No TLS certificate data obtained. Check that the target is reachable on the requested port.",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Send to AI for analysis
-    return analyze(output, system_prompt)
+    return run_intelligence_analysis(
+        raw_evidence=output,
+        system_prompt=system_prompt,
+        command_name="tlscheck",
+        target=target,
+        task_instruction="Analyze this TLS evidence for transport security weaknesses, certificate issues, and hardening opportunities.",
+    )

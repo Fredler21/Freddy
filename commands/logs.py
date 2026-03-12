@@ -1,9 +1,10 @@
 """Logs command — analyzes log files (alias for analyze, optimized for logs)."""
 
 from commands.analyze import run_file_analysis
+from modules.intelligence_pipeline import AnalysisResult
 
 
-def run_logs(file_path: str, system_prompt: str) -> str:
+def run_logs(file_path: str, system_prompt: str) -> AnalysisResult:
     """
     Analyze a log file.
     

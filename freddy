@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+if command -v python3 >/dev/null 2>&1; then
+    exec python3 freddy.py "$@"
+fi
+if command -v python >/dev/null 2>&1; then
+    exec python freddy.py "$@"
+fi
+echo "Python was not found in PATH. Install Python 3.10+ and try again." >&2
+exit 1

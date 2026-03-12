@@ -1,11 +1,12 @@
 """Audit command — runs a combined local system security audit."""
 
-from modules.tool_runner import ToolRunner
+from modules.intelligence_pipeline import AnalysisResult, run_intelligence_analysis
 from modules.output_formatter import OutputFormatter
-from ai_engine import analyze
+from modules.platform_support import is_linux_like, linux_only_message
+from modules.tool_runner import ToolRunner
 
 
-def run_audit(system_prompt: str) -> str:
+def run_audit(system_prompt: str) -> AnalysisResult:
     """
     Run a combined local system security audit.
     
@@ -15,6 +16,14 @@ def run_audit(system_prompt: str) -> str:
     Returns:
         AI analysis of the system audit
     """
+    if not is_linux_like():
+        return AnalysisResult(
+            report=linux_only_message("audit"),
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
+        )
+
     formatter = OutputFormatter()
     audit_data = []
 
@@ -77,11 +86,17 @@ def run_audit(system_prompt: str) -> str:
     combined_output = "\n".join(audit_data)
 
     if not combined_output.strip():
-        return (
-            "[!] Audit produced no output.\n"
-            "    Some commands may require elevated privileges.\n"
-            "    Try: sudo python3 freddy.py audit"
+        return AnalysisResult(
+            report="[!] Audit produced no output. Some commands may require elevated privileges.",
+            rule_findings=[],
+            knowledge_matches=[],
+            memory_record_id=None,
         )
 
-    # Send to AI for analysis
-    return analyze(combined_output, system_prompt)
+    return run_intelligence_analysis(
+        raw_evidence=combined_output,
+        system_prompt=system_prompt,
+        command_name="audit",
+        target="local",
+        task_instruction="Perform a defensive host audit using this combined system evidence. Identify exposure, weak controls, and remediation priorities.",
+    )
