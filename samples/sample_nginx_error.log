@@ -1,0 +1,5 @@
+2024/03/10 14:15:32 [error] 1234#1234: *567 connect() failed (111: Connection refused) while connecting to upstream, client: 192.168.1.100, server: example.com, request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8080/", host: "example.com"
+2024/03/10 14:16:00 [warn] 5678#5678: *890 upstream timed out (110: Connection timed out) while connecting to upstream, client: 192.168.1.101, server: api.example.com, request: "POST /api/users HTTP/1.1", upstream: "http://backend:3000/api/users", host: "api.example.com"
+2024/03/10 14:17:15 [crit] 2345#2345: *1234 socket() failed (24: Too many open files)
+2024/03/10 14:18:00 [error] 3456#3456: *5678 client closed connection
+2024/03/10 14:19:30 [alert] 4567#4567: worker process 7890 exited on signal 11 (core dumped)

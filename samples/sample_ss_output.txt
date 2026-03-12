@@ -1,0 +1,9 @@
+Netid   State    Recv-Q   Send-Q     Local Address:Port     Peer Address:Port
+tcp     LISTEN   0        128              127.0.0.1:22            0.0.0.0:*       users:(("sshd",1234,4))
+tcp     LISTEN   0        128                    0.0.0.0:80            0.0.0.0:*       users:(("nginx",5678,10))
+tcp     LISTEN   0        128                    0.0.0.0:443           0.0.0.0:*       users:(("nginx",5679,11))
+tcp     LISTEN   0        128                127.0.0.1:3306          0.0.0.0:*       users:(("mysqld",9012,20))
+tcp     LISTEN   0        128                    0.0.0.0:25            0.0.0.0:*       users:(("postfix",3456,4))
+tcp     LISTEN   0        128              127.0.0.1:5432          0.0.0.0:*       users:(("postgres",7890,9))
+tcp     ESTAB    0        0        192.168.1.100:22      192.168.1.50:54321
+udp     UNCONN   0        0              127.0.0.1:53            0.0.0.0:*       users:(("named",4567,12))

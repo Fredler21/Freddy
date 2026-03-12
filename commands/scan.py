@@ -1,41 +1,50 @@
 """Scan command — runs Nmap service detection against a target."""
 
 import shlex
-import shutil
-import subprocess
+from modules.tool_runner import ToolRunner
+from modules.output_formatter import OutputFormatter
 from ai_engine import analyze
 
 
-def run_scan(target: str, prompt: str) -> str:
-    """Run an Nmap service version scan on the target and return AI analysis."""
+def run_scan(target: str, system_prompt: str) -> str:
+    """
+    Run an Nmap service version scan on the target and return AI analysis.
+    
+    Args:
+        target: Target host or IP address
+        system_prompt: System prompt for AI analysis
+        
+    Returns:
+        AI analysis of the scan results
+    """
+    formatter = OutputFormatter()
 
     # Verify nmap is installed
-    if not shutil.which("nmap"):
+    if not ToolRunner.is_installed("nmap"):
         return (
             "[!] Nmap is not installed.\n"
-            "    Install it with:  sudo apt install nmap"
+            "    Install it with:  sudo apt install nmap\n"
+            "    (Available in Kali Linux by default)"
         )
 
-    # Sanitize the target to prevent command injection
+    # Sanitize target
     safe_target = shlex.quote(target)
 
-    try:
-        scan = subprocess.run(
-            ["nmap", "-sV", safe_target],
-            capture_output=True,
-            text=True,
-            timeout=300,
-        )
-    except subprocess.TimeoutExpired:
-        return "[!] Nmap scan timed out after 5 minutes."
-    except OSError as e:
-        return f"[!] Failed to run nmap: {e}"
+    # Run nmap scan
+    stdout, stderr, returncode = ToolRunner.run(
+        ["nmap", "-sV", safe_target],
+        timeout=300,
+    )
 
-    output = scan.stdout
-    if scan.returncode != 0:
-        output += f"\n[stderr]\n{scan.stderr}"
+    output = stdout
+    if returncode != 0 and stderr:
+        output += f"\n[stderr]\n{stderr}"
 
     if not output.strip():
-        return "[!] Nmap produced no output. Check the target and try again."
+        return (
+            "[!] Nmap produced no output.\n"
+            "    Check that the target is reachable and spelled correctly."
+        )
 
-    return analyze(output, prompt)
+    # Send to AI for analysis
+    return analyze(output, system_prompt)

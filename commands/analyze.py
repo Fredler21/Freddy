@@ -1,33 +1,38 @@
-"""Analyze command — reads a file (logs, scan output) and sends it for AI analysis."""
+"""Analyze command — reads any file and sends it for AI analysis."""
 
-import os
+from modules.file_loader import FileLoader
+from modules.output_formatter import OutputFormatter
 from ai_engine import analyze
 
 
-def run_file_analysis(file_path: str, prompt: str) -> str:
-    """Read a file and send its contents to Claude for security analysis."""
+def run_file_analysis(file_path: str, system_prompt: str) -> str:
+    """
+    Read a file and return AI analysis.
+    
+    Args:
+        file_path: Path to the file to analyze
+        system_prompt: System prompt for AI analysis
+        
+    Returns:
+        AI analysis of the file contents
+    """
+    formatter = OutputFormatter()
 
-    # Resolve the real path to prevent symlink tricks
-    real_path = os.path.realpath(file_path)
+    # Load the file
+    content = FileLoader.load(file_path)
 
-    if not os.path.exists(real_path):
+    if content is None:
         return f"[!] File not found: {file_path}"
 
-    if not os.path.isfile(real_path):
-        return f"[!] Not a regular file: {file_path}"
+    if content.startswith("[!]"):  # Error message from FileLoader
+        return content
 
-    # Check if the file is readable
-    if not os.access(real_path, os.R_OK):
-        return (
-            f"[!] Permission denied: {file_path}\n"
-            "    Try running Freddy with sudo."
-        )
+    if not content.strip():
+        return f"[!] File is empty: {file_path}"
 
-    try:
-        with open(real_path, "r", errors="replace") as f:
-            # Read last 500 lines to stay within token limits
-            lines = f.readlines()[-500:]
-    except OSError as e:
+    # Send to AI for analysis
+    return analyze(content, system_prompt)
+
         return f"[!] Could not read file: {e}"
 
     if not lines:

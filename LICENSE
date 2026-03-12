@@ -1,0 +1,380 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║                         FREDDY - PROPRIETARY LICENSE                      ║
+║                         All Rights Reserved © 2026                        ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+PROPRIETARY SOFTWARE LICENSE AGREEMENT
+Version 1.0 - Effective March 12, 2026
+
+================================================================================
+1. OWNERSHIP & INTELLECTUAL PROPERTY RIGHTS
+================================================================================
+
+The software known as "Freddy" (hereinafter "Software"), including all source 
+code, documentation, design, artwork, and supporting materials, is the 
+EXCLUSIVE AND SOLE property of the original author/copyright holder 
+(hereinafter "Licensor").
+
+ALL intellectual property rights, including but not limited to:
+  • Copyright notices and registrations
+  • Trade secrets and confidential information
+  • Software algorithms and methodologies
+  • System design and architecture
+  • User interface and visual elements
+  • Brand names and trademarks
+
+...are reserved exclusively to the Licensor. No rights are transferred to 
+any other party except as explicitly stated in this License.
+
+================================================================================
+2. GRANT OF LIMITED LICENSE
+================================================================================
+
+The Licensor hereby grants you a LIMITED, NON-EXCLUSIVE, NON-TRANSFERABLE 
+license to use the Software SOLELY for:
+
+✅ AUTHORIZED DEFENSIVE SECURITY TESTING on systems you own or have 
+   explicit written permission to test
+
+✅ INTERNAL SECURITY AUDITING within your authorized organization
+
+✅ LEARNING AND EDUCATIONAL PURPOSES in a single-user environment
+
+This license is provided "as-is" and may be revoked at any time if terms 
+are violated.
+
+================================================================================
+3. STRICT PROHIBITIONS - YOU MAY NOT:
+================================================================================
+
+❌ COPY, CLONE, OR FORK this repository in any manner
+
+❌ MODIFY, ALTER, or adapt the Software without explicit written permission
+
+❌ DISTRIBUTE, SHARE, SELL, or transfer the Software to third parties
+
+❌ REVERSE ENGINEER, DECOMPILE, or attempt to derive source code
+
+❌ USE THE SOFTWARE for commercial purposes or profit
+
+❌ CREATE DERIVATIVE WORKS based on this Software
+
+❌ REMOVE, OBSCURE, or alter copyright notices, license headers, or notices
+
+❌ USE THE SOFTWARE for unauthorized security testing, hacking, or 
+   unauthorized access to systems
+
+❌ USE THE SOFTWARE to damage, disrupt, or compromise systems without 
+   authorization
+
+❌ SUBLICENSE, LEASE, or rent the Software to others
+
+❌ USE THE SOFTWARE in violation of applicable laws or regulations
+
+================================================================================
+4. PERMITTED USES - YOU MAY:
+================================================================================
+
+✅ Use Freddy for authorized defensive security analysis ONLY
+
+✅ Use Freddy only on systems you explicitly own or have written permission 
+   to test
+
+✅ Share Freddy with your team/organization for internal security auditing
+
+✅ Report security vulnerabilities responsibly to the Licensor
+
+✅ Review the source code for security evaluation and educational purposes
+
+✅ Provide feedback and suggestions for improvement
+
+================================================================================
+5. RESTRICTIONS ON COMMERCIAL USE
+================================================================================
+
+THIS SOFTWARE IS NOT LICENSED FOR COMMERCIAL USE.
+
+You may NOT:
+  • Sell Freddy or access to Freddy
+  • Provide Freddy as a service (SaaS) to customers
+  • Bundle Freddy with commercial products
+  • Use Freddy to provide security services for profit without explicit 
+    written agreement
+  • Integrate Freddy into commercial security solutions
+
+For commercial licensing inquiries, you MUST contact the Licensor for a 
+separate commercial license agreement.
+
+================================================================================
+6. INTELLECTUAL PROPERTY THEFT PREVENTION
+================================================================================
+
+This Software includes several protections against unauthorized copying 
+and distribution:
+
+🔒 Git History Tracking
+   - Unauthorized forks are trackable through git history
+   - Any repository claiming to be "Freddy" can be verified as authentic
+
+🔒 Copyright & License Headers
+   - All source files contain visible copyright notices
+   - License terms appear in every file header
+   - These notifications legally establish ownership and protect rights
+
+🔒 Unique Identifiers
+   - Certain markers in the code identify legitimate vs. copied versions
+   - These can be used to trace unauthorized copies back to source
+
+🔒 Legal Enforcement Clause
+   - Any unauthorized use WILL be pursued through legal channels
+   - Civil litigation will be filed against copyright infringers
+   - Damages will be sought for lost revenue and IP violation
+
+================================================================================
+7. AUTHORIZED USE ONLY - SCOPE LIMITATION
+================================================================================
+
+Freddy is designed for AUTHORIZED DEFENSIVE SECURITY ANALYSIS ONLY.
+
+You acknowledge and agree that:
+
+✓ You will NOT use Freddy for unauthorized access to systems
+✓ You will NOT use Freddy to penetrate systems without permission
+✓ You will NOT use Freddy for malicious purposes or to cause damage
+✓ You will NOT use Freddy to exploit vulnerabilities for profit
+✓ You will obtain explicit written authorization before testing any system
+✓ You will comply with all applicable laws and regulations in your 
+  jurisdiction
+✓ You understand that unauthorized testing is illegal and can result in 
+  criminal charges
+✓ You will not hold the Licensor liable for any damages or legal issues 
+  resulting from misuse
+
+================================================================================
+8. RESPONSIBLE DISCLOSURE
+================================================================================
+
+If you discover security vulnerabilities in Freddy:
+
+1. DO NOT publicly disclose the vulnerability
+2. Contact the Licensor immediately with vulnerability details
+3. Allow 30 days for the Licensor to develop a patch
+4. Work with the Licensor to coordinate safe disclosure
+5. You may be credited as a security researcher (optional)
+
+Responsible disclosure helps protect all users of Freddy.
+
+================================================================================
+9. DISCLAIMER OF WARRANTIES
+================================================================================
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
+EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
+
+• The fitness of the Software for any particular purpose
+• The accuracy, completeness, or usefulness of the Software
+• The non-infringement of third-party rights
+• The absence of defects or errors
+• The security or safety of the Software
+
+The entire risk as to the quality and performance of the Software is 
+with you.
+
+================================================================================
+10. LIMITATION OF LIABILITY
+================================================================================
+
+IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR:
+
+• Any direct, indirect, incidental, special, or consequential damages
+• Loss of data, revenue, or business interruption
+• Any damages resulting from your use or misuse of the Software
+• Costs of substitute goods or services
+• Damages resulting from unauthorized use
+
+...even if the Licensor has been advised of the possibility of such damages.
+
+Your sole remedy is the refund of any fees paid (if applicable).
+
+================================================================================
+11. TERMINATION OF LICENSE
+================================================================================
+
+Your license is automatically TERMINATED IMMEDIATELY if you:
+
+❌ Copy, clone, or fork the Software without authorization
+
+❌ Modify or create derivative works from the Software
+
+❌ Distribute, sell, or transfer the Software
+
+❌ Use the Software for unauthorized security testing or hacking
+
+❌ Reverse engineer or decompile the Software
+
+❌ Remove or alter copyright notices and license headers
+
+❌ Violate any provision of this License Agreement
+
+Upon termination:
+  • You must immediately cease all use of the Software
+  • You must destroy all copies in your possession
+  • The Licensor may pursue legal action against you
+
+================================================================================
+12. ENFORCEMENT & LEGAL RECOURSE
+================================================================================
+
+VIOLATIONS OF THIS LICENSE AGREEMENT MAY RESULT IN:
+
+⚖️  CIVIL LITIGATION
+    - Copyright infringement lawsuits
+    - Breach of contract claims
+    - Injunctive relief to cease unauthorized use
+
+💰 MONETARY DAMAGES
+    - Actual damages for software loss/infringement
+    - Statutory damages (up to $150,000 per work in some jurisdictions)
+    - Lost revenue from diverted sales
+    - Account enforcement and takedown of unauthorized copies
+
+🚨 CRIMINAL PROSECUTION (in some jurisdictions)
+    - Computer fraud and abuse charges
+    - Unauthorized computer access
+    - Intellectual property theft
+    - Wire fraud related to unauthorized copying
+
+The Licensor WILL ACTIVELY PURSUE enforcement against violators.
+
+================================================================================
+13. ANTI-CIRCUMVENTION PROTECTION
+================================================================================
+
+You agree NOT to:
+
+• Attempt to disable, bypass, or circumvent technological protection measures
+• Remove or alter copy protection mechanisms
+• Distribute tools or methods for circumventing this License
+• Use the Software in ways designed to avoid License compliance
+
+Violation of anti-circumvention measures may result in both civil and 
+criminal liability.
+
+================================================================================
+14. YOUR OPTIONS
+================================================================================
+
+If you need to use Freddy beyond the scope of this License:
+
+✉️  CONTACT THE LICENSOR
+    Email the original author to discuss:
+    - Commercial licensing
+    - Special use cases
+    - Custom development arrangements
+    - Source code modifications
+    - Redistribution rights
+
+📝 NEGOTIATE A CUSTOM LICENSE
+    The Licensor may grant extended rights through a separate written 
+    license agreement, contingent on:
+    - Appropriate licensing fees
+    - Authorized use verification
+    - Compliance guarantees
+    - Confidentiality commitments
+
+================================================================================
+15. MODIFICATIONS TO THIS LICENSE
+================================================================================
+
+The Licensor reserves the right to modify these License Terms at any time.
+
+Changes become effective immediately upon posting to the repository.
+
+Your continued use of the Software after modifications constitutes acceptance 
+of the new terms. If you do not accept modified terms, you must stop using 
+the Software immediately.
+
+================================================================================
+16. ENTIRE AGREEMENT
+================================================================================
+
+This License constitutes the entire agreement between you and the Licensor 
+regarding your use of the Software.
+
+If any provision is found invalid or unenforceable, the remaining provisions 
+remain in full effect.
+
+This License is governed by applicable copyright and intellectual property 
+law in the Licensor's jurisdiction.
+
+================================================================================
+17. SEVERABILITY
+================================================================================
+
+If any provision of this License is held to be invalid, unenforceable, or 
+illegal:
+
+1. That provision shall be modified to the minimum extent necessary to make 
+   it valid and enforceable
+2. If modification is not possible, the provision is severed
+3. All other provisions remain in full effect
+4. The severing of a provision does NOT grant you additional rights
+
+================================================================================
+18. SURVIVAL
+================================================================================
+
+The following provisions survive termination of this License:
+
+• Section 1 (Ownership & IP Rights)
+• Section 3 (Prohibitions)
+• Section 5 (Commercial Use Restrictions)
+• Section 6 (IP Theft Prevention)
+• Section 9 (Disclaimers)
+• Section 10 (Limitation of Liability)
+• Section 11 (Termination Effects)
+• Section 12 (Enforcement)
+
+These provisions remain binding even after License termination.
+
+================================================================================
+19. NO WAIVER
+================================================================================
+
+No waiver of any provision of this License is effective unless in writing 
+and signed by the Licensor.
+
+The Licensor's failure to enforce any right does not constitute waiver of 
+that right.
+
+================================================================================
+20. CONTACT & INQUIRIES
+================================================================================
+
+For licensing questions, special use cases, or commercial inquiries:
+
+📧 EMAIL: [Your Email Address]
+🌐 GITHUB: https://github.com/yourname/Freddy
+📱 For License Violations: [Your Contact Method]
+
+DO NOT attempt to circumvent this License or copy this Software without 
+explicit written permission.
+
+================================================================================
+
+By using this Software, you acknowledge that you have read, understood, 
+and agree to be bound by all terms and conditions of this Proprietary 
+License Agreement.
+
+If you do not agree to these terms, you are NOT authorized to use this 
+Software. Delete it immediately.
+
+════════════════════════════════════════════════════════════════════════════
+COPYRIGHT © 2026 - ALL RIGHTS RESERVED
+FREDDY - AI CYBERSECURITY TERMINAL COPILOT
+════════════════════════════════════════════════════════════════════════════
+
+Last Updated: March 12, 2026
+Version: 1.0
