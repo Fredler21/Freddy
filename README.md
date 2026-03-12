@@ -667,6 +667,28 @@ python3 freddy.py knowledge-search "SSH configuration mistakes to avoid?"
 # All return relevant answers from the local knowledge base
 ```
 
+### How to Ask Questions (Best Results)
+
+Use natural language. Freddy supports both short keyword queries and full questions.
+
+Good formats:
+
+- Definition: `python3 freddy.py knowledge-search "What is zero trust architecture?"`
+- How-to: `python3 freddy.py knowledge-search "How do I harden SSH on Ubuntu?"`
+- Troubleshooting: `python3 freddy.py knowledge-search "Why is my TLS setup considered weak?"`
+- Best practices: `python3 freddy.py knowledge-search "What are best practices for Linux firewall rules?"`
+- Detection: `python3 freddy.py knowledge-search "How can I detect SQL injection attempts in logs?"`
+
+Tips for higher-quality answers:
+
+- Include context like OS, tool, or protocol (`Ubuntu`, `OpenSSL`, `Docker`, `JWT`, `iptables`).
+- Ask one focused question per command.
+- If needed, refine and re-ask with more detail, for example:
+   - First: `python3 freddy.py knowledge-search "SSH hardening"`
+   - Refined: `python3 freddy.py knowledge-search "How do I disable root login and password auth in sshd_config on Ubuntu?"`
+
+Freddy is designed to handle semantically similar phrasings, so you can ask naturally.
+
 ### Validate answer quality
 
 See [questions/README.md](questions/README.md) for:
