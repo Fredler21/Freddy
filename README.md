@@ -289,6 +289,21 @@ python3 freddy.py history --target example.com
 python3 freddy.py memory-stats
 ```
 
+### Guided Command Prompts
+
+For tool-running commands, Freddy now asks a confirmation question before execution to make workflows safer and easier, for example:
+
+- `Do you want me to scan this target: 192.168.1.0/24? [Y/n]`
+- `Do you want me to run full reconnaissance against: example.com? [Y/n]`
+
+Use `--yes` (or `-y`) to skip prompts in automation/scripts:
+
+```bash
+python3 freddy.py scan 192.168.1.10 --yes
+python3 freddy.py recon example.com --yes
+python3 freddy.py audit --yes
+```
+
 Windows equivalents:
 
 ```powershell

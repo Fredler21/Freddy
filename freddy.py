@@ -40,6 +40,13 @@ formatter = OutputFormatter()
 MIN_KNOWLEDGE_SCORE = 0.12
 
 
+def _confirm_action(prompt_text: str, assume_yes: bool = False) -> bool:
+    """Ask the user to confirm a command action unless bypassed."""
+    if assume_yes:
+        return True
+    return typer.confirm(prompt_text, default=True)
+
+
 def _clean_knowledge_line(line: str) -> str:
     """Normalize a retrieved line into clean answer text."""
     cleaned = line.strip()
@@ -170,8 +177,14 @@ def print_result(result: AnalysisResult) -> None:
 
 
 @app.command()
-def scan(target: str = typer.Argument(..., help="Target host or IP address")) -> None:
+def scan(
+    target: str = typer.Argument(..., help="Target host or IP address"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Scan a target with Nmap and analyze open ports and services."""
+    if not _confirm_action(f"Do you want me to scan this target: {target}?", assume_yes=yes):
+        formatter.print_warning("Scan canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Scanning {target} with Nmap...[/bold cyan]\n")
@@ -179,8 +192,13 @@ def scan(target: str = typer.Argument(..., help="Target host or IP address")) ->
 
 
 @app.command()
-def ports() -> None:
+def ports(
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """List and analyze open ports on the local system."""
+    if not _confirm_action("Do you want me to analyze open ports on this machine?", assume_yes=yes):
+        formatter.print_warning("Ports analysis canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print("\n[bold cyan]Analyzing local open ports...[/bold cyan]\n")
@@ -188,8 +206,14 @@ def ports() -> None:
 
 
 @app.command()
-def analyze(file: str = typer.Argument(..., help="Path to the file to analyze")) -> None:
+def analyze(
+    file: str = typer.Argument(..., help="Path to the file to analyze"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Analyze any file such as logs, Nmap output, or tool results."""
+    if not _confirm_action(f"Do you want me to analyze this file: {file}?", assume_yes=yes):
+        formatter.print_warning("File analysis canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Analyzing {file}...[/bold cyan]\n")
@@ -197,8 +221,13 @@ def analyze(file: str = typer.Argument(..., help="Path to the file to analyze"))
 
 
 @app.command()
-def audit() -> None:
+def audit(
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Run a combined local system security audit."""
+    if not _confirm_action("Do you want me to run a local security audit on this machine?", assume_yes=yes):
+        formatter.print_warning("Audit canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print("\n[bold cyan]Running local security audit...[/bold cyan]\n")
@@ -206,8 +235,14 @@ def audit() -> None:
 
 
 @app.command()
-def webcheck(target: str = typer.Argument(..., help="Target URL or domain")) -> None:
+def webcheck(
+    target: str = typer.Argument(..., help="Target URL or domain"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Run web security checks and analyze the results."""
+    if not _confirm_action(f"Do you want me to run web security checks for: {target}?", assume_yes=yes):
+        formatter.print_warning("Web check canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Checking web security for {target}...[/bold cyan]\n")
@@ -215,8 +250,14 @@ def webcheck(target: str = typer.Argument(..., help="Target URL or domain")) -> 
 
 
 @app.command()
-def tlscheck(target: str = typer.Argument(..., help="Target host:port or domain")) -> None:
+def tlscheck(
+    target: str = typer.Argument(..., help="Target host:port or domain"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Check TLS and certificate security."""
+    if not _confirm_action(f"Do you want me to check TLS security for: {target}?", assume_yes=yes):
+        formatter.print_warning("TLS check canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Checking TLS for {target}...[/bold cyan]\n")
@@ -224,8 +265,14 @@ def tlscheck(target: str = typer.Argument(..., help="Target host:port or domain"
 
 
 @app.command()
-def dnscheck(domain: str = typer.Argument(..., help="Domain to check")) -> None:
+def dnscheck(
+    domain: str = typer.Argument(..., help="Domain to check"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Check DNS records and defensive posture."""
+    if not _confirm_action(f"Do you want me to check DNS records for: {domain}?", assume_yes=yes):
+        formatter.print_warning("DNS check canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Checking DNS for {domain}...[/bold cyan]\n")
@@ -233,8 +280,14 @@ def dnscheck(domain: str = typer.Argument(..., help="Domain to check")) -> None:
 
 
 @app.command()
-def whois(domain: str = typer.Argument(..., help="Domain to look up")) -> None:
+def whois(
+    domain: str = typer.Argument(..., help="Domain to look up"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Look up WHOIS information and analyze it."""
+    if not _confirm_action(f"Do you want me to run WHOIS lookup for: {domain}?", assume_yes=yes):
+        formatter.print_warning("WHOIS lookup canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Looking up WHOIS for {domain}...[/bold cyan]\n")
@@ -242,8 +295,14 @@ def whois(domain: str = typer.Argument(..., help="Domain to look up")) -> None:
 
 
 @app.command()
-def logs(file: str = typer.Argument(..., help="Path to the log file to analyze")) -> None:
+def logs(
+    file: str = typer.Argument(..., help="Path to the log file to analyze"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Analyze a log file for security issues."""
+    if not _confirm_action(f"Do you want me to analyze this log file: {file}?", assume_yes=yes):
+        formatter.print_warning("Log analysis canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Analyzing logs from {file}...[/bold cyan]\n")
@@ -311,8 +370,14 @@ def history(
 
 
 @app.command()
-def recon(target: str = typer.Argument(..., help="Target host, IP, or URL to recon")) -> None:
+def recon(
+    target: str = typer.Argument(..., help="Target host, IP, or URL to recon"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Full external reconnaissance: nmap, whatweb, nikto, TLS, DNS, and WHOIS correlated."""
+    if not _confirm_action(f"Do you want me to run full reconnaissance against: {target}?", assume_yes=yes):
+        formatter.print_warning("Recon canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Running full recon against {target}...[/bold cyan]\n")
@@ -320,8 +385,13 @@ def recon(target: str = typer.Argument(..., help="Target host, IP, or URL to rec
 
 
 @app.command("host-audit")
-def host_audit() -> None:
+def host_audit(
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Comprehensive local host security audit: firewall, services, SSH, containers, and more."""
+    if not _confirm_action("Do you want me to run a comprehensive host audit on this machine?", assume_yes=yes):
+        formatter.print_warning("Host audit canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print("\n[bold cyan]Running comprehensive host audit...[/bold cyan]\n")
@@ -329,8 +399,14 @@ def host_audit() -> None:
 
 
 @app.command()
-def investigate(file: str = typer.Argument(..., help="Path to artifact file (log, config, or tool output)")) -> None:
+def investigate(
+    file: str = typer.Argument(..., help="Path to artifact file (log, config, or tool output)"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Deep security investigation of a single artifact file with indicator extraction."""
+    if not _confirm_action(f"Do you want me to investigate this artifact: {file}?", assume_yes=yes):
+        formatter.print_warning("Investigation canceled by user.")
+        return
     validate_config()
     prompt = load_system_prompt()
     console.print(f"\n[bold cyan]Investigating {file}...[/bold cyan]\n")
