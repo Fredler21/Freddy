@@ -6,7 +6,7 @@ from __future__ import annotations
 import typer
 from rich.console import Console
 
-from ai_engine import load_system_prompt
+from ai_engine import answer_question, load_system_prompt
 from commands.analyze import run_file_analysis
 from commands.audit import run_audit
 from commands.dnscheck import run_dnscheck
@@ -25,7 +25,7 @@ from modules.knowledge_engine import KnowledgeEngine
 from modules.memory_engine import MemoryEngine
 from modules.output_formatter import OutputFormatter
 from modules.platform_support import current_platform, is_linux_like
-from modules.retrieval_formatter import format_history
+from modules.retrieval_formatter import format_history, format_knowledge_context
 
 app = typer.Typer(
     name="freddy",
@@ -143,7 +143,7 @@ def learn() -> None:
 
 @app.command("knowledge-search")
 def knowledge_search(query: str = typer.Argument(..., help="Cybersecurity question or topic")) -> None:
-    """Search Freddy's local cybersecurity knowledge base."""
+    """Ask Freddy a direct question using the local cybersecurity knowledge base."""
     validate_paths()
     engine = KnowledgeEngine()
     matches = engine.query(query)
@@ -153,10 +153,14 @@ def knowledge_search(query: str = typer.Argument(..., help="Cybersecurity questi
         )
         return
 
+    # Provide a direct answer first, grounded in retrieved context.
+    knowledge_context = format_knowledge_context(matches)
+    answer = answer_question(question=query, knowledge_context=knowledge_context)
+    formatter.print_section("Freddy Answer", answer, style="green")
+
+    # Always show source transparency so users can inspect provenance.
     rows = [(match.category, match.source, f"{match.score:.2f}") for match in matches]
-    formatter.print_table(rows, ["Category", "Source", "Score"], title="Knowledge Search Results")
-    for match in matches:
-        formatter.print_section(match.title, match.document, style="cyan")
+    formatter.print_table(rows, ["Category", "Source", "Score"], title="Answer Sources")
 
 
 @app.command()

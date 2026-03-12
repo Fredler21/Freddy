@@ -81,6 +81,48 @@ def analyze(
         return f"[!] Unexpected error: {exc}"
 
 
+def answer_question(
+    *,
+    question: str,
+    knowledge_context: str,
+) -> str:
+    """Return a direct, concise answer grounded in retrieved knowledge context."""
+    if not question.strip():
+        return "[!] Please provide a non-empty question."
+    if not knowledge_context.strip():
+        return "[!] No knowledge context available to answer this question."
+    if not API_KEY:
+        return "[!] ANTHROPIC_API_KEY not set. Set it to get direct AI answers."
+
+    payload = (
+        "You are Freddy, a defensive cybersecurity assistant.\n"
+        "Answer the user's question directly using only the provided context.\n"
+        "If context is insufficient, explicitly say so and suggest what to ask next.\n"
+        "Keep the answer practical and concise.\n\n"
+        f"QUESTION\n{question}\n\n"
+        f"RETRIEVED KNOWLEDGE CONTEXT\n{knowledge_context}\n"
+    )
+
+    client = get_client()
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=min(MAX_TOKENS, 1200),
+            system=(
+                "You are Freddy. Provide concise, actionable defensive cybersecurity answers. "
+                "Do not invent facts not present in context."
+            ),
+            messages=[{"role": "user", "content": payload}],
+        )
+        return response.content[0].text
+    except APIConnectionError:
+        return "[!] Could not connect to the Anthropic API. Check connectivity and retry."
+    except APIError as exc:
+        return f"[!] API Error: {exc}"
+    except Exception as exc:
+        return f"[!] Unexpected error: {exc}"
+
+
 def _compose_payload(
     *,
     raw_evidence: str,
