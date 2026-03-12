@@ -24,13 +24,20 @@ class OutputFormatter:
 
     def print_startup_screen(self, version: str = "2.0.0") -> None:
         """Print a premium startup banner when Freddy launches a command."""
-        title = Text(" FREDDY ", style="bold black on cyan")
-        subtitle = Text("AI Cybersecurity Terminal Copilot", style="bold bright_white")
+        title = Text()
+        title.append("███████╗██████╗ ███████╗██████╗ ██████╗ ██╗   ██╗\n", style="bold bright_yellow")
+        title.append("██╔════╝██╔══██╗██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝\n", style="bold yellow")
+        title.append("█████╗  ██████╔╝█████╗  ██║  ██║██║  ██║ ╚████╔╝ \n", style="bold bright_white")
+        title.append("██╔══╝  ██╔══██╗██╔══╝  ██║  ██║██║  ██║  ╚██╔╝  \n", style="bold bright_cyan")
+        title.append("██║     ██║  ██║███████╗██████╔╝██████╔╝   ██║   \n", style="bold cyan")
+        title.append("╚═╝     ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═════╝    ╚═╝   ", style="bold bright_blue")
+
+        subtitle = Text("AI Cybersecurity Terminal Copilot", style="bold white")
         meta = Text(
             f"Version {version}  |  Python {platform.python_version()}  |  Platform {platform.system()}",
             style="cyan",
         )
-        header = Text.assemble(title, "\n", subtitle, "\n", meta)
+        header = Text.assemble(title, "\n\n", subtitle, "\n", meta)
 
         chips = Table.grid(padding=(0, 2))
         chips.add_row("[black on green] LOCAL KNOWLEDGE [/black on green]", "[black on magenta] GUIDED MODE [/black on magenta]")
