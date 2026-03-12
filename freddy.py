@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import re
+
 import typer
 from rich.console import Console
 
@@ -38,27 +40,48 @@ formatter = OutputFormatter()
 MIN_KNOWLEDGE_SCORE = 0.12
 
 
+def _clean_knowledge_line(line: str) -> str:
+    """Normalize a retrieved line into clean answer text."""
+    cleaned = line.strip()
+    if not cleaned:
+        return ""
+    if cleaned.startswith("#"):
+        return ""
+    cleaned = re.sub(r"^[-*•]+\s*", "", cleaned)
+    cleaned = re.sub(r"^\d+[.)]\s*", "", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned
+
+
+def _is_ssh_question(query: str) -> bool:
+    q = query.lower()
+    return "ssh" in q or "sshd" in q
+
+
 def _build_local_knowledge_answer(query: str, matches: list) -> str:
     """Build a direct local answer from top retrieved knowledge chunks.
 
     This avoids external API usage and keeps responses grounded in indexed docs.
     """
-    top = matches[:3]
+    top = matches[:5]
     snippets: list[str] = []
     sources: list[str] = []
+    seen: set[str] = set()
 
     for match in top:
         sources.append(match.source)
         for line in match.document.splitlines():
-            cleaned = line.strip()
-            if not cleaned:
+            cleaned = _clean_knowledge_line(line)
+            if not cleaned or len(cleaned) < 5:
                 continue
-            if cleaned.startswith("#"):
+            key = cleaned.casefold()
+            if key in seen:
                 continue
+            seen.add(key)
             snippets.append(cleaned)
-            if len(snippets) >= 8:
+            if len(snippets) >= 16:
                 break
-        if len(snippets) >= 8:
+        if len(snippets) >= 16:
             break
 
     if not snippets:
@@ -68,10 +91,71 @@ def _build_local_knowledge_answer(query: str, matches: list) -> str:
         )
 
     unique_sources = ", ".join(dict.fromkeys(sources))
-    bullet_lines = "\n".join(f"- {line}" for line in snippets[:8])
+
+    # Premium local answer format for SSH-related questions.
+    if _is_ssh_question(query):
+        key_actions = []
+        for line in snippets:
+            lower = line.lower()
+            if any(
+                token in lower
+                for token in (
+                    "permitrootlogin",
+                    "passwordauthentication",
+                    "pubkeyauthentication",
+                    "maxauthtries",
+                    "allowusers",
+                    "allowgroups",
+                    "logingracetime",
+                    "fail2ban",
+                    "firewall",
+                    "management network",
+                )
+            ):
+                key_actions.append(line)
+            if len(key_actions) >= 6:
+                break
+        if not key_actions:
+            key_actions = snippets[:6]
+
+        action_block = "\n".join(f"- {item}" for item in key_actions)
+        command_block = (
+            "sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak\n"
+            "sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config\n"
+            "sudo sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config\n"
+            "sudo sed -i 's/^#\\?PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config\n"
+            "sudo grep -q '^MaxAuthTries' /etc/ssh/sshd_config || echo 'MaxAuthTries 3' | sudo tee -a /etc/ssh/sshd_config\n"
+            "sudo grep -q '^LoginGraceTime' /etc/ssh/sshd_config || echo 'LoginGraceTime 30' | sudo tee -a /etc/ssh/sshd_config\n"
+            "sudo systemctl restart ssh || sudo systemctl restart sshd\n"
+            "sudo ufw allow from <ADMIN_IP> to any port 22 proto tcp\n"
+            "sudo ufw deny 22/tcp\n"
+            "sudo systemctl enable --now fail2ban"
+        )
+        verify_block = (
+            "sudo sshd -t\n"
+            "ss -tulpn | grep ':22'\n"
+            "sudo grep -E 'PermitRootLogin|PasswordAuthentication|PubkeyAuthentication|MaxAuthTries|LoginGraceTime' /etc/ssh/sshd_config\n"
+            "sudo fail2ban-client status\n"
+            "sudo ufw status verbose"
+        )
+        return (
+            f"Direct answer for '{query}':\n\n"
+            "Priority SSH hardening actions:\n"
+            f"{action_block}\n\n"
+            "Recommended Ubuntu command sequence:\n"
+            f"{command_block}\n\n"
+            "Verification commands:\n"
+            f"{verify_block}\n\n"
+            f"Knowledge used: {unique_sources}"
+        )
+
+    # Generic premium local answer format for all other questions.
+    key_points = snippets[:8]
+    key_block = "\n".join(f"- {item}" for item in key_points)
     return (
-        f"Based on Freddy's local knowledge, here's the best direct answer for: '{query}'\n\n"
-        f"{bullet_lines}\n\n"
+        f"Direct answer for '{query}':\n\n"
+        "Best evidence-backed points from Freddy's local knowledge:\n"
+        f"{key_block}\n\n"
         f"Knowledge used: {unique_sources}"
     )
 
