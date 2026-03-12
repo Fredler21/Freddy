@@ -21,6 +21,7 @@ from __future__ import annotations
 import os
 import sys
 import time
+import subprocess
 from pathlib import Path
 from typing import NamedTuple
 
@@ -42,6 +43,13 @@ try:
 except ImportError:
     TQDM_OK = False
 
+try:
+    from pypdf import PdfReader
+except ImportError:
+    print("[setup] 'pypdf' not installed. Installing now...")
+    os.system(f"{sys.executable} -m pip install pypdf -q")
+    from pypdf import PdfReader
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -53,6 +61,7 @@ MAX_RETRIES = 3
 RETRY_DELAY = 4              # seconds between retries
 REQUEST_TIMEOUT = 60         # seconds per request
 USER_AGENT  = "Mozilla/5.0 (compatible; FreddyKnowledgeBot/1.0)"
+KEEP_PDF_FILES = False      # Set True if you also want to keep the downloaded PDFs
 
 # ---------------------------------------------------------------------------
 # Catalog
@@ -467,6 +476,67 @@ def _download_with_progress(url: str, dest: Path, label: str) -> bool:
     return False
 
 
+def _text_target_from_pdf_name(pdf_filename: str, folder: Path) -> Path:
+    """Return destination .txt path in folder for a given catalog PDF filename."""
+    stem = Path(pdf_filename).stem
+    return folder / f"{stem}.txt"
+
+
+def _extract_pdf_to_text(pdf_path: Path, text_path: Path) -> bool:
+    """Extract PDF text and write it to text_path.
+
+    Strategy:
+    1) pypdf (fast, lightweight)
+    2) pdftotext CLI fallback (if available)
+    3) modules.file_loader fallback (PyMuPDF/pdfminer path)
+    """
+    extracted = ""
+
+    # 1) pypdf
+    try:
+        reader = PdfReader(str(pdf_path))
+        pages = []
+        for page in reader.pages:
+            pages.append(page.extract_text() or "")
+        extracted = "\n".join(pages).strip()
+    except Exception:
+        extracted = ""
+
+    # 2) pdftotext fallback
+    if len(extracted) < 200:
+        try:
+            completed = subprocess.run(
+                ["pdftotext", "-layout", str(pdf_path), "-"],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            if completed.returncode == 0 and completed.stdout:
+                extracted = completed.stdout.strip()
+        except Exception:
+            pass
+
+    # 3) existing FileLoader fallback
+    if len(extracted) < 200:
+        try:
+            from modules.file_loader import FileLoader
+
+            fallback = FileLoader.load(str(pdf_path))
+            if fallback and not fallback.startswith("[!"):
+                extracted = fallback.strip()
+        except Exception:
+            pass
+
+    if len(extracted) < 200:
+        return False
+
+    try:
+        text_path.write_text(extracted, encoding="utf-8")
+        return True
+    except OSError:
+        return False
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -483,34 +553,63 @@ def main() -> None:
     total   = len(CATALOG)
     skipped = 0
     ok      = 0
+    extracted_count = 0
     failed: list[str] = []
 
     for i, entry in enumerate(CATALOG, start=1):
         dest_dir  = KNOWLEDGE / entry.folder
-        dest_file = dest_dir / entry.filename
+        dest_pdf  = dest_dir / entry.filename
+        dest_text = _text_target_from_pdf_name(entry.filename, dest_dir)
 
         print(f"[{i:02}/{total}] {entry.description}")
 
-        if dest_file.exists() and _is_valid_pdf(dest_file):
-            size_kb = dest_file.stat().st_size // 1024
-            print(f"  [skip] Already exists ({size_kb} KB) — {dest_file.name}\n")
+        if dest_text.exists() and dest_text.stat().st_size > 256:
+            size_kb = dest_text.stat().st_size // 1024
+            print(f"  [skip] Text already exists ({size_kb} KB) — {dest_text.name}\n")
             skipped += 1
             continue
 
+        # If a local PDF already exists from previous runs, extract from it first.
+        if dest_pdf.exists() and _is_valid_pdf(dest_pdf):
+            print(f"  [extract] Existing PDF -> {dest_text.name}")
+            if _extract_pdf_to_text(dest_pdf, dest_text):
+                size_kb = dest_text.stat().st_size // 1024
+                print(f"  [ok]   Extracted text to {dest_text.relative_to(BASE_DIR)} ({size_kb} KB)")
+                extracted_count += 1
+                if not KEEP_PDF_FILES:
+                    dest_pdf.unlink(missing_ok=True)
+                    print("  [clean] Removed source PDF to save disk space\n")
+                else:
+                    print()
+                continue
+            print("  [!] Existing PDF could not be extracted; will re-download.\n")
+
         print(f"  [dl]   {entry.url}")
-        success = _download_with_progress(entry.url, dest_file, entry.description)
+        success = _download_with_progress(entry.url, dest_pdf, entry.description)
 
         if success:
-            size_kb = dest_file.stat().st_size // 1024
-            print(f"  [ok]   Saved to {dest_file.relative_to(BASE_DIR)}  ({size_kb} KB)\n")
             ok += 1
+            if _extract_pdf_to_text(dest_pdf, dest_text):
+                size_kb = dest_text.stat().st_size // 1024
+                extracted_count += 1
+                print(f"  [ok]   Extracted text to {dest_text.relative_to(BASE_DIR)} ({size_kb} KB)")
+                if not KEEP_PDF_FILES:
+                    dest_pdf.unlink(missing_ok=True)
+                    print("  [clean] Removed source PDF to save disk space\n")
+                else:
+                    pdf_kb = dest_pdf.stat().st_size // 1024
+                    print(f"  [ok]   Kept PDF {dest_pdf.relative_to(BASE_DIR)} ({pdf_kb} KB)\n")
+            else:
+                print("  [fail] PDF downloaded but extraction failed.\n")
+                failed.append(entry.filename)
         else:
             print(f"  [fail] Could not download — check URL or network connection.\n")
             failed.append(entry.filename)
 
     # ── Summary ─────────────────────────────────────────────────────────────
     print("=" * 62)
-    print(f"  Downloaded : {ok}")
+    print(f"  Downloaded PDFs : {ok}")
+    print(f"  Extracted TXT   : {extracted_count}")
     print(f"  Skipped    : {skipped}  (already present)")
     print(f"  Failed     : {len(failed)}")
     if failed:
