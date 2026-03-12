@@ -2,6 +2,19 @@
 
 Freddy is a knowledge-driven AI cybersecurity copilot for authorized defensive environments. It combines local tool output, deterministic rule checks, retrieval from a local cybersecurity knowledge base, vulnerability intelligence, and operational memory to produce stronger and more consistent security analysis.
 
+## What This AI Is For
+
+Freddy is built to help defenders understand security data faster and take action with confidence.
+
+- 🛡️ Explain raw security output in plain language (Nmap, logs, TLS, DNS, web scans)
+- 🚨 Detect likely risks and misconfigurations before they are missed
+- 📊 Prioritize issues by severity so you fix the most important problems first
+- 🧠 Use local cybersecurity knowledge during analysis (NIST, RFCs, OWASP, and more)
+- 🕒 Compare current findings with prior scans to catch recurring problems
+- ✅ Give step-by-step remediation and verification commands
+
+Freddy is for authorized defensive security work: analysis, hardening, triage, and incident response support.
+
 ## Run Freddy From a Normal Terminal
 
 Freddy can be launched from a regular computer terminal without VS Code-specific tooling.
@@ -59,23 +72,28 @@ Best run in Linux or WSL because they inspect Linux-native host state:
 ## Architecture
 
 ```text
-Security Tools / Logs / Scan Results
-                |
-                v
-          Freddy CLI Layer
-                |
-                v
-     Pre-AI Intelligence Layer
-     |- Rule Engine
-     |- Knowledge Retrieval Engine
-     |- Vulnerability Intelligence Library
-     `- Memory Engine
-                |
-                v
-         AI Analysis Engine
-                |
-                v
-     Structured Security Report
+📥 Security tools, logs, and scan results
+                  |
+                  v
+🖥️ Freddy CLI commands (scan, recon, audit, investigate, analyze)
+                  |
+                  v
+🧩 Pre-AI intelligence layer
+   |- 📏 Rule Engine (deterministic checks)
+   |- 📚 Knowledge Retrieval Engine (local indexed docs)
+   |- 🛠️ Vulnerability Intelligence Library
+   `- 🗂️ Memory Engine (history + correlation)
+                  |
+                  v
+🤖 AI Analysis Engine
+                  |
+                  v
+📄 Structured defensive report
+   |- Executive summary
+   |- Confirmed and suspected findings
+   |- Severity + confidence
+   |- Root cause
+   `- Remediation + verification steps
 ```
 
 ## Core Capabilities
