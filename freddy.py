@@ -310,8 +310,13 @@ def logs(
 
 
 @app.command("learn")
-def learn() -> None:
+def learn(
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Index Freddy knowledge and vulnerability markdown into the local vector store."""
+    if not _confirm_action("Do you want me to build/rebuild the local knowledge index now?", assume_yes=yes):
+        formatter.print_warning("Learn/indexing canceled by user.")
+        return
     validate_paths()
     console.print("\n[bold cyan]Building Freddy knowledge index...[/bold cyan]\n")
     engine = KnowledgeEngine()
@@ -324,8 +329,14 @@ def learn() -> None:
 
 
 @app.command("knowledge-search")
-def knowledge_search(query: str = typer.Argument(..., help="Cybersecurity question or topic")) -> None:
+def knowledge_search(
+    query: str = typer.Argument(..., help="Cybersecurity question or topic"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Ask Freddy a direct question using only local indexed knowledge (no API call)."""
+    if not _confirm_action(f"Do you want me to search local knowledge for: {query}?", assume_yes=yes):
+        formatter.print_warning("Knowledge search canceled by user.")
+        return
     validate_paths()
     engine = KnowledgeEngine()
     matches = engine.query(query)
@@ -348,8 +359,13 @@ def knowledge_search(query: str = typer.Argument(..., help="Cybersecurity questi
 def history(
     target: str | None = typer.Option(None, "--target", help="Filter stored history by target"),
     limit: int = typer.Option(20, "--limit", min=1, max=100, help="Maximum records to show"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
 ) -> None:
     """Show Freddy's stored scan and analysis history."""
+    scope = f" for target {target}" if target else ""
+    if not _confirm_action(f"Do you want me to show Freddy history{scope}?", assume_yes=yes):
+        formatter.print_warning("History view canceled by user.")
+        return
     validate_paths()
     memory = MemoryEngine()
     records = memory.get_recent_scan_history(limit=limit, target=target)
@@ -414,8 +430,13 @@ def investigate(
 
 
 @app.command("memory-stats")
-def memory_stats() -> None:
+def memory_stats(
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
     """Show Freddy memory statistics: total scans, unique targets, and top findings."""
+    if not _confirm_action("Do you want me to show Freddy memory statistics?", assume_yes=yes):
+        formatter.print_warning("Memory stats canceled by user.")
+        return
     validate_paths()
     memory = MemoryEngine()
     stats = memory.get_memory_stats()
@@ -450,6 +471,93 @@ def info() -> None:
             "Preferred Full-Feature Mode: use Linux or WSL for local host inspection commands such as ports and audit"
         )
     console.print()
+
+
+@app.command("walkthrough")
+def walkthrough() -> None:
+    """Interactive guided mode to run Freddy actions step-by-step."""
+    console.print("\n[bold cyan]Freddy Guided Walkthrough[/bold cyan]")
+    console.print("I will guide you step-by-step and run commands for you.\n")
+
+    while True:
+        console.print("[bold]Choose an action:[/bold]")
+        console.print("1) Scan target (nmap + analysis)")
+        console.print("2) Full recon target")
+        console.print("3) Check local open ports")
+        console.print("4) Run local audit")
+        console.print("5) Web security check")
+        console.print("6) TLS check")
+        console.print("7) DNS check")
+        console.print("8) WHOIS lookup")
+        console.print("9) Analyze file/log")
+        console.print("10) Build/rebuild knowledge index")
+        console.print("11) Ask local knowledge question")
+        console.print("12) Show history")
+        console.print("13) Show memory stats")
+        console.print("0) Exit walkthrough")
+
+        choice = typer.prompt("Enter choice", default="1").strip()
+
+        if choice == "0":
+            formatter.print_success("Walkthrough finished.")
+            return
+
+        if choice == "1":
+            target = typer.prompt("Target host/IP/subnet (example: 192.168.1.0/24)").strip()
+            if typer.confirm(f"Run scan on {target}?", default=True):
+                scan(target, yes=True)
+        elif choice == "2":
+            target = typer.prompt("Recon target host/IP/domain").strip()
+            if typer.confirm(f"Run full recon against {target}?", default=True):
+                recon(target, yes=True)
+        elif choice == "3":
+            if typer.confirm("Analyze local open ports now?", default=True):
+                ports(yes=True)
+        elif choice == "4":
+            if typer.confirm("Run local system audit now?", default=True):
+                audit(yes=True)
+        elif choice == "5":
+            target = typer.prompt("Web target URL/domain (example: https://example.com)").strip()
+            if typer.confirm(f"Run web security check for {target}?", default=True):
+                webcheck(target, yes=True)
+        elif choice == "6":
+            target = typer.prompt("TLS target host:port or domain").strip()
+            if typer.confirm(f"Run TLS check for {target}?", default=True):
+                tlscheck(target, yes=True)
+        elif choice == "7":
+            domain = typer.prompt("Domain for DNS check").strip()
+            if typer.confirm(f"Run DNS check for {domain}?", default=True):
+                dnscheck(domain, yes=True)
+        elif choice == "8":
+            domain = typer.prompt("Domain for WHOIS lookup").strip()
+            if typer.confirm(f"Run WHOIS lookup for {domain}?", default=True):
+                whois(domain, yes=True)
+        elif choice == "9":
+            file = typer.prompt("Path to file/log/tool output").strip()
+            if typer.confirm(f"Analyze file {file}?", default=True):
+                analyze(file, yes=True)
+        elif choice == "10":
+            if typer.confirm("Build/rebuild local knowledge index now?", default=True):
+                learn(yes=True)
+        elif choice == "11":
+            query = typer.prompt("Enter your cybersecurity question").strip()
+            if typer.confirm(f"Search local knowledge for: {query}?", default=True):
+                knowledge_search(query, yes=True)
+        elif choice == "12":
+            target = typer.prompt("Optional target filter (leave empty for all)", default="").strip()
+            if typer.confirm("Show history now?", default=True):
+                history(target=target or None, yes=True)
+        elif choice == "13":
+            if typer.confirm("Show memory stats now?", default=True):
+                memory_stats(yes=True)
+        else:
+            formatter.print_warning("Invalid choice. Please enter a number from 0 to 13.")
+            continue
+
+        if not typer.confirm("Do you want to run another guided action?", default=True):
+            formatter.print_success("Walkthrough finished.")
+            return
+        console.print()
 
 
 if __name__ == "__main__":

@@ -287,6 +287,7 @@ python3 freddy.py knowledge-search "ssh hardening"
 python3 freddy.py history
 python3 freddy.py history --target example.com
 python3 freddy.py memory-stats
+python3 freddy.py walkthrough
 ```
 
 ### Guided Command Prompts
@@ -296,12 +297,16 @@ For tool-running commands, Freddy now asks a confirmation question before execut
 - `Do you want me to scan this target: 192.168.1.0/24? [Y/n]`
 - `Do you want me to run full reconnaissance against: example.com? [Y/n]`
 
+This includes: `scan`, `recon`, `ports`, `audit`, `host-audit`, `analyze`, `investigate`, `logs`, `webcheck`, `tlscheck`, `dnscheck`, `whois`, `learn`, `knowledge-search`, `history`, and `memory-stats`.
+
 Use `--yes` (or `-y`) to skip prompts in automation/scripts:
 
 ```bash
 python3 freddy.py scan 192.168.1.10 --yes
 python3 freddy.py recon example.com --yes
 python3 freddy.py audit --yes
+python3 freddy.py knowledge-search "ssh hardening" --yes
+python3 freddy.py learn --yes
 ```
 
 Windows equivalents:
@@ -680,6 +685,9 @@ python3 freddy.py knowledge-search "Best practices for SSH security?"
 python3 freddy.py knowledge-search "SSH configuration mistakes to avoid?"
 
 # All return relevant answers from the local knowledge base
+
+# Guided mode (Freddy walks you through actions step-by-step)
+python3 freddy.py walkthrough
 ```
 
 ### How to Ask Questions (Best Results)

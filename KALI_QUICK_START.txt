@@ -45,6 +45,9 @@
 
 🧪 AFTER UPDATE - TEST WITH:
 
+  $ python3 freddy.py walkthrough
+  # Freddy will guide you step-by-step (scan/recon/audit/checks)
+
   $ python3 freddy.py knowledge-search "How do I harden SSH?"
   $ python3 freddy.py knowledge-search "What are SSH best practices?"
   $ python3 freddy.py knowledge-search "SSH on Ubuntu configuration?"
@@ -75,6 +78,11 @@ This will:
   5. Test knowledge-search functionality
 
 Once complete, you can use:
+  # Guided mode for everything (recommended)
+  python3 freddy.py walkthrough
+
+  # Freddy will ask [Y/n] before running tool commands.
+  # Add --yes to skip prompts in automation.
   python3 freddy.py knowledge-search "your question"
   python3 freddy.py scan <target>
   python3 freddy.py analyze <logfile>
