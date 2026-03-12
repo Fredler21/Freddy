@@ -619,13 +619,15 @@ def main() -> None:
     print("=" * 62)
     print()
 
-    if ok + skipped > 0:
+    if ok + skipped + extracted_count > 0:
         print("Cybersecurity knowledge library successfully built.")
         print()
         print("Next step — index everything into Freddy's vector store:")
         print()
         print("    python3 freddy.py learn")
         print()
+        if failed:
+            print("[!] Some documents could not be downloaded in this run, but extracted text updates were still generated.")
     else:
         print("[!] No files were downloaded. Check your internet connection")
         print("    and verify the URLs in the CATALOG at the top of this script.")
