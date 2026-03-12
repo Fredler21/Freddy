@@ -45,6 +45,7 @@ def analyze(
     knowledge_context: str,
     command_metadata: dict[str, str] | None = None,
     task_instruction: str = "Perform expert defensive cybersecurity analysis.",
+    prior_history: str = "",
 ) -> str:
     """Send a structured Freddy analysis payload to Claude."""
     if not raw_evidence or not raw_evidence.strip():
@@ -60,6 +61,7 @@ def analyze(
         knowledge_context=knowledge_context,
         command_metadata=command_metadata or {},
         task_instruction=task_instruction,
+        prior_history=prior_history,
     )
 
     client = get_client()
@@ -86,8 +88,14 @@ def _compose_payload(
     knowledge_context: str,
     command_metadata: dict[str, str],
     task_instruction: str,
+    prior_history: str = "",
 ) -> str:
     metadata_blob = json.dumps(command_metadata, indent=2, sort_keys=True)
+    history_section = (
+        f"PRIOR SCAN HISTORY\n{prior_history}\n\n"
+        if prior_history.strip()
+        else ""
+    )
     return (
         "TASK\n"
         f"{task_instruction}\n\n"
@@ -99,9 +107,11 @@ def _compose_payload(
         f"{rule_findings}\n\n"
         "RETRIEVED CYBERSECURITY KNOWLEDGE\n"
         f"{knowledge_context}\n\n"
+        f"{history_section}"
         "ANALYSIS REQUIREMENTS\n"
         "- Distinguish confirmed evidence from inferred risk.\n"
         "- Use the rule findings to prioritize inspection areas.\n"
         "- Use the knowledge context to improve remediation specificity.\n"
+        "- If prior scan history is provided, note any recurring or unresolved findings.\n"
         "- Keep the output defensive, professional, and actionable.\n"
     )

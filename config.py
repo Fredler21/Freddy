@@ -20,7 +20,10 @@ RUNTIME_DIR = BASE_DIR / ".freddy"
 KNOWLEDGE_DIR = BASE_DIR / "knowledge"
 VULNERABILITY_DIR = BASE_DIR / "vulnerabilities"
 VECTOR_DB_DIR = RUNTIME_DIR / "vector_store"
-MEMORY_DB_PATH = RUNTIME_DIR / "freddy_memory.db"
+MEMORY_DIR = BASE_DIR / "memory"
+MEMORY_DB_PATH = MEMORY_DIR / "freddy_memory.db"
+DATA_RAW_DIR = BASE_DIR / "data" / "raw"
+DATA_REPORTS_DIR = BASE_DIR / "data" / "reports"
 SYSTEM_PROMPT_PATH = BASE_DIR / "prompts" / "system_prompt.txt"
 
 API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
@@ -33,6 +36,9 @@ def ensure_runtime_directories() -> None:
     """Create Freddy runtime directories if missing."""
     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
     VECTOR_DB_DIR.mkdir(parents=True, exist_ok=True)
+    MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def validate_config() -> None:
@@ -72,5 +78,7 @@ def get_config() -> dict:
         "vulnerability_dir": str(VULNERABILITY_DIR),
         "vector_db_dir": str(VECTOR_DB_DIR),
         "memory_db_path": str(MEMORY_DB_PATH),
+        "data_raw_dir": str(DATA_RAW_DIR),
+        "data_reports_dir": str(DATA_REPORTS_DIR),
         "embedding_model": EMBEDDING_MODEL,
     }

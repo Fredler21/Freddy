@@ -179,6 +179,15 @@ def history(
         )
 
 
+@app.command("memory-stats")
+def memory_stats() -> None:
+    """Show Freddy memory statistics: total scans, unique targets, and top findings."""
+    validate_paths()
+    memory = MemoryEngine()
+    stats = memory.get_memory_stats()
+    formatter.print_memory_stats(stats)
+
+
 @app.command()
 def version() -> None:
     """Show Freddy version information."""

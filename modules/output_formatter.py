@@ -115,3 +115,21 @@ class OutputFormatter:
         for row in rows:
             table.add_row(*row)
         self.console.print(table)
+
+    def print_memory_stats(self, stats: object) -> None:
+        """Print Freddy memory statistics."""
+        self.console.print()
+        self.console.print("[bold cyan]Freddy Memory Statistics[/bold cyan]\n")
+        self.console.print(f"  Total scans stored : [bold]{stats.total_scans}[/bold]")
+        self.console.print(f"  Unique targets     : [bold]{stats.unique_targets}[/bold]")
+        if stats.recent_targets:
+            self.console.print(f"  Recent targets     : {', '.join(stats.recent_targets[:5])}")
+        if stats.top_vulnerabilities:
+            self.console.print()
+            table = Table(title="Most Frequent Findings", show_header=True, header_style="bold yellow")
+            table.add_column("Finding", no_wrap=False)
+            table.add_column("Count", justify="right")
+            for finding, count in stats.top_vulnerabilities:
+                table.add_row(finding[:80], str(count))
+            self.console.print(table)
+        self.console.print()

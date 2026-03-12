@@ -128,9 +128,10 @@ For scan, log, audit, and file analysis commands, Freddy now runs this upgraded 
 2. Run the rule engine on the raw evidence
 3. Build a retrieval query from the command context and rule findings
 4. Retrieve relevant knowledge and vulnerability intelligence
-5. Compose a structured AI payload with evidence, rules, knowledge, and task metadata
-6. Generate the final report
-7. Save a summary to operational memory
+5. Retrieve prior scan history for the same target
+6. Compose a structured AI payload with evidence, rules, knowledge, history, and task metadata
+7. Generate the final report
+8. Save structured findings and raw output to memory
 
 ## Rule Engine
 
@@ -157,20 +158,80 @@ The `vulnerabilities/` folder acts as Freddy's focused security intelligence lay
 - Redis or MySQL exposure
 - Missing security headers
 
+## Freddy Memory System
+
+Freddy builds long-term structured memory of every scan it performs. Each analysis saves:
+
+- The target hostname or IP
+- Timestamp of the scan
+- Command used
+- AI-extracted structured findings as a JSON list
+- Severity level
+- Summarized remediation guidance
+- Path to the raw tool output file
+
+Raw tool output is saved to `data/raw/` for offline review. The structured database lives at `memory/freddy_memory.db`.
+
+Before every analysis, Freddy queries that database for the same target. If prior records exist, a correlation and history summary is injected into the AI prompt so the model can note recurring or unresolved issues.
+
+### Deduplication
+
+If the structured findings for the same target are identical to the most recent stored record, Freddy updates the timestamp and increments the scan counter rather than creating a duplicate row.
+
+### Correlation
+
+Freddy detects patterns such as:
+
+- Port 22 remaining exposed across multiple scans
+- Recurring vulnerability findings over weeks or months
+- Unresolved issues that have appeared in three or more scans
+
+These patterns give the AI model richer context when generating its report.
+
+### View history
+
+```bash
+python3 freddy.py history
+python3 freddy.py history --target example.com
+```
+
+### View memory statistics
+
+```bash
+python3 freddy.py memory-stats
+```
+
+Outputs:
+
+- Total scans stored
+- Unique targets tracked
+- Most frequently seen findings across all scans
+
 ## How Freddy Memory Works
 
-Freddy stores operational history in SQLite at `.freddy/freddy_memory.db`.
+Freddy stores operational history in SQLite at `memory/freddy_memory.db` using two tables.
 
-Each record stores:
+`scans` table columns:
 
+- id
 - target
 - timestamp
-- command used
-- summarized findings
+- command
+- raw_output_path
+- summary
 - severity
-- remediation summary
+- findings (JSON list)
+- remediation
 
-This memory is used for analyst review and historical comparison, not model fine-tuning.
+`targets` table columns:
+
+- id
+- hostname
+- first_seen
+- last_seen
+- scan_count
+
+This memory drives analyst review, historical comparison, correlation detection, and AI context enrichment.
 
 ## Project Structure
 
@@ -190,9 +251,13 @@ Freddy/
 |- vulnerabilities/
 |- prompts/
 |- samples/
-|- .freddy/
-|  |- vector_store/
+|- data/
+|  |- raw/          <- raw tool output saved per scan
+|  `- reports/      <- structured report storage
+|- memory/
 |  `- freddy_memory.db
+|- .freddy/
+|  `- vector_store/
 `- README.md
 ```
 
@@ -203,6 +268,7 @@ python3 freddy.py learn
 python3 freddy.py knowledge-search "ssh hardening"
 python3 freddy.py history
 python3 freddy.py history --target example.com
+python3 freddy.py memory-stats
 ```
 
 Windows equivalents:
@@ -212,6 +278,7 @@ python freddy.py learn
 python freddy.py knowledge-search "ssh hardening"
 python freddy.py history
 python freddy.py history --target example.com
+python freddy.py memory-stats
 ./freddy.ps1 info
 ```
 
@@ -284,7 +351,9 @@ The command recreates Freddy's local Chroma collection and reindexes every curre
 Freddy stores local runtime intelligence data here:
 
 - Vector database: `.freddy/vector_store`
-- SQLite memory database: `.freddy/freddy_memory.db`
+- SQLite memory database: `memory/freddy_memory.db`
+- Raw tool output: `data/raw/`
+- Structured reports: `data/reports/`
 
 These artifacts are local to the project root and can be retained across runs.
 

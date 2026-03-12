@@ -47,3 +47,20 @@ def format_history(records: Iterable[ScanRecord]) -> list[tuple[str, str, str, s
             )
         )
     return rows
+
+
+def format_prior_history(records: Iterable[ScanRecord], correlation_summary: str = "") -> str:
+    """Format prior scan records for inclusion in the AI analysis prompt."""
+    record_list = list(records)[:5]
+    if not record_list:
+        return ""
+    lines: list[str] = []
+    if correlation_summary:
+        lines.append(correlation_summary)
+    for record in record_list:
+        lines.append(
+            f"[{record.timestamp[:10]}] {record.command} → Severity: {record.severity}\n"
+            f"Summary: {record.findings_summary}\n"
+            f"Remediation: {record.remediation_summary}"
+        )
+    return "\n\n".join(lines)
