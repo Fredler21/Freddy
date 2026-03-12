@@ -1,6 +1,10 @@
 """Output Formatter Module — formats Freddy reports with Rich."""
 
+import platform
+
+from rich import box
 from rich.console import Console
+from rich.columns import Columns
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
@@ -17,6 +21,37 @@ class OutputFormatter:
         """Print the Freddy banner."""
         banner = Text(title, style="bold cyan")
         self.console.print(Panel(banner, border_style="cyan", padding=(0, 2)))
+
+    def print_startup_screen(self, version: str = "2.0.0") -> None:
+        """Print a premium startup banner when Freddy launches a command."""
+        title = Text(" FREDDY ", style="bold black on cyan")
+        subtitle = Text("AI Cybersecurity Terminal Copilot", style="bold bright_white")
+        meta = Text(
+            f"Version {version}  |  Python {platform.python_version()}  |  Platform {platform.system()}",
+            style="cyan",
+        )
+        header = Text.assemble(title, "\n", subtitle, "\n", meta)
+
+        chips = Table.grid(padding=(0, 2))
+        chips.add_row("[black on green] LOCAL KNOWLEDGE [/black on green]", "[black on magenta] GUIDED MODE [/black on magenta]")
+        chips.add_row("[black on yellow] RULE ENGINE [/black on yellow]", "[black on blue] MEMORY [/black on blue]")
+
+        tips = Table.grid(padding=(0, 1))
+        tips.add_row("[bold cyan]Quick Start[/bold cyan]")
+        tips.add_row("[white]python3 freddy.py walkthrough[/white]")
+        tips.add_row("[dim]or run a command directly and Freddy will confirm before execution.[/dim]")
+
+        self.console.print()
+        self.console.print(
+            Panel(
+                header,
+                border_style="bright_cyan",
+                box=box.DOUBLE,
+                padding=(1, 2),
+            )
+        )
+        self.console.print(Columns([chips, tips], equal=True, expand=True))
+        self.console.print()
 
     def print_section(
         self,

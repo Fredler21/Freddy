@@ -38,6 +38,7 @@ app = typer.Typer(
 console = Console()
 formatter = OutputFormatter()
 MIN_KNOWLEDGE_SCORE = 0.12
+_STARTUP_SHOWN = False
 
 
 def _confirm_action(prompt_text: str, assume_yes: bool = False) -> bool:
@@ -45,6 +46,27 @@ def _confirm_action(prompt_text: str, assume_yes: bool = False) -> bool:
     if assume_yes:
         return True
     return typer.confirm(prompt_text, default=True)
+
+
+def _maybe_print_startup_banner(no_banner: bool) -> None:
+    """Render startup banner once per process unless disabled."""
+    global _STARTUP_SHOWN
+    if no_banner or _STARTUP_SHOWN:
+        return
+    formatter.print_startup_screen(version="2.0.0")
+    _STARTUP_SHOWN = True
+
+
+@app.callback()
+def main(
+    ctx: typer.Context,
+    no_banner: bool = typer.Option(False, "--no-banner", help="Disable Freddy startup banner"),
+) -> None:
+    """Global Freddy options applied before command execution."""
+    if ctx.resilient_parsing:
+        return
+    if ctx.invoked_subcommand:
+        _maybe_print_startup_banner(no_banner)
 
 
 def _clean_knowledge_line(line: str) -> str:

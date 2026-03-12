@@ -78,6 +78,8 @@ This will:
   5. Test knowledge-search functionality
 
 Once complete, you can use:
+  # Premium terminal startup design appears automatically
+  # Use --no-banner if you want quiet output
   # Guided mode for everything (recommended)
   python3 freddy.py walkthrough
 

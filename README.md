@@ -42,6 +42,20 @@ The launcher scripts included in the project root are:
 
 If you want Freddy on your shell `PATH`, place the project folder on `PATH` or create a shell alias to one of those launchers.
 
+### Premium Terminal Startup Design
+
+Freddy now shows a premium startup banner when you run a command, including runtime status chips and a quick-start tip.
+
+- Default behavior: banner is shown automatically at command start.
+- Quiet mode: add `--no-banner` to disable it.
+
+Examples:
+
+```bash
+python3 freddy.py scan 192.168.1.10
+python3 freddy.py --no-banner scan 192.168.1.10 --yes
+```
+
 ## What Works On A Normal Computer Terminal
 
 Works directly on Windows, Linux, and macOS terminals once Python dependencies are installed:
