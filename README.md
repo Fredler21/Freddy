@@ -386,6 +386,35 @@ python3 freddy.py learn
 All sources are freely licensed government or open-source documentation.
 If a URL returns a 404, update the `CATALOG` list at the top of `download_freddy_knowledge.py`.
 
+### GitHub-only automation (no manual downloader run on devices)
+
+Freddy can keep the extracted `.txt` knowledge library up to date directly from GitHub Actions.
+This means your devices can simply `git pull` the generated text files from `knowledge/`.
+
+Workflow file:
+
+- `.github/workflows/knowledge-sync.yml`
+
+How it works:
+
+1. Runs on a schedule (weekly) or manual dispatch
+2. Executes `python download_freddy_knowledge.py`
+3. Extracts PDF content into `.txt` files in the matching `knowledge/*/` folders
+4. Commits and pushes changed files back to the repository
+
+How to run it manually from GitHub:
+
+1. Open your repository on GitHub
+2. Go to **Actions**
+3. Select **Sync Freddy Knowledge Library**
+4. Click **Run workflow**
+
+After it completes, pull updates on any machine:
+
+```bash
+git pull origin main
+```
+
 ## Adding Cybersecurity Knowledge Documents
 
 Freddy can ingest and index cybersecurity reference material in **PDF, Markdown, and plain text** formats. Place documents into the relevant folder under `knowledge/` and re-run the index command.
