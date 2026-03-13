@@ -48,6 +48,35 @@ def _confirm_action(prompt_text: str, assume_yes: bool = False) -> bool:
     return typer.confirm(prompt_text, default=True)
 
 
+def _prepare_model_prompt(action_label: str) -> str | None:
+    """Return system prompt for model-backed commands or show guided API setup help."""
+    if not get_config().get("api_key_set", False):
+        formatter.print_error(
+            f"{action_label} requires AI analysis, but ANTHROPIC_API_KEY is not set."
+        )
+        formatter.print_section(
+            "Enable AI Analysis",
+            "Set your API key in the current shell:\n"
+            "export ANTHROPIC_API_KEY='your_key_here'\n\n"
+            "Or place it in a local .env file:\n"
+            "ANTHROPIC_API_KEY=your_key_here",
+            style="yellow",
+        )
+        formatter.print_section(
+            "Use Freddy Right Now (No API Key)",
+            "- python3 freddy.py knowledge-search \"ssh hardening\"\n"
+            "- python3 freddy.py learn\n"
+            "- python3 freddy.py history\n"
+            "- python3 freddy.py memory-stats\n"
+            "- python3 freddy.py walkthrough",
+            style="cyan",
+        )
+        return None
+
+    validate_config()
+    return load_system_prompt()
+
+
 def _maybe_print_startup_banner(no_banner: bool, banner_style: str = "auto") -> None:
     """Render startup banner once per process unless disabled."""
     global _STARTUP_SHOWN
@@ -272,8 +301,9 @@ def scan(
     if not _confirm_action(f"Do you want me to scan this target: {target}?", assume_yes=yes):
         formatter.print_warning("Scan canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Scan")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Scanning {target} with Nmap...[/bold cyan]\n")
     print_result(run_scan(target, prompt))
 
@@ -286,8 +316,9 @@ def ports(
     if not _confirm_action("Do you want me to analyze open ports on this machine?", assume_yes=yes):
         formatter.print_warning("Ports analysis canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Ports analysis")
+    if not prompt:
+        return
     console.print("\n[bold cyan]Analyzing local open ports...[/bold cyan]\n")
     print_result(run_ports(prompt))
 
@@ -301,8 +332,9 @@ def analyze(
     if not _confirm_action(f"Do you want me to analyze this file: {file}?", assume_yes=yes):
         formatter.print_warning("File analysis canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("File analysis")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Analyzing {file}...[/bold cyan]\n")
     print_result(run_file_analysis(file, prompt))
 
@@ -315,8 +347,9 @@ def audit(
     if not _confirm_action("Do you want me to run a local security audit on this machine?", assume_yes=yes):
         formatter.print_warning("Audit canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Local security audit")
+    if not prompt:
+        return
     console.print("\n[bold cyan]Running local security audit...[/bold cyan]\n")
     print_result(run_audit(prompt))
 
@@ -330,8 +363,9 @@ def webcheck(
     if not _confirm_action(f"Do you want me to run web security checks for: {target}?", assume_yes=yes):
         formatter.print_warning("Web check canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Web security check")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Checking web security for {target}...[/bold cyan]\n")
     print_result(run_webcheck(target, prompt))
 
@@ -345,8 +379,9 @@ def tlscheck(
     if not _confirm_action(f"Do you want me to check TLS security for: {target}?", assume_yes=yes):
         formatter.print_warning("TLS check canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("TLS check")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Checking TLS for {target}...[/bold cyan]\n")
     print_result(run_tlscheck(target, prompt))
 
@@ -360,8 +395,9 @@ def dnscheck(
     if not _confirm_action(f"Do you want me to check DNS records for: {domain}?", assume_yes=yes):
         formatter.print_warning("DNS check canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("DNS check")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Checking DNS for {domain}...[/bold cyan]\n")
     print_result(run_dnscheck(domain, prompt))
 
@@ -375,8 +411,9 @@ def whois(
     if not _confirm_action(f"Do you want me to run WHOIS lookup for: {domain}?", assume_yes=yes):
         formatter.print_warning("WHOIS lookup canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("WHOIS lookup")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Looking up WHOIS for {domain}...[/bold cyan]\n")
     print_result(run_whois(domain, prompt))
 
@@ -390,8 +427,9 @@ def logs(
     if not _confirm_action(f"Do you want me to analyze this log file: {file}?", assume_yes=yes):
         formatter.print_warning("Log analysis canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Log analysis")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Analyzing logs from {file}...[/bold cyan]\n")
     print_result(run_logs(file, prompt))
 
@@ -481,8 +519,9 @@ def recon(
     if not _confirm_action(f"Do you want me to run full reconnaissance against: {target}?", assume_yes=yes):
         formatter.print_warning("Recon canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Recon")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Running full recon against {target}...[/bold cyan]\n")
     print_result(run_recon(target, prompt))
 
@@ -495,8 +534,9 @@ def host_audit(
     if not _confirm_action("Do you want me to run a comprehensive host audit on this machine?", assume_yes=yes):
         formatter.print_warning("Host audit canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Host audit")
+    if not prompt:
+        return
     console.print("\n[bold cyan]Running comprehensive host audit...[/bold cyan]\n")
     print_result(run_host_audit(prompt))
 
@@ -510,8 +550,9 @@ def investigate(
     if not _confirm_action(f"Do you want me to investigate this artifact: {file}?", assume_yes=yes):
         formatter.print_warning("Investigation canceled by user.")
         return
-    validate_config()
-    prompt = load_system_prompt()
+    prompt = _prepare_model_prompt("Investigation")
+    if not prompt:
+        return
     console.print(f"\n[bold cyan]Investigating {file}...[/bold cyan]\n")
     print_result(run_investigate(file, prompt))
 
