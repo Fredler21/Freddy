@@ -1,124 +1,507 @@
 # Freddy
 
-Freddy is a knowledge-driven AI cybersecurity copilot for authorized defensive environments. It combines local tool output, deterministic rule checks, retrieval from a local cybersecurity knowledge base, vulnerability intelligence, and operational memory to produce stronger and more consistent security analysis.
+Freddy is a knowledge-driven AI cybersecurity copilot for authorized defensive environments. It combines real security tool output, deterministic rule checks, a local cybersecurity knowledge base (NIST, OWASP, RFCs), operational memory, and a full SOC enrichment pipeline to produce professional-grade security analysis from your terminal.
 
-## What This AI Is For
+Freddy is for authorized defensive security work only: analysis, hardening, triage, and incident response support.
 
-Freddy is built to help defenders understand security data faster and take action with confidence.
+---
 
-- 🛡️ Explain raw security output in plain language (Nmap, logs, TLS, DNS, web scans)
-- 🚨 Detect likely risks and misconfigurations before they are missed
-- 📊 Prioritize issues by severity so you fix the most important problems first
-- 🧠 Use local cybersecurity knowledge during analysis (NIST, RFCs, OWASP, and more)
-- 🕒 Compare current findings with prior scans to catch recurring problems
-- ✅ Give step-by-step remediation and verification commands
-- 🗺️ Map findings to MITRE ATT&CK techniques and tactics
-- 🔍 Extract and check Indicators of Compromise against threat intel feeds
-- ⏱️ Reconstruct incident timelines from log evidence
-- 📡 Correlate findings across sources with SIEM-style rules
-- 📈 Score security posture with a 0–100 grading system
-- 📝 Generate professional exportable security reports
+## ⚡ Quick Start
 
-Freddy is for authorized defensive security work: analysis, hardening, triage, and incident response support.
-
-## Run Freddy From a Normal Terminal
-
-Freddy can be launched from a regular computer terminal without VS Code-specific tooling.
-
-Windows PowerShell or Command Prompt:
-
-```powershell
-python freddy.py --help
-freddy.bat --help
-./freddy.ps1 --help
-```
-
-Linux or macOS terminal:
+### 1. Clone and install
 
 ```bash
-python3 freddy.py --help
-./freddy --help
+git clone https://github.com/Fredler21/Freddy.git
+cd Freddy
+
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+pip install --no-cache-dir -r requirements.txt
 ```
 
-Run Freddy without a command to open the interactive welcome intro.
-It will show capabilities and ask: "Which one do you want to start today?"
+### 2. Set your API key
+
+Freddy uses Claude for AI analysis. Set your Anthropic API key:
 
 ```bash
-python3 freddy.py
+export ANTHROPIC_API_KEY="your-key-here"
 ```
 
-The launcher scripts included in the project root are:
+### 3. Build the knowledge index
 
-- `freddy.bat` for Windows terminals
-- `freddy.ps1` for PowerShell
-- `freddy` for Linux and macOS shells
+```bash
+python3 freddy.py learn
+```
 
-If you want Freddy on your shell `PATH`, place the project folder on `PATH` or create a shell alias to one of those launchers.
+This indexes all documents in `knowledge/` and `vulnerabilities/` into a local vector database for retrieval during analysis.
 
-### Premium Terminal Startup Design
+### 4. Run Freddy
 
-Freddy now shows a premium startup banner when you run a command, including runtime status chips and a quick-start tip.
+```bash
+python3 freddy.py                  # Interactive welcome menu
+python3 freddy.py --help           # See all commands
+python3 freddy.py walkthrough      # Guided step-by-step menu
+```
 
-- Default behavior: banner is shown automatically at command start.
-- Quiet mode: add `--no-banner` to disable it.
+---
+
+## 🎯 What Freddy Can Do
+
+| Category | Capabilities |
+|---|---|
+| **Scan & Recon** | Nmap port scanning, full reconnaissance, web checks, TLS/SSL inspection, DNS analysis, WHOIS lookups |
+| **Log Analysis** | Parse auth.log, web logs, syslog — detect brute force, intrusion indicators, suspicious patterns |
+| **System Auditing** | Local port review, firewall status, SSH config, user accounts, service exposure |
+| **File Analysis** | Analyze any security tool output from a saved file |
+| **MITRE ATT&CK** | Automatically map every finding to ATT&CK techniques and tactics |
+| **IOC Extraction** | Pull IPs, domains, URLs, file hashes, CVEs, suspicious paths from any evidence |
+| **Threat Intelligence** | Check IOCs against AbuseIPDB, VirusTotal, and AlienVault OTX |
+| **Incident Timeline** | Reconstruct chronological attack timelines from log timestamps |
+| **SIEM Correlation** | Detect cross-source patterns: brute-force chains, scan-to-exploit, lateral movement |
+| **Posture Scoring** | 0–100 security grade with letter rating (A–F) based on all findings |
+| **Auto Investigation** | Chain 6 recon tools into one command with full enrichment |
+| **Report Generation** | Export professional Markdown or JSON security reports |
+| **Security Mentor** | Educational notes with real-world context and NIST/CIS/OWASP references |
+| **Visualization** | ASCII charts, MITRE matrices, posture gauges, attack surface maps |
+| **Knowledge Search** | Semantic search across NIST, RFC, and OWASP documents |
+| **Scan Memory** | SQLite history with cross-scan correlation and recurring issue detection |
+
+---
+
+## 🚀 How to Use Freddy
+
+Once installed, here are the most common things you'll do with Freddy:
+
+### 🔎 Scan a target
+
+```bash
+python3 freddy.py scan 192.168.1.10
+```
+
+Freddy runs Nmap, applies security rules, maps findings to MITRE ATT&CK, extracts IOCs, scores your posture, and generates a full AI-powered analysis — all in one command.
+
+### 📄 Analyze a file
+
+```bash
+python3 freddy.py analyze samples/sample_nmap.txt
+python3 freddy.py logs /var/log/auth.log
+```
+
+Feed Freddy any security tool output or log file. It runs the full SOC enrichment pipeline and produces a structured defensive report.
+
+### 🤖 Run a full automated investigation
+
+```bash
+python3 freddy.py auto-investigate example.com
+```
+
+This chains 6 tools together (Nmap + web check + TLS + DNS + WHOIS + Nikto), collects all evidence, and runs the complete analysis pipeline. Use `--quick` for a faster 3-tool version.
+
+### 🌐 Check web, TLS, DNS, and WHOIS
+
+```bash
+python3 freddy.py webcheck example.com
+python3 freddy.py tlscheck example.com
+python3 freddy.py dnscheck example.com
+python3 freddy.py whois example.com
+```
+
+### 🖥️ Audit your own machine
+
+```bash
+python3 freddy.py ports       # What's listening?
+python3 freddy.py audit       # Full system security audit
+```
+
+### 🔍 Extract IOCs and check threat intel
+
+```bash
+python3 freddy.py ioc-extract samples/sample_log.txt        # Extract IPs, domains, hashes, CVEs
+python3 freddy.py threat-intel 45.33.32.156                  # Check IP against threat feeds
+python3 freddy.py threat-intel suspicious-domain.com         # Check domain
+```
+
+### ⏱️ Build an incident timeline
+
+```bash
+python3 freddy.py timeline samples/sample_log.txt
+```
+
+### 📊 Get a security posture score
+
+```bash
+python3 freddy.py posture samples/sample_nmap.txt
+```
+
+### 📝 Generate a professional report
+
+```bash
+python3 freddy.py report samples/sample_nmap.txt                  # Markdown report
+python3 freddy.py report samples/sample_log.txt --format json     # JSON report
+```
+
+Reports are saved to `data/reports/`.
+
+### 🧠 Search the knowledge base
+
+```bash
+python3 freddy.py knowledge-search "ssh hardening"
+python3 freddy.py knowledge-search "How do I detect SQL injection in logs?"
+```
+
+### 🕒 View scan history
+
+```bash
+python3 freddy.py history
+python3 freddy.py history --target example.com
+```
+
+### 💡 Tips
+
+- Add `--yes` to skip confirmation prompts: `python3 freddy.py scan 192.168.1.10 --yes`
+- Add `--no-banner` to hide the startup banner
+- MITRE ATT&CK mapping, IOC extraction, SIEM correlation, posture scoring, and learning notes run **automatically** on every analysis — no extra flags needed
+- For threat intel, optionally set `ABUSEIPDB_API_KEY` and `VIRUSTOTAL_API_KEY` environment variables (AlienVault OTX works free without a key)
+- Use `python3 freddy.py walkthrough` for a guided interactive menu
+
+---
+
+## 📋 All Commands
+
+### 🔎 Scanning & Reconnaissance
+
+```bash
+# Scan a target with Nmap
+python3 freddy.py scan 192.168.1.10
+python3 freddy.py scan example.com
+
+# Full reconnaissance (multiple tools)
+python3 freddy.py recon example.com
+
+# Automated multi-tool investigation (Nmap + TLS + DNS + WHOIS + web + Nikto)
+python3 freddy.py auto-investigate example.com
+python3 freddy.py auto-investigate example.com --quick    # Fast 3-tool version
+```
+
+### 🌐 Web, TLS, DNS & WHOIS
+
+```bash
+python3 freddy.py webcheck example.com       # HTTP headers, technologies, vulns
+python3 freddy.py tlscheck example.com       # Certificate + cipher analysis
+python3 freddy.py dnscheck example.com       # DNS record analysis
+python3 freddy.py whois example.com          # Domain registration info
+```
+
+### 🖥️ System Auditing (Linux)
+
+```bash
+python3 freddy.py ports                      # What's listening on this machine?
+python3 freddy.py audit                      # Full system security audit
+python3 freddy.py host-audit                 # Host-level checks
+```
+
+### 📄 File & Log Analysis
+
+```bash
+# Analyze any security tool output saved to a file
+python3 freddy.py analyze samples/sample_nmap.txt
+python3 freddy.py analyze path/to/nmap_output.txt
+
+# Analyze log files (auth.log, web logs, syslog)
+python3 freddy.py logs samples/sample_log.txt
+python3 freddy.py logs /var/log/auth.log
+
+# Investigate a file with contextual analysis
+python3 freddy.py investigate path/to/evidence.txt
+```
+
+### 🔬 SOC-Grade Commands
+
+```bash
+# Extract Indicators of Compromise from any evidence file
+python3 freddy.py ioc-extract samples/sample_log.txt
+
+# Check an IP or domain against threat intelligence feeds
+python3 freddy.py threat-intel 45.33.32.156
+python3 freddy.py threat-intel suspicious-domain.com
+
+# Reconstruct incident timeline from logs
+python3 freddy.py timeline samples/sample_log.txt
+
+# View security posture score for evidence
+python3 freddy.py posture samples/sample_nmap.txt
+
+# Generate a professional security report
+python3 freddy.py report samples/sample_nmap.txt
+python3 freddy.py report samples/sample_log.txt --format json
+```
+
+### 📚 Knowledge & History
+
+```bash
+# Build or rebuild the knowledge index
+python3 freddy.py learn
+
+# Search the local cybersecurity knowledge base
+python3 freddy.py knowledge-search "ssh hardening"
+python3 freddy.py knowledge-search "How do I detect SQL injection in logs?"
+
+# View scan history
+python3 freddy.py history
+python3 freddy.py history --target example.com
+
+# View memory database statistics
+python3 freddy.py memory-stats
+
+# Interactive guided menu
+python3 freddy.py walkthrough
+```
+
+### 🏷️ Command Flags
+
+| Flag | What it does |
+|---|---|
+| `--yes` or `-y` | Skip confirmation prompts (useful for scripts) |
+| `--no-banner` | Hide the startup banner |
+| `--quick` | Use fast mode (for `auto-investigate`) |
+| `--format json` | Output as JSON (for `report`) |
 
 Examples:
 
 ```bash
-python3 freddy.py scan 192.168.1.10
-python3 freddy.py --no-banner scan 192.168.1.10 --yes
+python3 freddy.py scan 192.168.1.10 --yes          # No confirmation prompt
+python3 freddy.py --no-banner scan 192.168.1.10     # No banner
+python3 freddy.py report evidence.txt --format json  # JSON report
 ```
 
-## What Works On A Normal Computer Terminal
+---
 
-Works directly on Windows, Linux, and macOS terminals once Python dependencies are installed:
+## 🔬 SOC-Grade Features (Detail)
 
-- `learn`
-- `knowledge-search`
-- `history`
-- `info`
-- `version`
-- `analyze <file>`
-- `logs <file>`
+These features run **automatically** on every analysis. They are also available as standalone commands.
 
-Usually works cross-platform if the underlying tool is installed and available on `PATH`:
+### 🗺️ MITRE ATT&CK Mapping
 
-- `scan <target>` with `nmap`
-- `tlscheck <target>` with `openssl`
-- `dnscheck <domain>` with `nslookup`, `dig`, or `host`
-- `whois <domain>` with `whois`
-- `webcheck <target>` with `curl`, `whatweb`, and `nikto`
+Every analysis maps detected behaviors to the MITRE ATT&CK framework. Freddy identifies 25+ techniques across 12 tactics:
 
-On Windows, Freddy also checks common install locations outside `PATH` for tools such as `nmap`, `openssl`, `dig`, `host`, `whois`, `curl`, `whatweb`, and `nikto`.
+- **Credential Access**: T1110 Brute Force, T1003 OS Credential Dumping
+- **Initial Access**: T1190 Exploit Public-Facing Application, T1078 Valid Accounts
+- **Discovery**: T1046 Network Service Scanning, T1087 Account Discovery
+- **Persistence**: T1098 Account Manipulation, T1136 Create Account
+- **Privilege Escalation**: T1548 Abuse Elevation Control, T1068 Exploitation for Privilege Escalation
+- **Defense Evasion**: T1070 Indicator Removal, T1562 Impair Defenses
+- **Lateral Movement**: T1021 Remote Services, T1563 Remote Service Session Hijacking
+- **Execution**: T1059 Command and Scripting Interpreter
+- And more across Exfiltration, Collection, Impact, and Command & Control
 
-Best run in Linux or WSL because they inspect Linux-native host state:
+Mappings appear in analysis output with technique IDs, tactic names, and confidence levels (HIGH/MEDIUM/LOW).
 
-- `ports`
-- `audit`
+### 🔍 IOC Extraction
 
-## Architecture
+Freddy extracts 9 types of Indicators of Compromise from any evidence:
+
+| IOC Type | Example |
+|---|---|
+| IP Addresses | `45.33.32.156`, `192.168.1.100` |
+| Domains | `malicious-domain.com` |
+| URLs | `http://evil.com/payload.sh` |
+| Email Addresses | `attacker@evil.com` |
+| File Hashes | MD5, SHA1, SHA256 (auto-labeled) |
+| CVE Identifiers | `CVE-2021-44228` |
+| Suspicious File Paths | `/tmp/.hidden`, `/dev/shm/payload` |
+| User Agents | Unusual or known-malicious user agent strings |
+| Network Ports | Open ports detected in evidence |
+
+Private IPs and benign domains (localhost, ubuntu.com, etc.) are filtered automatically.
+
+```bash
+python3 freddy.py ioc-extract samples/sample_log.txt
+```
+
+### 🌐 Threat Intelligence Lookup
+
+Check extracted IOCs against external threat feeds:
+
+| Source | API Key Required | Environment Variable | What It Returns |
+|---|---|---|---|
+| AbuseIPDB | Yes | `ABUSEIPDB_API_KEY` | Abuse confidence score, reports count, country |
+| VirusTotal | Yes | `VIRUSTOTAL_API_KEY` | Detection ratio, malicious/suspicious flags |
+| AlienVault OTX | No | — | Pulse count, reputation data |
+
+```bash
+# Set API keys (optional — AlienVault OTX works without any key)
+export ABUSEIPDB_API_KEY="your-key"
+export VIRUSTOTAL_API_KEY="your-key"
+
+# Check an IP
+python3 freddy.py threat-intel 45.33.32.156
+
+# Check a domain
+python3 freddy.py threat-intel suspicious-domain.com
+```
+
+Threat intel runs automatically after every analysis too — it checks the IOCs extracted from evidence.
+
+### ⏱️ Incident Timeline Reconstruction
+
+Freddy parses timestamps from log evidence and builds a chronological attack timeline:
+
+- Supports 4 timestamp formats: syslog, ISO 8601, Apache, and generic HH:MM:SS
+- Classifies events by type: authentication, network, web, system, malware, privilege escalation
+- Groups events into attack phases: reconnaissance → initial access → execution → persistence → lateral movement → exfiltration
+
+```bash
+python3 freddy.py timeline samples/sample_log.txt
+```
+
+### 📡 SIEM-Style Correlation
+
+Seven correlation rules detect cross-source attack patterns:
+
+| Rule | What It Detects |
+|---|---|
+| Brute Force Chain | Failed login attempts followed by successful login from same IP |
+| Multi-Source IP | Same IP appearing across scan, log, and web evidence |
+| Scan to Exploit | Port scan followed by service exploitation attempt |
+| Auth to Lateral | Authentication success followed by lateral movement indicators |
+| Service Exposure Chain | 3+ critical services exposed simultaneously (SSH + MySQL + Redis, etc.) |
+| Log-Web Overlap | Same indicators found in both log and web evidence |
+| Timeline Patterns | Rapid sequential events suggesting automated attack tools |
+
+### 🤖 Automated Investigation
+
+Chain multiple reconnaissance tools into a single command. Freddy runs each tool, collects all evidence, and passes it through the full enrichment pipeline:
+
+**Full investigation** (6 tools):
+1. Nmap port scan
+2. Web technology check (whatweb/curl)
+3. TLS/SSL certificate check (openssl)
+4. DNS record lookup (dig/nslookup/host)
+5. WHOIS domain lookup
+6. Nikto web vulnerability scan
+
+**Quick investigation** (3 tools):
+1. Nmap fast scan (-F)
+2. DNS lookup
+3. TLS check
+
+```bash
+python3 freddy.py auto-investigate example.com          # Full
+python3 freddy.py auto-investigate example.com --quick   # Quick
+```
+
+### 📊 Security Posture Scoring
+
+Every analysis receives a 0–100 score with a letter grade:
+
+| Grade | Score | Meaning |
+|---|---|---|
+| A | 90–100 | Strong security posture |
+| B | 80–89 | Good with minor issues |
+| C | 70–79 | Moderate risk, action needed |
+| D | 60–69 | Significant risk |
+| F | 0–59 | Critical — immediate action required |
+
+Penalty weights: CRITICAL (−15), HIGH (−10), MEDIUM (−5), LOW (−2). Score factors include rule findings, MITRE ATT&CK mappings, IOC counts, and correlation findings.
+
+```bash
+python3 freddy.py posture samples/sample_nmap.txt
+```
+
+### 🎓 Security Mentor
+
+Alongside findings, Freddy adds educational learning notes covering:
+
+- SSH exposure, brute force attacks, weak TLS, open ports
+- Firewall configuration, admin endpoint exposure, missing headers
+- Container security, sudo misuse, port scanning, DNS issues, log analysis
+
+Each note includes a plain-language explanation, real-world context (e.g., "The 2017 Equifax breach exploited..."), and references to NIST, CIS Benchmarks, MITRE ATT&CK, and OWASP documentation.
+
+### 📝 Professional Report Generation
+
+Generate exportable security reports saved to `data/reports/`:
+
+```bash
+# Markdown report (default)
+python3 freddy.py report samples/sample_nmap.txt
+
+# JSON report
+python3 freddy.py report samples/sample_log.txt --format json
+```
+
+Reports include:
+- Executive summary
+- MITRE ATT&CK technique mappings
+- Extracted IOCs with counts
+- Incident timeline
+- SIEM correlation findings
+- Security posture score and grade
+- Learning notes and references
+- Step-by-step remediation
+
+### 🎨 Security Visualization
+
+Terminal-based ASCII visualizations render during analysis:
+
+- **Attack Timeline Chart** — chronological event bar chart
+- **Severity Distribution** — bar chart of finding severities
+- **IP Activity Map** — which IPs are doing what
+- **Attack Surface Map** — exposed services and entry points
+- **Posture Gauge** — visual 0–100 score meter
+- **MITRE ATT&CK Matrix** — tactic/technique grid
+- **Connection Graph** — relationships between entities
+
+---
+
+## ⚙️ How Analysis Works
+
+Every analysis command (`scan`, `logs`, `audit`, `analyze`, etc.) runs this pipeline:
+
+```
+1. Collect raw evidence (tool output or file contents)
+2. Run deterministic rule engine (port checks, brute-force patterns, etc.)
+3. Retrieve matching knowledge from local vector database
+4. Retrieve prior scan history for the same target
+5. SOC Enrichment Pipeline:
+   ├── Map evidence to MITRE ATT&CK techniques
+   ├── Extract Indicators of Compromise
+   ├── Reconstruct incident timeline from timestamps
+   ├── Correlate findings across sources (SIEM rules)
+   ├── Calculate security posture score (0–100)
+   └── Generate educational learning notes
+6. Send enriched payload to AI model (Claude)
+7. Render output with visualizations
+8. Check IOCs against threat intelligence feeds
+9. Save findings, raw output, and metadata to memory
+```
+
+---
+
+## 🏗️ Architecture
 
 ```text
 📥 Security tools, logs, and scan results
                   |
                   v
-🖥️ Freddy CLI commands (scan, recon, audit, investigate, analyze, auto-investigate)
+🖥️ Freddy CLI (scan, recon, audit, investigate, analyze, auto-investigate)
                   |
                   v
-🧩 Pre-AI intelligence layer
-   |- 📏 Rule Engine (deterministic checks)
-   |- 📚 Knowledge Retrieval Engine (local indexed docs)
-   |- 🛠️ Vulnerability Intelligence Library
-   `- 🗂️ Memory Engine (history + correlation)
+🧩 Pre-AI Intelligence Layer
+   ├── 📏 Rule Engine (deterministic checks)
+   ├── 📚 Knowledge Retrieval Engine (local indexed docs)
+   ├── 🛠️ Vulnerability Intelligence Library
+   └── 🗂️ Memory Engine (history + correlation)
                   |
                   v
 🔬 SOC Enrichment Pipeline
-   |- 🗺️ MITRE ATT&CK Mapper (technique identification)
-   |- 🔍 IOC Extractor (IPs, domains, hashes, CVEs)
-   |- ⏱️ Timeline Reconstructor (chronological events)
-   |- 📡 SIEM Correlator (cross-source patterns)
-   |- 📊 Posture Scorer (0-100 security grade)
-   `- 🎓 Security Mentor (learning notes)
+   ├── 🗺️ MITRE ATT&CK Mapper (technique identification)
+   ├── 🔍 IOC Extractor (IPs, domains, hashes, CVEs)
+   ├── ⏱️ Timeline Reconstructor (chronological events)
+   ├── 📡 SIEM Correlator (cross-source patterns)
+   ├── 📊 Posture Scorer (0-100 security grade)
+   └── 🎓 Security Mentor (learning notes)
                   |
                   v
 🤖 AI Analysis Engine (enriched with SOC context)
@@ -127,555 +510,383 @@ Best run in Linux or WSL because they inspect Linux-native host state:
 🌐 Threat Intelligence (AbuseIPDB, VirusTotal, AlienVault OTX)
                   |
                   v
-📄 Structured defensive report
-   |- Executive summary + posture score
-   |- MITRE ATT&CK mappings
-   |- Indicators of Compromise
-   |- Incident timeline
-   |- Confirmed and suspected findings
-   |- Severity + confidence
-   |- Root cause
-   |- Remediation + verification steps
-   `- Security learning notes
+📄 Structured Defensive Report
+   ├── Executive summary + posture score
+   ├── MITRE ATT&CK mappings
+   ├── Indicators of Compromise
+   ├── Incident timeline
+   ├── Confirmed and suspected findings
+   ├── Severity + confidence
+   ├── Root cause
+   ├── Remediation + verification steps
+   └── Security learning notes
 ```
 
-## Core Capabilities
+---
 
-- Learn from local markdown knowledge in `knowledge/` and `vulnerabilities/`
-- Retrieve relevant defensive guidance during analysis
-- Apply deterministic security rules before model reasoning
-- Remember previous scans and findings in SQLite
-- Produce richer and more consistent remediation guidance
-- Provide dedicated commands for indexing, search, and history review
+## 📚 Knowledge Base
 
-## SOC-Grade Features
+### What's included
 
-Freddy includes a suite of enterprise-grade security operations capabilities that run alongside every analysis and are also available as standalone commands.
+Freddy loads cybersecurity reference material from two folders:
 
-### MITRE ATT&CK Mapping
+- `knowledge/` — broad defensive guidance (Linux security, SSH hardening, web security, incident response, network protocols, and more)
+- `vulnerabilities/` — focused vulnerability intelligence (SSH exposure, weak TLS, Redis exposure, missing security headers, open ports)
 
-Every analysis automatically maps detected behaviors to the MITRE ATT&CK framework. Freddy identifies techniques such as T1110 (Brute Force), T1190 (Exploit Public-Facing Application), T1059 (Command and Scripting Interpreter), and 25+ others across 12 tactics. Mappings appear in the analysis output with technique IDs, tactic names, and confidence levels.
+Documents are chunked, embedded with `sentence-transformers`, and stored in a local Chroma vector database at `.freddy/vector_store`.
 
-### IOC Extraction
+### Indexed knowledge sources
 
-Freddy extracts Indicators of Compromise from any evidence: IP addresses, domains, URLs, email addresses, file hashes (MD5, SHA1, SHA256), CVE identifiers, suspicious file paths, user agents, and network ports. Private IPs and benign domains are filtered automatically.
-
-```bash
-python3 freddy.py ioc-extract samples/sample_log.txt
-```
-
-### Threat Intelligence Lookup
-
-Extracted IOCs can be checked against external threat intelligence feeds. Supported sources:
-
-| Source | API Key Required | Environment Variable |
-|---|---|---|
-| AbuseIPDB | Yes | `ABUSEIPDB_API_KEY` |
-| VirusTotal | Yes | `VIRUSTOTAL_API_KEY` |
-| AlienVault OTX | No | — |
-
-```bash
-python3 freddy.py threat-intel 192.168.1.100
-python3 freddy.py threat-intel suspicious-domain.com
-```
-
-### Incident Timeline Reconstruction
-
-Freddy parses timestamps from log evidence and reconstructs attack timelines chronologically. Events are classified by type (authentication, network, web, system, malware, privilege escalation) and grouped into attack phases (reconnaissance, initial access, execution, persistence, lateral movement, exfiltration).
-
-```bash
-python3 freddy.py timeline samples/sample_log.txt
-```
-
-### SIEM-Style Correlation
-
-Seven correlation rules detect cross-source attack patterns:
-
-- Brute force chains (failed login → successful login from same IP)
-- Multi-source IP activity (same IP across scan, log, and web evidence)
-- Scan-to-exploit sequences (port scan followed by service exploitation)
-- Authentication to lateral movement progression
-- Service exposure chains (3+ critical services exposed simultaneously)
-- Log and web evidence overlap
-- Timeline-based attack patterns
-
-### Automated Investigation Workflows
-
-Chain multiple reconnaissance tools into a single investigation. Freddy runs the tools, collects all evidence, and passes it through the full enrichment pipeline.
-
-```bash
-# Full investigation: Nmap + web check + TLS + DNS + WHOIS + Nikto
-python3 freddy.py auto-investigate example.com
-
-# Quick investigation: Nmap fast scan + DNS + TLS
-python3 freddy.py auto-investigate example.com --quick
-```
-
-### Security Posture Scoring
-
-Every analysis receives a 0–100 security posture score with a letter grade (A through F). The score is calculated from rule findings, MITRE ATT&CK mappings, IOC counts, and correlation findings. Penalty weights: CRITICAL (−15), HIGH (−10), MEDIUM (−5), LOW (−2).
-
-```bash
-python3 freddy.py posture samples/sample_nmap.txt
-```
-
-### Security Mentor
-
-Freddy adds contextual learning notes alongside findings. Each note includes a plain-language explanation, real-world context, and references to NIST, CIS, MITRE, and OWASP documentation. Topics covered include SSH exposure, brute force, weak TLS, open ports, container security, and more.
-
-### Professional Report Generation
-
-Generate exportable security reports in Markdown or JSON format. Reports include an executive summary, MITRE ATT&CK mappings, IOCs, incident timeline, correlation findings, posture score, learning notes, and remediation steps. Reports are saved to `data/reports/`.
-
-```bash
-python3 freddy.py report samples/sample_nmap.txt
-python3 freddy.py report samples/sample_log.txt --format json
-```
-
-### Security Visualization
-
-Terminal-based ASCII visualizations render directly in the console during analysis:
-
-- Attack timeline charts
-- Severity distribution bar charts
-- IP activity maps
-- Attack surface maps
-- Security posture gauges
-- MITRE ATT&CK tactic/technique matrices
-- Connection graphs
-
-## Knowledge Base Overview
-
-Freddy loads markdown intelligence from two local folders:
-
-- `knowledge/`: broad defensive reference material such as Linux security, SSH hardening, web security, incident response, and network security
-- `vulnerabilities/`: focused vulnerability intelligence such as SSH exposure, weak TLS, Redis exposure, missing security headers, and open ports
-
-These files are chunked, embedded with `sentence-transformers`, and stored in a persistent Chroma vector database.
-
-## How Freddy Learns
-
-Freddy does not fine-tune the model. Instead, it builds a local retrieval index:
-
-1. Load markdown files from `knowledge/` and `vulnerabilities/`
-2. Split long files into retrieval chunks
-3. Embed chunks with the configured sentence-transformer model
-4. Persist embeddings in Chroma under `.freddy/vector_store`
-5. Retrieve the most relevant chunks during analysis or explicit search
-
-Build or rebuild the index with:
-
-```bash
-python3 freddy.py learn
-```
-
-On Windows terminals, use:
-
-```powershell
-python freddy.py learn
-freddy.bat learn
-./freddy.ps1 learn
-```
-
-## How Analysis Works
-
-For scan, log, audit, and file analysis commands, Freddy now runs this upgraded flow:
-
-1. Collect raw evidence from tools or files
-2. Run the rule engine on the raw evidence
-3. Build a retrieval query from the command context and rule findings
-4. Retrieve relevant knowledge and vulnerability intelligence
-5. Retrieve prior scan history for the same target
-6. Run SOC enrichment pipeline:
-   - Map evidence to MITRE ATT&CK techniques
-   - Extract Indicators of Compromise (IPs, domains, hashes, CVEs)
-   - Reconstruct incident timeline from timestamps
-   - Correlate findings across evidence sources (SIEM rules)
-   - Calculate security posture score
-   - Generate contextual learning notes
-7. Compose a structured AI payload with evidence, rules, knowledge, history, and enrichment data
-8. Generate the final report with visualizations
-9. Check extracted IOCs against threat intelligence feeds (best-effort)
-10. Save structured findings and raw output to memory
-
-## Rule Engine
-
-The rule engine inspects evidence before AI reasoning. Included rules cover:
-
-- Port 22 exposure and possible public SSH risk
-- Port 21 FTP exposure
-- Port 23 Telnet exposure
-- Port 3306 MySQL exposure
-- Port 5432 PostgreSQL exposure
-- Port 6379 Redis exposure
-- Port 9200 Elasticsearch exposure
-- Multiple failed login attempts and brute-force indicators
-- Repeated 401, 403, and 404 patterns in web logs
-- Admin-like endpoint exposure or probing
-
-## Vulnerability Intelligence Library
-
-The `vulnerabilities/` folder acts as Freddy's focused security intelligence layer. Relevant files are retrieved automatically when evidence suggests:
-
-- SSH exposure
-- Weak TLS
-- Open ports and sensitive listeners
-- Redis or MySQL exposure
-- Missing security headers
-
-## Freddy Memory System
-
-Freddy builds long-term structured memory of every scan it performs. Each analysis saves:
-
-- The target hostname or IP
-- Timestamp of the scan
-- Command used
-- AI-extracted structured findings as a JSON list
-- Severity level
-- Summarized remediation guidance
-- Path to the raw tool output file
-
-Raw tool output is saved to `data/raw/` for offline review. The structured database lives at `memory/freddy_memory.db`.
-
-Before every analysis, Freddy queries that database for the same target. If prior records exist, a correlation and history summary is injected into the AI prompt so the model can note recurring or unresolved issues.
-
-### Deduplication
-
-If the structured findings for the same target are identical to the most recent stored record, Freddy updates the timestamp and increments the scan counter rather than creating a duplicate row.
-
-### Correlation
-
-Freddy detects patterns such as:
-
-- Port 22 remaining exposed across multiple scans
-- Recurring vulnerability findings over weeks or months
-- Unresolved issues that have appeared in three or more scans
-
-These patterns give the AI model richer context when generating its report.
-
-### View history
-
-```bash
-python3 freddy.py history
-python3 freddy.py history --target example.com
-```
-
-### View memory statistics
-
-```bash
-python3 freddy.py memory-stats
-```
-
-Outputs:
-
-- Total scans stored
-- Unique targets tracked
-- Most frequently seen findings across all scans
-
-## How Freddy Memory Works
-
-Freddy stores operational history in SQLite at `memory/freddy_memory.db` using two tables.
-
-`scans` table columns:
-
-- id
-- target
-- timestamp
-- command
-- raw_output_path
-- summary
-- severity
-- findings (JSON list)
-- remediation
-
-`targets` table columns:
-
-- id
-- hostname
-- first_seen
-- last_seen
-- scan_count
-
-This memory drives analyst review, historical comparison, correlation detection, and AI context enrichment.
-
-## Project Structure
-
-```text
-Freddy/
-|- freddy.py
-|- ai_engine.py
-|- config.py
-|- commands/
-|- modules/
-|  |- knowledge_engine.py
-|  |- rule_engine.py
-|  |- memory_engine.py
-|  |- retrieval_formatter.py
-|  |- intelligence_pipeline.py
-|  |- mitre_mapper.py          <- MITRE ATT&CK technique mapping
-|  |- ioc_extractor.py         <- Indicator of Compromise extraction
-|  |- timeline_reconstructor.py <- Incident timeline reconstruction
-|  |- threat_intel.py           <- Threat intelligence feed lookups
-|  |- siem_correlator.py        <- Cross-source event correlation
-|  |- auto_investigator.py      <- Automated multi-tool workflows
-|  |- posture_scorer.py         <- Security posture scoring (0-100)
-|  |- security_mentor.py        <- Educational learning notes
-|  |- report_generator.py       <- Professional report generation
-|  `- visualizer.py             <- ASCII security visualizations
-|- knowledge/
-|- vulnerabilities/
-|- prompts/
-|- samples/
-|- data/
-|  |- raw/          <- raw tool output saved per scan
-|  `- reports/      <- generated security reports (Markdown, JSON)
-|- memory/
-|  `- freddy_memory.db
-|- .freddy/
-|  `- vector_store/
-`- README.md
-```
-
-## New Commands
-
-```bash
-python3 freddy.py learn
-python3 freddy.py knowledge-search "ssh hardening"
-python3 freddy.py history
-python3 freddy.py history --target example.com
-python3 freddy.py memory-stats
-python3 freddy.py walkthrough
-```
-
-### SOC-Grade Commands
-
-```bash
-# Automated multi-tool investigation
-python3 freddy.py auto-investigate example.com
-python3 freddy.py auto-investigate example.com --quick
-
-# Extract IOCs from a file
-python3 freddy.py ioc-extract samples/sample_log.txt
-
-# Check IPs or domains against threat intelligence feeds
-python3 freddy.py threat-intel 192.168.1.100
-python3 freddy.py threat-intel suspicious-domain.com
-
-# Reconstruct incident timeline from logs
-python3 freddy.py timeline samples/sample_log.txt
-
-# Generate a professional security report
-python3 freddy.py report samples/sample_nmap.txt
-python3 freddy.py report samples/sample_log.txt --format json
-
-# View security posture score for evidence
-python3 freddy.py posture samples/sample_nmap.txt
-```
-
-### Guided Command Prompts
-
-For tool-running commands, Freddy now asks a confirmation question before execution to make workflows safer and easier, for example:
-
-- `Do you want me to scan this target: 192.168.1.0/24? [Y/n]`
-- `Do you want me to run full reconnaissance against: example.com? [Y/n]`
-
-This includes: `scan`, `recon`, `ports`, `audit`, `host-audit`, `analyze`, `investigate`, `logs`, `webcheck`, `tlscheck`, `dnscheck`, `whois`, `learn`, `knowledge-search`, `history`, and `memory-stats`.
-
-Use `--yes` (or `-y`) to skip prompts in automation/scripts:
-
-```bash
-python3 freddy.py scan 192.168.1.10 --yes
-python3 freddy.py recon example.com --yes
-python3 freddy.py audit --yes
-python3 freddy.py knowledge-search "ssh hardening" --yes
-python3 freddy.py learn --yes
-```
-
-Windows equivalents:
-
-```powershell
-python freddy.py learn
-python freddy.py knowledge-search "ssh hardening"
-python freddy.py history
-python freddy.py history --target example.com
-python freddy.py memory-stats
-./freddy.ps1 info
-```
-
-## Existing Analysis Commands
-
-```bash
-python3 freddy.py scan <target>
-python3 freddy.py recon <target>
-python3 freddy.py host-audit
-python3 freddy.py investigate <file>
-python3 freddy.py ports
-python3 freddy.py analyze <file>
-python3 freddy.py logs <file>
-python3 freddy.py audit
-python3 freddy.py webcheck <target>
-python3 freddy.py tlscheck <target>
-python3 freddy.py dnscheck <domain>
-python3 freddy.py whois <domain>
-python3 freddy.py auto-investigate <target>
-python3 freddy.py ioc-extract <file>
-python3 freddy.py threat-intel <indicator>
-python3 freddy.py timeline <file>
-python3 freddy.py report <file>
-python3 freddy.py posture <file>
-```
-
-## Example Usage
-
-Index the knowledge base:
-
-```bash
-python3 freddy.py learn
-```
-
-Search the local security knowledge base:
-
-```bash
-python3 freddy.py knowledge-search "ssh hardening"
-```
-
-Review Freddy history:
-
-```bash
-python3 freddy.py history
-python3 freddy.py history --target example.com
-```
-
-Analyze a sample log with the upgraded pipeline:
-
-```bash
-python3 freddy.py analyze samples/sample_auth.log
-```
-
-Run a local port review with rules, retrieval, and memory enabled:
-
-```bash
-python3 freddy.py ports
-```
-
-## How to Add Knowledge Files
-
-1. Add a new markdown file to `knowledge/` for broad guidance or `vulnerabilities/` for focused issue intelligence
-2. Use clear headings and concise defensive guidance
-3. Rebuild the index with `python3 freddy.py learn`
-4. Use `python3 freddy.py knowledge-search "<topic>"` to validate retrieval quality
-
-## Downloading the Cybersecurity Knowledge Library
-
-Freddy ships with an automated downloader that fetches real PDF documents from
-official sources (NIST CSRC, IETF RFC Editor, Wireshark project) into the
-correct knowledge subfolders.
-
-### Run the downloader
-
-```bash
-python3 download_freddy_knowledge.py
-```
-
-The script will:
-
-- Create any missing knowledge subfolders automatically
-- Skip files that are already present and valid
-- Show per-file download progress
-- Verify each file is a valid PDF before saving
-- Retry up to 3 times on network errors
-- Print a summary of downloaded / skipped / failed files
-
-### After downloading, build the index
-
-```bash
-python3 freddy.py learn
-```
-
-### What gets downloaded
-
-| Folder | Document |
+| Folder | Topics |
 |---|---|
-| `nmap/` | NIST SP 800-115 (security testing), NIST SP 800-53r5 (controls), RFC 6335 (port assignments) |
-| `wireshark/` | Official Wireshark User Guide, RFC 791 (IP), RFC 768 (UDP) |
+| `nmap/` | NIST SP 800-115 (security testing), NIST SP 800-53r5 (controls), RFC 6335 (ports) |
+| `wireshark/` | Wireshark User Guide, RFC 791 (IP), RFC 768 (UDP) |
 | `linux/` | NIST SP 800-123 (server security), SP 800-190 (containers), SP 800-207 (zero trust) |
-| `ubuntu/` | NIST SP 800-123, SP 800-190 (containers), SP 800-70r4 (OS checklists) |
-| `networking/` | RFC 793 (TCP), RFC 1035 (DNS), RFC 2616 (HTTP/1.1), RFC 791 (IP), RFC 2328 (OSPF), RFC 4271 (BGP), NIST SP 800-41r1 (firewalls) |
+| `networking/` | RFC 793 (TCP), RFC 1035 (DNS), RFC 2616 (HTTP), NIST SP 800-41r1 (firewalls) |
 | `web_security/` | OWASP Top 10 2021, NIST SP 800-44v2 (web servers), SP 800-95 (web services) |
 | `log_analysis/` | NIST SP 800-92 (log management), RFC 5424 (syslog), RFC 3164 (BSD syslog) |
 | `incident_response/` | NIST SP 800-61r2 (incident handling), SP 800-86 (forensics) |
-| `threat_detection/` | NIST SP 800-94 (IDPS), SP 800-83r1 (malware), SP 800-150 (threat intel), SP 800-137 (continuous monitoring) |
-| `hardening/` | NIST SP 800-128 (config management), SP 800-77r1 (IPsec VPN), SP 800-70r4 (checklists), SP 800-52r2 (TLS) |
-| `vulnerabilities/` | NIST SP 800-40r4 (patch mgmt), SP 800-30r1 (risk), SP 800-53r5 (controls), SP 800-171r2 (CUI) |
-| `john_the_ripper/` | NIST SP 800-63B (authentication), SP 800-132 (password key derivation), SP 800-63-3 (digital identity) |
+| `threat_detection/` | NIST SP 800-94 (IDPS), SP 800-83r1 (malware), SP 800-150 (threat intel) |
+| `hardening/` | NIST SP 800-128 (config mgmt), SP 800-77r1 (IPsec), SP 800-52r2 (TLS) |
+| `vulnerabilities/` | NIST SP 800-40r4 (patching), SP 800-30r1 (risk), SP 800-171r2 (CUI) |
+| `john_the_ripper/` | NIST SP 800-63B (authentication), SP 800-132 (password key derivation) |
 
-All sources are freely licensed government or open-source documentation.
-If a URL returns a 404, update the `CATALOG` list at the top of `download_freddy_knowledge.py`.
-
-### GitHub-only automation (no manual downloader run on devices)
-
-Freddy can keep the extracted `.txt` knowledge library up to date directly from GitHub Actions.
-This means your devices can simply `git pull` the generated text files from `knowledge/`.
-
-Workflow file:
-
-- `.github/workflows/knowledge-sync.yml`
-
-How it works:
-
-1. Runs on a schedule (weekly) or manual dispatch
-2. Executes `python download_freddy_knowledge.py`
-3. Extracts PDF content into `.txt` files in the matching `knowledge/*/` folders
-4. Commits and pushes changed files back to the repository
-
-How to run it manually from GitHub:
-
-1. Open your repository on GitHub
-2. Go to **Actions**
-3. Select **Sync Freddy Knowledge Library**
-4. Click **Run workflow**
-
-After it completes, pull updates on any machine:
+### How to search the knowledge base
 
 ```bash
-git pull origin main
+python3 freddy.py knowledge-search "ssh hardening"
+python3 freddy.py knowledge-search "How do I detect SQL injection in logs?"
+python3 freddy.py knowledge-search "What is zero trust architecture?"
+python3 freddy.py knowledge-search "TLS best practices for Ubuntu"
 ```
 
-## Quick Start on Kali Linux
+Tips for better results:
+- Include context like OS, tool, or protocol (Ubuntu, OpenSSL, Docker, iptables)
+- Ask one focused question per query
+- Refine and re-ask with more detail if needed
 
-Use this sequence on a fresh Kali machine after cloning or pulling updates:
+### How to add your own documents
+
+Freddy supports **PDF**, **Markdown**, and **plain text** files.
+
+1. Place the file in the matching subfolder:
+   ```
+   knowledge/nmap/my_nmap_guide.pdf
+   knowledge/linux/hardening_checklist.md
+   knowledge/web_security/xss_reference.txt
+   ```
+2. Rebuild the index:
+   ```bash
+   python3 freddy.py learn
+   ```
+3. Verify indexing:
+   ```bash
+   python3 freddy.py knowledge-search "topic from your document"
+   ```
+
+Freddy assigns the category automatically from the subfolder name.
+
+### Knowledge folder structure
+
+```text
+knowledge/
+├── networking/          TCP/IP, DNS, routing, firewalls
+├── linux/               Linux administration, hardening, permissions
+├── ubuntu/              Ubuntu-specific guides
+├── wireshark/           Packet capture and protocol analysis
+├── nmap/                Port scanning, service detection
+├── nikto/               Web server scanning
+├── gobuster/            Directory and DNS brute-forcing
+├── ffuf/                Web fuzzing
+├── tcpdump/             Command-line packet capture
+├── metasploit/          Exploitation and post-exploitation
+├── burpsuite/           Web application testing
+├── hydra/               Credential brute-forcing
+├── john_the_ripper/     Password cracking
+├── aircrack/            Wireless security
+├── dns_tools/           DNS enumeration and reconnaissance
+├── web_security/        OWASP, web vulnerabilities, authentication
+├── log_analysis/        auth.log, nginx, apache, IDS logs
+├── incident_response/   IR playbooks and triage guides
+├── threat_detection/    IDS/IPS, malware, continuous monitoring
+├── hardening/           Configuration management, TLS, IPsec
+├── vulnerabilities/     CVEs and vulnerability intelligence
+├── security_basics/     Foundational cybersecurity concepts
+└── (your custom folders)
+```
+
+### Downloading the knowledge library
+
+Freddy includes an automated downloader for official NIST, IETF, and OWASP documents:
+
+```bash
+python3 download_freddy_knowledge.py    # Download PDFs
+python3 freddy.py learn                 # Rebuild index after download
+```
+
+The downloader fetches from NIST CSRC, IETF RFC Editor, and the Wireshark project. It skips existing files, verifies PDFs, and retries on errors.
+
+A GitHub Actions workflow (`.github/workflows/knowledge-sync.yml`) can automate this weekly. After it runs, just `git pull` on any machine.
+
+---
+
+## 🗂️ Memory System
+
+Freddy remembers every scan in a SQLite database at `memory/freddy_memory.db`.
+
+### What gets saved
+
+| Field | Description |
+|---|---|
+| Target | Hostname or IP address |
+| Timestamp | When the scan ran |
+| Command | Which command was used |
+| Findings | AI-extracted structured findings (JSON) |
+| Severity | Overall severity level |
+| Remediation | Summarized fix guidance |
+| Raw output | Path to saved tool output in `data/raw/` |
+
+### Cross-scan correlation
+
+Before every analysis, Freddy checks the database for prior scans of the same target. If history exists, it injects a correlation summary into the AI prompt. This detects:
+
+- Ports remaining exposed across multiple scans
+- Recurring vulnerability findings over weeks or months
+- Unresolved issues that appeared in 3+ scans
+
+### Deduplication
+
+If findings are identical to the last scan of the same target, Freddy updates the timestamp and increments the scan counter instead of creating a duplicate.
+
+### Viewing history
+
+```bash
+python3 freddy.py history                         # All scan history
+python3 freddy.py history --target example.com    # History for one target
+python3 freddy.py memory-stats                    # Database statistics
+```
+
+---
+
+## ⚙️ Configuration
+
+### Required
+
+| Variable | Purpose |
+|---|---|
+| `ANTHROPIC_API_KEY` | Claude API key for AI analysis |
+
+### Optional (for threat intelligence)
+
+| Variable | Purpose | Get it from |
+|---|---|---|
+| `ABUSEIPDB_API_KEY` | AbuseIPDB lookups | [abuseipdb.com](https://www.abuseipdb.com) |
+| `VIRUSTOTAL_API_KEY` | VirusTotal lookups | [virustotal.com](https://www.virustotal.com) |
+
+AlienVault OTX works without an API key.
+
+### Runtime storage
+
+| Path | Contents |
+|---|---|
+| `.freddy/vector_store/` | Chroma vector database (knowledge index) |
+| `memory/freddy_memory.db` | SQLite scan history and correlation data |
+| `data/raw/` | Saved raw tool output from each scan |
+| `data/reports/` | Generated security reports (Markdown, JSON) |
+
+---
+
+## 📁 Project Structure
+
+```text
+Freddy/
+├── freddy.py                         Main CLI entry point (Typer + Rich)
+├── ai_engine.py                      Claude API integration
+├── config.py                         Paths and configuration
+├── commands/
+│   ├── scan.py                       Nmap scanning
+│   ├── recon.py                      Full reconnaissance
+│   ├── analyze.py                    File analysis
+│   ├── logs.py                       Log file analysis
+│   ├── ports.py                      Local port auditing
+│   ├── audit.py                      System security audit
+│   ├── host_audit.py                 Host-level checks
+│   ├── investigate.py                Evidence investigation
+│   ├── webcheck.py                   Web security checks
+│   ├── tlscheck.py                   TLS/SSL inspection
+│   ├── dnscheck.py                   DNS analysis
+│   └── whois_lookup.py              WHOIS lookups
+├── modules/
+│   ├── intelligence_pipeline.py      Main analysis pipeline + SOC enrichment
+│   ├── rule_engine.py                Deterministic security rules
+│   ├── knowledge_engine.py           RAG knowledge retrieval (ChromaDB)
+│   ├── memory_engine.py              SQLite scan history
+│   ├── retrieval_formatter.py        Format knowledge for AI context
+│   ├── output_formatter.py           Terminal output and startup banner
+│   ├── tool_runner.py                Safe external tool execution
+│   ├── threat_classifier.py          Threat classification
+│   ├── network_analyzer.py           Network analysis utilities
+│   ├── log_analyzer.py               Log parsing utilities
+│   ├── vulnerability_detector.py     Vulnerability detection
+│   ├── file_loader.py                PDF/MD/TXT file loading
+│   ├── platform_support.py           Cross-platform tool detection
+│   ├── orchestrator.py               Command orchestration
+│   ├── mitre_mapper.py               MITRE ATT&CK technique mapping
+│   ├── ioc_extractor.py              Indicator of Compromise extraction
+│   ├── timeline_reconstructor.py     Incident timeline reconstruction
+│   ├── threat_intel.py               Threat intelligence feed lookups
+│   ├── siem_correlator.py            Cross-source event correlation
+│   ├── auto_investigator.py          Automated multi-tool workflows
+│   ├── posture_scorer.py             Security posture scoring (0–100)
+│   ├── security_mentor.py            Educational learning notes
+│   ├── report_generator.py           Professional report generation
+│   └── visualizer.py                 ASCII security visualizations
+├── knowledge/                         Cybersecurity reference documents
+├── vulnerabilities/                   Vulnerability intelligence files
+├── prompts/
+│   └── system_prompt.txt             AI system prompt
+├── samples/                           Sample files for testing
+├── questions/                         2,280 knowledge-test questions
+├── data/
+│   ├── raw/                           Saved tool output per scan
+│   └── reports/                       Generated security reports
+├── memory/
+│   └── freddy_memory.db              SQLite history database
+└── .freddy/
+    └── vector_store/                  Chroma knowledge index
+```
+
+---
+
+## 💻 Running Freddy on Different Platforms
+
+### Linux (recommended)
+
+All commands work natively. This is the best environment for Freddy.
+
+```bash
+python3 freddy.py scan 192.168.1.10
+./freddy scan 192.168.1.10
+```
+
+### macOS
+
+Most commands work if the underlying tools are installed (`nmap`, `openssl`, `dig`, `whois`, `curl`). Install via Homebrew:
+
+```bash
+brew install nmap
+```
+
+### Windows
+
+Use PowerShell or Command Prompt:
+
+```powershell
+python freddy.py scan 192.168.1.10
+freddy.bat scan 192.168.1.10
+./freddy.ps1 scan 192.168.1.10
+```
+
+Freddy checks common install locations outside `PATH` for tools like `nmap`, `openssl`, `dig`, `whois`, `curl`, `whatweb`, and `nikto`.
+
+**Note:** `ports` and `audit` commands are best run in Linux or WSL because they use Linux-native commands (`ss`, `systemctl`, `ufw`, `iptables`).
+
+### Kali Linux (quick start)
 
 ```bash
 cd /home/<your-user>/Freddy
-git fetch origin
-git checkout main
 git pull --ff-only origin main
 
 python3 -m venv .venv
 source .venv/bin/activate
-python3 -m pip install --upgrade pip
 pip install --no-cache-dir -r requirements.txt
 
 python3 freddy.py learn
 python3 freddy.py --help
 ```
 
-## Troubleshooting
+### Launcher scripts
+
+| Script | Platform |
+|---|---|
+| `freddy` | Linux / macOS |
+| `freddy.bat` | Windows CMD |
+| `freddy.ps1` | PowerShell |
+
+To add Freddy to your shell `PATH`, create an alias or add the project folder to `PATH`.
+
+---
+
+## 🛠️ Example Workflows
+
+### Workflow 1: Scan a server and get a full report
+
+```bash
+python3 freddy.py scan 192.168.1.10
+# → Freddy runs Nmap, applies rules, enriches with MITRE ATT&CK,
+#   extracts IOCs, scores posture, and generates AI analysis
+
+python3 freddy.py report samples/sample_nmap.txt
+# → Exports a professional Markdown report to data/reports/
+```
+
+### Workflow 2: Investigate a suspicious log file
+
+```bash
+python3 freddy.py logs /var/log/auth.log
+# → Parses the log, detects brute-force patterns, builds timeline,
+#   maps to ATT&CK, correlates events, and provides remediation
+
+python3 freddy.py ioc-extract /var/log/auth.log
+# → Lists all IPs, domains, and suspicious indicators found
+
+python3 freddy.py threat-intel 45.33.32.156
+# → Checks the suspicious IP against AbuseIPDB, VirusTotal, OTX
+```
+
+### Workflow 3: Full automated investigation of a target
+
+```bash
+python3 freddy.py auto-investigate example.com
+# → Runs Nmap + web check + TLS + DNS + WHOIS + Nikto
+# → Combines all evidence through the full SOC pipeline
+# → Produces one comprehensive analysis with all enrichments
+```
+
+### Workflow 4: Track security posture over time
+
+```bash
+python3 freddy.py scan 192.168.1.10          # Week 1
+python3 freddy.py scan 192.168.1.10          # Week 2 — Freddy notes recurring issues
+python3 freddy.py history --target 192.168.1.10   # Review scan history
+python3 freddy.py posture samples/latest.txt       # Check current score
+```
+
+### Workflow 5: Learn about a security topic
+
+```bash
+python3 freddy.py knowledge-search "How do I harden SSH on Ubuntu?"
+python3 freddy.py knowledge-search "What is the OWASP Top 10?"
+python3 freddy.py knowledge-search "container security best practices"
+```
+
+---
+
+## 🔧 Troubleshooting
 
 ### ModuleNotFoundError: No module named typer
 
-This means dependencies were not installed in your active Python environment.
+Dependencies not installed in your active Python environment:
 
 ```bash
-cd /home/<your-user>/Freddy
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --no-cache-dir -r requirements.txt
 ```
 
-### No space left on device while installing nvidia_cublas_cu12
+### No space left on device (nvidia_cublas_cu12)
 
-Your system is trying to install GPU CUDA wheels. If you do not need GPU acceleration, install CPU-only PyTorch.
+Install CPU-only PyTorch instead:
 
 ```bash
 pip uninstall -y torch torchvision torchaudio nvidia-cublas-cu12 nvidia-cudnn-cu12 nvidia-cuda-runtime-cu12 nvidia-cufft-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-nccl-cu12 nvidia-nvtx-cu12 triton
@@ -684,19 +895,15 @@ pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torc
 pip install --no-cache-dir -r requirements.txt
 ```
 
-### Learn command looks stuck after model download
+### Learn command looks stuck
 
-The first run may take a while on CPU with a large knowledge set. This is normal.
-
-Check that indexing is still active:
+The first run downloads the embedding model and indexes all documents. This is normal on CPU. Check progress:
 
 ```bash
-ps -ef | grep "freddy.py learn" | grep -v grep
-top
 watch -n 3 'du -sh .freddy/vector_store'
 ```
 
-If there is no change for 10+ minutes, stop and rerun with unbuffered output:
+If no change for 10+ minutes, rerun:
 
 ```bash
 python3 -u freddy.py learn
@@ -704,218 +911,41 @@ python3 -u freddy.py learn
 
 ### Hugging Face warning about unauthenticated requests
 
-This warning is informational. Freddy still works without a token.
+Informational only — Freddy works without a token. With a token, downloads are faster.
 
-- Without token: lower rate limits, slower model downloads.
-- With token: faster and more reliable downloads from Hugging Face.
+### PDF dependencies
 
-### Where extracted knowledge text is stored
-
-The GitHub knowledge workflow stores extracted text directly in:
-
-- `knowledge/*/*.txt`
-
-Examples:
-
-- `knowledge/nmap/nist_sp800-115_security_testing.txt`
-- `knowledge/web_security/nist_sp800-44v2_web_server_security.txt`
-- `knowledge/vulnerabilities/nist_sp800-40r4_patch_management.txt`
-
-After pulling from GitHub, run:
-
-```bash
-python3 freddy.py learn
-```
-
-### Verify knowledge is searchable
-
-```bash
-python3 freddy.py knowledge-search "patch management"
-python3 freddy.py knowledge-search "tls hardening"
-```
-
-## Adding Cybersecurity Knowledge Documents
-
-Freddy can ingest and index cybersecurity reference material in **PDF, Markdown, and plain text** formats. Place documents into the relevant folder under `knowledge/` and re-run the index command.
-
-### Knowledge folder structure
-
-```text
-knowledge/
-|- networking/          <- TCP/IP, routing, packet analysis
-|- linux/               <- Linux administration, hardening, permissions
-|- ubuntu/              <- Ubuntu-specific guides
-|- wireshark/           <- Packet capture and protocol analysis
-|- nmap/                <- Port scanning, service detection
-|- nikto/               <- Web server scanning
-|- gobuster/            <- Directory and DNS brute-forcing
-|- ffuf/                <- Web fuzzing
-|- tcpdump/             <- Command-line packet capture
-|- metasploit/          <- Exploitation and post-exploitation
-|- burpsuite/           <- Web application testing
-|- hydra/               <- Credential brute-forcing
-|- john_the_ripper/     <- Password cracking
-|- aircrack/            <- Wireless security
-|- dns_tools/           <- DNS enumeration and reconnaissance
-|- web_security/        <- OWASP, web vulnerabilities, authentication
-|- log_analysis/        <- auth.log, nginx, apache, IDS logs
-|- incident_response/   <- IR playbooks and triage guides
-|- vulnerabilities/     <- Specific CVEs and vulnerability intel
-|- security_basics/     <- Foundational cybersecurity concepts
-```
-
-### Supported file types
-
-| Extension | How it is loaded |
-|---|---|
-| `.pdf` | Text extracted with PyMuPDF (falls back to pdfminer.six) |
-| `.md` | Read directly |
-| `.txt` | Read directly |
-
-### How to add documents
-
-1. Place the PDF (or `.md` / `.txt`) into the matching subfolder:
-   ```
-   knowledge/nmap/nmap_cheat_sheet.pdf
-   knowledge/wireshark/protocol_analysis_guide.pdf
-   knowledge/linux/linux_hardening.md
-   ```
-2. Rebuild the index:
-   ```bash
-   python3 freddy.py learn
-   ```
-3. Verify the document was indexed:
-   ```bash
-   python3 freddy.py knowledge-search "nmap scan types"
-   ```
-
-Freddy assigns the **category** automatically from the subfolder name. A file placed in `knowledge/nmap/` gets `category: nmap`. This category is stored with each chunk and surfaced in knowledge-search results and AI analysis context.
-
-### Install PDF dependencies
-
-If not already installed:
+If PDF loading fails:
 
 ```bash
 pip install PyMuPDF pdfminer.six
 ```
 
-Or reinstall all requirements:
+---
 
-```bash
-pip install -r requirements.txt
-```
+## 🧪 Testing the Knowledge Base
 
-## How to Rebuild the Knowledge Index
+A pre-generated question bank with **2,280 cybersecurity questions** is included for testing knowledge-search quality.
 
-Whenever you change files in `knowledge/` or `vulnerabilities/`, rebuild the vector index:
+- **24 topics**: SSH, OWASP, TLS, Firewalls, Containers, Network Protocols, etc.
+- **12 question intents**: what-is, how-fix, best-practices, commands, compliance, incident-response, etc.
+- **3 difficulty levels**: Beginner (402), Intermediate (1,104), Advanced (774)
+- **168 platform/tool variations**: Ubuntu, OpenSSL, Docker, iptables, JWT, etc.
 
-```bash
-python3 freddy.py learn
-```
+Files:
+- `questions/question_bank.jsonl` (JSON Lines)
+- `questions/question_bank.csv` (CSV)
 
-The command recreates Freddy's local Chroma collection and reindexes every current knowledge file.
-
-## Runtime Storage
-
-Freddy stores local runtime intelligence data here:
-
-- Vector database: `.freddy/vector_store`
-- SQLite memory database: `memory/freddy_memory.db`
-- Raw tool output: `data/raw/`
-- Structured reports: `data/reports/`
-
-These artifacts are local to the project root and can be retained across runs.
-
-## Platform Notes
-
-- Freddy now detects native Windows terminals and returns clearer guidance for Linux-native workflows instead of failing with confusing tool errors.
-- Tool-driven commands such as `scan`, `webcheck`, `tlscheck`, `dnscheck`, and `whois` depend on the underlying security tools being available on the host operating system.
-- Linux remains the preferred environment for full host-audit and local-service inspection workflows because commands such as `ss`, `systemctl`, `ufw`, and `iptables` are Linux-native.
-- WSL is the best option on a regular Windows computer when you want Freddy's full host-inspection behavior without moving to a separate Linux machine.
-
-## Testing Freddy's Knowledge with 2,280 Questions
-
-A comprehensive **question bank** is included to test Freddy's local knowledge-search capability with semantic variations and platform-specific contexts.
-
-### Pre-generated question bank
-
-The question bank is pre-generated and committed to the repository in:
-
-- `questions/question_bank.jsonl` (JSON Lines format for ML pipelines)
-- `questions/question_bank.csv` (Spreadsheet format for manual review)
-
-### What's included
-
-**2,280 cybersecurity questions** across:
-- **24 Topics**: SSH, OWASP Top 10, Network Protocols, TLS, Firewalls, Containers, etc.
-- **12 Question Intents + Contextual Variants**: 
-  - 7-8 phrasings per intent (what-is, how-fix, best-practices, commands, testing, compliance, incident-response, etc.)
-  - 168 platform/tool-specific variations (Ubuntu, Debian, OpenSSL, Docker, iptables, JWT, bcrypt, etc.)
-- **3 Difficulty Levels**: Beginner (402), Intermediate (1,104), Advanced (774)
-- **Full Coverage**: All questions aligned with the 42 knowledge sources
-
-### Key improvement
-
-✅ **164% expansion** (864 → 2,280 questions)  
-✅ **Semantic similarity** — ask similar questions, get answers:
-  - "How do I harden SSH?" → Answer
-  - "What are SSH best practices?" → Answer
-  - "How to configure SSH on Ubuntu?" → Answer
-  - "Secure SSH hardening steps?" → Answer
-
-### Test Freddy's knowledge-search
-
-```bash
-# Ask any variation of a cybersecurity question
-python3 freddy.py knowledge-search "What is SSH hardening?"
-python3 freddy.py knowledge-search "How do I harden SSH on Ubuntu?"
-python3 freddy.py knowledge-search "Best practices for SSH security?"
-python3 freddy.py knowledge-search "SSH configuration mistakes to avoid?"
-
-# All return relevant answers from the local knowledge base
-
-# Guided mode (Freddy walks you through actions step-by-step)
-python3 freddy.py walkthrough
-```
-
-### How to Ask Questions (Best Results)
-
-Use natural language. Freddy supports both short keyword queries and full questions.
-
-Good formats:
-
-- Definition: `python3 freddy.py knowledge-search "What is zero trust architecture?"`
-- How-to: `python3 freddy.py knowledge-search "How do I harden SSH on Ubuntu?"`
-- Troubleshooting: `python3 freddy.py knowledge-search "Why is my TLS setup considered weak?"`
-- Best practices: `python3 freddy.py knowledge-search "What are best practices for Linux firewall rules?"`
-- Detection: `python3 freddy.py knowledge-search "How can I detect SQL injection attempts in logs?"`
-
-Tips for higher-quality answers:
-
-- Include context like OS, tool, or protocol (`Ubuntu`, `OpenSSL`, `Docker`, `JWT`, `iptables`).
-- Ask one focused question per command.
-- If needed, refine and re-ask with more detail, for example:
-   - First: `python3 freddy.py knowledge-search "SSH hardening"`
-   - Refined: `python3 freddy.py knowledge-search "How do I disable root login and password auth in sshd_config on Ubuntu?"`
-
-Freddy is designed to handle semantically similar phrasings, so you can ask naturally.
-
-### Validate answer quality
-
-See [questions/README.md](questions/README.md) for:
-- 5 practical usage examples (single test, bulk testing, filtering, validation, topic focus)
-- Scripts for semantic similarity validation
-- Answer quality scoring methods
-- How to filter by topic, difficulty, or intent
-
-All 2,280 questions are guaranteed to have relevant knowledge available in Freddy's vector store.
-
-To regenerate with custom parameters:
+Regenerate with custom parameters:
 
 ```bash
 python3 generate_question_bank.py --format both
 ```
 
-## Defensive Use Only
+See [questions/README.md](questions/README.md) for testing scripts and validation methods.
+
+---
+
+## 🛡️ Defensive Use Only
 
 Freddy is intended for authorized defensive cybersecurity work only. Use it for detection, interpretation, hardening, remediation, and incident response support in environments you own or are explicitly authorized to assess.
