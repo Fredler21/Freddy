@@ -77,6 +77,8 @@ class OutputFormatter:
         chips = Table.grid(padding=(0, 2))
         chips.add_row("[black on green] LOCAL KNOWLEDGE [/black on green]", "[black on magenta] GUIDED MODE [/black on magenta]")
         chips.add_row("[black on yellow] RULE ENGINE [/black on yellow]", "[black on blue] MEMORY [/black on blue]")
+        chips.add_row("[black on red] MITRE ATT&CK [/black on red]", "[black on cyan] IOC EXTRACTION [/black on cyan]")
+        chips.add_row("[black on bright_magenta] THREAT INTEL [/black on bright_magenta]", "[black on bright_green] SIEM CORRELATION [/black on bright_green]")
 
         tips = Table.grid(padding=(0, 1))
         tips.add_row("[bold cyan]Quick Start[/bold cyan]")

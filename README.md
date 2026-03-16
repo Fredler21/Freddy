@@ -12,6 +12,12 @@ Freddy is built to help defenders understand security data faster and take actio
 - 🧠 Use local cybersecurity knowledge during analysis (NIST, RFCs, OWASP, and more)
 - 🕒 Compare current findings with prior scans to catch recurring problems
 - ✅ Give step-by-step remediation and verification commands
+- 🗺️ Map findings to MITRE ATT&CK techniques and tactics
+- 🔍 Extract and check Indicators of Compromise against threat intel feeds
+- ⏱️ Reconstruct incident timelines from log evidence
+- 📡 Correlate findings across sources with SIEM-style rules
+- 📈 Score security posture with a 0–100 grading system
+- 📝 Generate professional exportable security reports
 
 Freddy is for authorized defensive security work: analysis, hardening, triage, and incident response support.
 
@@ -96,7 +102,7 @@ Best run in Linux or WSL because they inspect Linux-native host state:
 📥 Security tools, logs, and scan results
                   |
                   v
-🖥️ Freddy CLI commands (scan, recon, audit, investigate, analyze)
+🖥️ Freddy CLI commands (scan, recon, audit, investigate, analyze, auto-investigate)
                   |
                   v
 🧩 Pre-AI intelligence layer
@@ -106,15 +112,31 @@ Best run in Linux or WSL because they inspect Linux-native host state:
    `- 🗂️ Memory Engine (history + correlation)
                   |
                   v
-🤖 AI Analysis Engine
+🔬 SOC Enrichment Pipeline
+   |- 🗺️ MITRE ATT&CK Mapper (technique identification)
+   |- 🔍 IOC Extractor (IPs, domains, hashes, CVEs)
+   |- ⏱️ Timeline Reconstructor (chronological events)
+   |- 📡 SIEM Correlator (cross-source patterns)
+   |- 📊 Posture Scorer (0-100 security grade)
+   `- 🎓 Security Mentor (learning notes)
+                  |
+                  v
+🤖 AI Analysis Engine (enriched with SOC context)
+                  |
+                  v
+🌐 Threat Intelligence (AbuseIPDB, VirusTotal, AlienVault OTX)
                   |
                   v
 📄 Structured defensive report
-   |- Executive summary
+   |- Executive summary + posture score
+   |- MITRE ATT&CK mappings
+   |- Indicators of Compromise
+   |- Incident timeline
    |- Confirmed and suspected findings
    |- Severity + confidence
    |- Root cause
-   `- Remediation + verification steps
+   |- Remediation + verification steps
+   `- Security learning notes
 ```
 
 ## Core Capabilities
@@ -125,6 +147,102 @@ Best run in Linux or WSL because they inspect Linux-native host state:
 - Remember previous scans and findings in SQLite
 - Produce richer and more consistent remediation guidance
 - Provide dedicated commands for indexing, search, and history review
+
+## SOC-Grade Features
+
+Freddy includes a suite of enterprise-grade security operations capabilities that run alongside every analysis and are also available as standalone commands.
+
+### MITRE ATT&CK Mapping
+
+Every analysis automatically maps detected behaviors to the MITRE ATT&CK framework. Freddy identifies techniques such as T1110 (Brute Force), T1190 (Exploit Public-Facing Application), T1059 (Command and Scripting Interpreter), and 25+ others across 12 tactics. Mappings appear in the analysis output with technique IDs, tactic names, and confidence levels.
+
+### IOC Extraction
+
+Freddy extracts Indicators of Compromise from any evidence: IP addresses, domains, URLs, email addresses, file hashes (MD5, SHA1, SHA256), CVE identifiers, suspicious file paths, user agents, and network ports. Private IPs and benign domains are filtered automatically.
+
+```bash
+python3 freddy.py ioc-extract samples/sample_log.txt
+```
+
+### Threat Intelligence Lookup
+
+Extracted IOCs can be checked against external threat intelligence feeds. Supported sources:
+
+| Source | API Key Required | Environment Variable |
+|---|---|---|
+| AbuseIPDB | Yes | `ABUSEIPDB_API_KEY` |
+| VirusTotal | Yes | `VIRUSTOTAL_API_KEY` |
+| AlienVault OTX | No | — |
+
+```bash
+python3 freddy.py threat-intel 192.168.1.100
+python3 freddy.py threat-intel suspicious-domain.com
+```
+
+### Incident Timeline Reconstruction
+
+Freddy parses timestamps from log evidence and reconstructs attack timelines chronologically. Events are classified by type (authentication, network, web, system, malware, privilege escalation) and grouped into attack phases (reconnaissance, initial access, execution, persistence, lateral movement, exfiltration).
+
+```bash
+python3 freddy.py timeline samples/sample_log.txt
+```
+
+### SIEM-Style Correlation
+
+Seven correlation rules detect cross-source attack patterns:
+
+- Brute force chains (failed login → successful login from same IP)
+- Multi-source IP activity (same IP across scan, log, and web evidence)
+- Scan-to-exploit sequences (port scan followed by service exploitation)
+- Authentication to lateral movement progression
+- Service exposure chains (3+ critical services exposed simultaneously)
+- Log and web evidence overlap
+- Timeline-based attack patterns
+
+### Automated Investigation Workflows
+
+Chain multiple reconnaissance tools into a single investigation. Freddy runs the tools, collects all evidence, and passes it through the full enrichment pipeline.
+
+```bash
+# Full investigation: Nmap + web check + TLS + DNS + WHOIS + Nikto
+python3 freddy.py auto-investigate example.com
+
+# Quick investigation: Nmap fast scan + DNS + TLS
+python3 freddy.py auto-investigate example.com --quick
+```
+
+### Security Posture Scoring
+
+Every analysis receives a 0–100 security posture score with a letter grade (A through F). The score is calculated from rule findings, MITRE ATT&CK mappings, IOC counts, and correlation findings. Penalty weights: CRITICAL (−15), HIGH (−10), MEDIUM (−5), LOW (−2).
+
+```bash
+python3 freddy.py posture samples/sample_nmap.txt
+```
+
+### Security Mentor
+
+Freddy adds contextual learning notes alongside findings. Each note includes a plain-language explanation, real-world context, and references to NIST, CIS, MITRE, and OWASP documentation. Topics covered include SSH exposure, brute force, weak TLS, open ports, container security, and more.
+
+### Professional Report Generation
+
+Generate exportable security reports in Markdown or JSON format. Reports include an executive summary, MITRE ATT&CK mappings, IOCs, incident timeline, correlation findings, posture score, learning notes, and remediation steps. Reports are saved to `data/reports/`.
+
+```bash
+python3 freddy.py report samples/sample_nmap.txt
+python3 freddy.py report samples/sample_log.txt --format json
+```
+
+### Security Visualization
+
+Terminal-based ASCII visualizations render directly in the console during analysis:
+
+- Attack timeline charts
+- Severity distribution bar charts
+- IP activity maps
+- Attack surface maps
+- Security posture gauges
+- MITRE ATT&CK tactic/technique matrices
+- Connection graphs
 
 ## Knowledge Base Overview
 
@@ -168,9 +286,17 @@ For scan, log, audit, and file analysis commands, Freddy now runs this upgraded 
 3. Build a retrieval query from the command context and rule findings
 4. Retrieve relevant knowledge and vulnerability intelligence
 5. Retrieve prior scan history for the same target
-6. Compose a structured AI payload with evidence, rules, knowledge, history, and task metadata
-7. Generate the final report
-8. Save structured findings and raw output to memory
+6. Run SOC enrichment pipeline:
+   - Map evidence to MITRE ATT&CK techniques
+   - Extract Indicators of Compromise (IPs, domains, hashes, CVEs)
+   - Reconstruct incident timeline from timestamps
+   - Correlate findings across evidence sources (SIEM rules)
+   - Calculate security posture score
+   - Generate contextual learning notes
+7. Compose a structured AI payload with evidence, rules, knowledge, history, and enrichment data
+8. Generate the final report with visualizations
+9. Check extracted IOCs against threat intelligence feeds (best-effort)
+10. Save structured findings and raw output to memory
 
 ## Rule Engine
 
@@ -285,14 +411,24 @@ Freddy/
 |  |- rule_engine.py
 |  |- memory_engine.py
 |  |- retrieval_formatter.py
-|  `- intelligence_pipeline.py
+|  |- intelligence_pipeline.py
+|  |- mitre_mapper.py          <- MITRE ATT&CK technique mapping
+|  |- ioc_extractor.py         <- Indicator of Compromise extraction
+|  |- timeline_reconstructor.py <- Incident timeline reconstruction
+|  |- threat_intel.py           <- Threat intelligence feed lookups
+|  |- siem_correlator.py        <- Cross-source event correlation
+|  |- auto_investigator.py      <- Automated multi-tool workflows
+|  |- posture_scorer.py         <- Security posture scoring (0-100)
+|  |- security_mentor.py        <- Educational learning notes
+|  |- report_generator.py       <- Professional report generation
+|  `- visualizer.py             <- ASCII security visualizations
 |- knowledge/
 |- vulnerabilities/
 |- prompts/
 |- samples/
 |- data/
 |  |- raw/          <- raw tool output saved per scan
-|  `- reports/      <- structured report storage
+|  `- reports/      <- generated security reports (Markdown, JSON)
 |- memory/
 |  `- freddy_memory.db
 |- .freddy/
@@ -309,6 +445,31 @@ python3 freddy.py history
 python3 freddy.py history --target example.com
 python3 freddy.py memory-stats
 python3 freddy.py walkthrough
+```
+
+### SOC-Grade Commands
+
+```bash
+# Automated multi-tool investigation
+python3 freddy.py auto-investigate example.com
+python3 freddy.py auto-investigate example.com --quick
+
+# Extract IOCs from a file
+python3 freddy.py ioc-extract samples/sample_log.txt
+
+# Check IPs or domains against threat intelligence feeds
+python3 freddy.py threat-intel 192.168.1.100
+python3 freddy.py threat-intel suspicious-domain.com
+
+# Reconstruct incident timeline from logs
+python3 freddy.py timeline samples/sample_log.txt
+
+# Generate a professional security report
+python3 freddy.py report samples/sample_nmap.txt
+python3 freddy.py report samples/sample_log.txt --format json
+
+# View security posture score for evidence
+python3 freddy.py posture samples/sample_nmap.txt
 ```
 
 ### Guided Command Prompts
@@ -356,6 +517,12 @@ python3 freddy.py webcheck <target>
 python3 freddy.py tlscheck <target>
 python3 freddy.py dnscheck <domain>
 python3 freddy.py whois <domain>
+python3 freddy.py auto-investigate <target>
+python3 freddy.py ioc-extract <file>
+python3 freddy.py threat-intel <indicator>
+python3 freddy.py timeline <file>
+python3 freddy.py report <file>
+python3 freddy.py posture <file>
 ```
 
 ## Example Usage

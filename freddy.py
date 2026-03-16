@@ -105,7 +105,18 @@ def _run_welcome_flow(no_banner: bool, banner_style: str = "auto") -> None:
         "- Artifact analysis: analyze, logs, investigate for files and tool outputs\n"
         "- Knowledge system: learn indexing + knowledge-search from local docs\n"
         "- Operational memory: history and memory-stats for recurring issues\n"
-        "- Premium terminal UX: adaptive banner, startup intro, and quick-start menu",
+        "- Premium terminal UX: adaptive banner, startup intro, and quick-start menu\n"
+        "─── SOC-Grade Features ───\n"
+        "- MITRE ATT&CK mapping: auto-maps findings to real attack techniques\n"
+        "- IOC extraction: extracts IPs, domains, hashes, files, CVEs automatically\n"
+        "- Threat intelligence: checks indicators against AbuseIPDB, VirusTotal, AlienVault OTX\n"
+        "- Incident timeline: reconstructs attack timelines from logs\n"
+        "- SIEM correlation: cross-source event correlation and pattern detection\n"
+        "- Automated investigation: chains Nmap + web + TLS + DNS + WHOIS + Nikto\n"
+        "- Security posture scoring: grades your security with a 0-100 score\n"
+        "- Professional reports: generates Markdown/JSON security reports\n"
+        "- Security mentor: teaches you about each finding with real-world context\n"
+        "- Visualizations: attack timelines, MITRE matrix, severity charts, attack surface maps",
         style="blue",
     )
 
@@ -284,12 +295,84 @@ def _build_local_knowledge_answer(query: str, matches: list) -> str:
 
 
 def print_result(result: AnalysisResult) -> None:
-    """Render an analysis result with Freddy formatting."""
+    """Render an analysis result with Freddy formatting and SOC enrichment."""
     formatter.print_analysis(
         result.report,
         knowledge_applied=result.knowledge_used,
         rule_finding_count=len(result.rule_findings),
     )
+
+    # --- SOC-Grade Enrichment Display ---
+
+    # Security Posture Score (visual gauge)
+    if result.posture_score:
+        from modules.visualizer import SecurityVisualizer
+        viz = SecurityVisualizer()
+        gauge = viz.posture_gauge(result.posture_score.score, result.posture_score.grade)
+        formatter.print_section("Security Posture", gauge, style="cyan")
+
+    # MITRE ATT&CK Mapping
+    if result.mitre_mappings:
+        from modules.mitre_mapper import format_mitre_mappings
+        from modules.visualizer import SecurityVisualizer
+        viz = SecurityVisualizer()
+        matrix_viz = viz.mitre_attack_matrix(result.mitre_mappings)
+        formatter.print_section("MITRE ATT&CK Mapping", matrix_viz, style="red")
+
+    # IOC Extraction
+    if result.ioc_report and result.ioc_report.has_iocs:
+        from modules.ioc_extractor import format_ioc_report
+        formatter.print_section(
+            "Indicators of Compromise",
+            format_ioc_report(result.ioc_report),
+            style="yellow",
+        )
+
+    # Incident Timeline
+    if result.timeline_events:
+        from modules.visualizer import SecurityVisualizer
+        viz = SecurityVisualizer()
+        timeline_chart = viz.attack_timeline_chart(result.timeline_events)
+        formatter.print_section("Incident Timeline", timeline_chart, style="magenta")
+
+    # SIEM Correlation
+    if result.correlation_findings:
+        from modules.siem_correlator import format_correlation_findings
+        formatter.print_section(
+            "SIEM Correlation Findings",
+            format_correlation_findings(result.correlation_findings),
+            style="red",
+        )
+
+    # Severity Distribution (visualization)
+    if result.rule_findings:
+        from modules.visualizer import SecurityVisualizer
+        viz = SecurityVisualizer()
+        severity_chart = viz.severity_distribution(result.rule_findings)
+        formatter.print_section("Severity Distribution", severity_chart, style="yellow")
+
+    # Attack Surface Map (from IOC ports)
+    if result.ioc_report and result.ioc_report.ports:
+        from modules.visualizer import SecurityVisualizer
+        viz = SecurityVisualizer()
+        surface_map = viz.attack_surface_map(result.ioc_report.ports)
+        formatter.print_section("Attack Surface Map", surface_map, style="cyan")
+
+    # Threat Intelligence
+    if result.threat_intel_report and result.threat_intel_report.has_results:
+        from modules.threat_intel import format_threat_intel_report
+        formatter.print_section(
+            "Threat Intelligence",
+            format_threat_intel_report(result.threat_intel_report),
+            style="red",
+        )
+
+    # Learning Notes (Security Mentor)
+    if result.learning_notes:
+        from modules.security_mentor import format_learning_notes
+        notes_text = format_learning_notes(result.learning_notes)
+        if notes_text.strip():
+            formatter.print_section("Security Learning Notes", notes_text, style="blue")
 
 
 @app.command()
@@ -571,6 +654,245 @@ def memory_stats(
     formatter.print_memory_stats(stats)
 
 
+# ------------------------------------------------------------------ #
+# SOC-Grade Commands                                                   #
+# ------------------------------------------------------------------ #
+
+
+@app.command("auto-investigate")
+def auto_investigate(
+    target: str = typer.Argument(..., help="Target host, IP, or domain to investigate"),
+    quick: bool = typer.Option(False, "--quick", "-q", help="Run quick investigation (Nmap + DNS + TLS only)"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
+    """Automated multi-tool investigation workflow: Nmap, web detection, TLS, DNS, WHOIS, and Nikto."""
+    if not _confirm_action(f"Do you want me to run an automated investigation against: {target}?", assume_yes=yes):
+        formatter.print_warning("Auto-investigation canceled by user.")
+        return
+    prompt = _prepare_model_prompt("Auto-investigation")
+    if not prompt:
+        return
+
+    from modules.auto_investigator import AutoInvestigator
+
+    investigator = AutoInvestigator()
+    console.print(f"\n[bold cyan]Running automated investigation against {target}...[/bold cyan]\n")
+
+    if quick:
+        result = investigator.quick_investigation(target, prompt)
+    else:
+        result = investigator.full_target_investigation(target, prompt)
+
+    # Display workflow progress
+    from rich.table import Table
+    step_table = Table(title="Investigation Workflow", show_header=True, header_style="bold cyan")
+    step_table.add_column("Step", style="bold")
+    step_table.add_column("Status")
+    step_table.add_column("Details")
+    status_icons = {"completed": "✅", "skipped": "⏭️", "failed": "❌", "running": "⏳"}
+    for step in result.steps:
+        icon = status_icons.get(step.status, "?")
+        detail = step.error if step.error else (f"{len(step.output)} chars" if step.output else "")
+        step_table.add_row(step.name, f"{icon} {step.status}", detail)
+    console.print(step_table)
+
+    if result.analysis:
+        print_result(result.analysis)
+    else:
+        formatter.print_warning("No evidence was collected — all investigation steps were skipped or failed.")
+
+
+@app.command("ioc-extract")
+def ioc_extract(
+    file: str = typer.Argument(..., help="Path to file to extract IOCs from"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+    include_private: bool = typer.Option(False, "--include-private", help="Include private/internal IPs"),
+) -> None:
+    """Extract Indicators of Compromise (IPs, domains, hashes, files, CVEs) from a file."""
+    if not _confirm_action(f"Do you want me to extract IOCs from: {file}?", assume_yes=yes):
+        formatter.print_warning("IOC extraction canceled by user.")
+        return
+
+    from modules.file_loader import FileLoader
+    from modules.ioc_extractor import IOCExtractor, format_ioc_report
+    from modules.visualizer import SecurityVisualizer
+
+    loader = FileLoader()
+    content = loader.load(file)
+    if not content:
+        formatter.print_error(f"Could not read file: {file}")
+        return
+
+    extractor = IOCExtractor()
+    report = extractor.extract(content, include_private_ips=include_private)
+
+    if not report.has_iocs:
+        formatter.print_info("No Indicators of Compromise found in this file.")
+        return
+
+    formatter.print_section("Indicators of Compromise", format_ioc_report(report), style="yellow")
+
+    # Show IP activity visualization if there are IPs
+    if report.ip_addresses:
+        viz = SecurityVisualizer()
+        ip_map = viz.ip_activity_map(report.ip_addresses, content)
+        formatter.print_section("IP Activity Map", ip_map, style="cyan")
+
+    # Show attack surface if there are ports
+    if report.ports:
+        viz = SecurityVisualizer()
+        surface = viz.attack_surface_map(report.ports)
+        formatter.print_section("Attack Surface", surface, style="cyan")
+
+    console.print(f"\n[bold]Total IOCs extracted: {report.total_iocs}[/bold]\n")
+
+
+@app.command("threat-intel")
+def threat_intel_lookup(
+    indicator: str = typer.Argument(..., help="IP address or domain to look up"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
+    """Check an IP or domain against threat intelligence feeds (AbuseIPDB, VirusTotal, AlienVault OTX)."""
+    if not _confirm_action(f"Do you want me to check threat intelligence for: {indicator}?", assume_yes=yes):
+        formatter.print_warning("Threat intel lookup canceled by user.")
+        return
+
+    from modules.threat_intel import ThreatIntelligence, format_threat_intel_report
+
+    ti = ThreatIntelligence()
+    console.print(f"\n[bold cyan]Checking threat intelligence for {indicator}...[/bold cyan]\n")
+
+    # Determine if IP or domain
+    ip_pattern = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+    if ip_pattern.match(indicator):
+        results = ti.check_ip(indicator)
+    else:
+        results = ti.check_domain(indicator)
+
+    if not results:
+        formatter.print_info(
+            "No threat intelligence data returned. "
+            "Set ABUSEIPDB_API_KEY and/or VIRUSTOTAL_API_KEY environment variables for more sources."
+        )
+        return
+
+    from modules.threat_intel import ThreatIntelReport
+    report = ThreatIntelReport(results=results)
+    formatter.print_section("Threat Intelligence", format_threat_intel_report(report), style="red")
+
+
+@app.command("timeline")
+def timeline_cmd(
+    file: str = typer.Argument(..., help="Path to log file for timeline reconstruction"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
+    """Reconstruct an incident timeline from log files."""
+    if not _confirm_action(f"Do you want me to reconstruct a timeline from: {file}?", assume_yes=yes):
+        formatter.print_warning("Timeline reconstruction canceled by user.")
+        return
+
+    from modules.file_loader import FileLoader
+    from modules.timeline_reconstructor import TimelineReconstructor
+    from modules.visualizer import SecurityVisualizer
+
+    loader = FileLoader()
+    content = loader.load(file)
+    if not content:
+        formatter.print_error(f"Could not read file: {file}")
+        return
+
+    reconstructor = TimelineReconstructor()
+    events = reconstructor.build_timeline(content)
+
+    if not events:
+        formatter.print_info("No security-relevant events found in this file.")
+        return
+
+    viz = SecurityVisualizer()
+    chart = viz.attack_timeline_chart(events)
+    formatter.print_section("Incident Timeline", chart, style="magenta")
+
+    # Show attack phases
+    phases = reconstructor.get_attack_phases(events)
+    if phases:
+        phase_text = "\n".join(
+            f"Phase: {p['phase']}  ({p['start']} → {p['end']}, {len(p['events'])} events)"
+            for p in phases
+        )
+        formatter.print_section("Attack Phases", phase_text, style="yellow")
+
+    console.print(f"\n[bold]Total timeline events: {len(events)}[/bold]\n")
+
+
+@app.command("report")
+def generate_report(
+    file: str = typer.Argument(..., help="Path to file to analyze and report on"),
+    fmt: str = typer.Option("markdown", "--format", "-f", help="Report format: markdown or json"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
+    """Generate a professional security report from a file analysis."""
+    if not _confirm_action(f"Do you want me to generate a security report for: {file}?", assume_yes=yes):
+        formatter.print_warning("Report generation canceled by user.")
+        return
+    prompt = _prepare_model_prompt("Report generation")
+    if not prompt:
+        return
+
+    from modules.file_loader import FileLoader
+    from modules.report_generator import ReportGenerator
+
+    loader = FileLoader()
+    content = loader.load(file)
+    if not content:
+        formatter.print_error(f"Could not read file: {file}")
+        return
+
+    console.print(f"\n[bold cyan]Generating security report for {file}...[/bold cyan]\n")
+
+    # Run full analysis
+    from commands.analyze import run_file_analysis
+    analysis_result = run_file_analysis(file, prompt)
+
+    # Generate professional report
+    generator = ReportGenerator()
+    report = generator.generate(
+        target=file,
+        ai_report=analysis_result.report,
+        rule_findings=analysis_result.rule_findings,
+        mitre_mappings=analysis_result.mitre_mappings,
+        ioc_report=analysis_result.ioc_report,
+        timeline_events=analysis_result.timeline_events,
+        correlation_findings=analysis_result.correlation_findings,
+        posture_score=analysis_result.posture_score,
+        learning_notes=analysis_result.learning_notes,
+        threat_intel_report=analysis_result.threat_intel_report,
+    )
+
+    # Save report
+    report_path = generator.save_report(report, fmt=fmt)
+    formatter.print_success(f"Report saved to: {report_path}")
+
+    # Also display the analysis
+    print_result(analysis_result)
+
+
+@app.command("posture")
+def posture_check(
+    yes: bool = typer.Option(False, "--yes", "-y", help="Run without interactive confirmation prompts"),
+) -> None:
+    """Calculate and display the local system's security posture score."""
+    if not _confirm_action("Do you want me to calculate the security posture score for this machine?", assume_yes=yes):
+        formatter.print_warning("Posture check canceled by user.")
+        return
+    prompt = _prepare_model_prompt("Posture check")
+    if not prompt:
+        return
+
+    console.print("\n[bold cyan]Calculating security posture score...[/bold cyan]\n")
+    result = run_audit(prompt)
+    print_result(result)
+
+
 @app.command()
 def version() -> None:
     """Show Freddy version information."""
@@ -622,6 +944,13 @@ def walkthrough() -> None:
         console.print("11) Ask local knowledge question")
         console.print("12) Show history")
         console.print("13) Show memory stats")
+        console.print("[bold cyan]── SOC-Grade Features ──[/bold cyan]")
+        console.print("14) Automated investigation (multi-tool)")
+        console.print("15) Extract IOCs from file")
+        console.print("16) Threat intelligence lookup")
+        console.print("17) Reconstruct incident timeline")
+        console.print("18) Generate security report")
+        console.print("19) Security posture score")
         console.print("0) Exit walkthrough")
 
         choice = typer.prompt("Enter choice", default="1").strip()
@@ -678,8 +1007,32 @@ def walkthrough() -> None:
         elif choice == "13":
             if typer.confirm("Show memory stats now?", default=True):
                 memory_stats(yes=True)
+        elif choice == "14":
+            target = typer.prompt("Target for automated investigation").strip()
+            quick = typer.confirm("Quick investigation (Nmap + DNS + TLS only)?", default=False)
+            if typer.confirm(f"Run automated investigation against {target}?", default=True):
+                auto_investigate(target, quick=quick, yes=True)
+        elif choice == "15":
+            file = typer.prompt("Path to file for IOC extraction").strip()
+            if typer.confirm(f"Extract IOCs from {file}?", default=True):
+                ioc_extract(file, yes=True)
+        elif choice == "16":
+            indicator = typer.prompt("IP address or domain to check").strip()
+            if typer.confirm(f"Look up threat intel for {indicator}?", default=True):
+                threat_intel_lookup(indicator, yes=True)
+        elif choice == "17":
+            file = typer.prompt("Path to log file for timeline reconstruction").strip()
+            if typer.confirm(f"Reconstruct timeline from {file}?", default=True):
+                timeline_cmd(file, yes=True)
+        elif choice == "18":
+            file = typer.prompt("Path to file for report generation").strip()
+            if typer.confirm(f"Generate security report for {file}?", default=True):
+                generate_report(file, yes=True)
+        elif choice == "19":
+            if typer.confirm("Calculate security posture score now?", default=True):
+                posture_check(yes=True)
         else:
-            formatter.print_warning("Invalid choice. Please enter a number from 0 to 13.")
+            formatter.print_warning("Invalid choice. Please enter a number from 0 to 19.")
             continue
 
         if not typer.confirm("Do you want to run another guided action?", default=True):
