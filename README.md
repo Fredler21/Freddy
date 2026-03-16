@@ -12,38 +12,6 @@ Whether you're triaging an incident, auditing a server, analyzing logs, or inves
 
 ---
 
-## ⚡ Quick Start
-
-### 1. Clone and install
-
-```bash
-git clone https://github.com/Fredler21/Freddy.git
-cd Freddy
-
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install --upgrade pip
-pip install --no-cache-dir -r requirements.txt
-```
-
-### 2. Build the knowledge index
-
-```bash
-python3 freddy.py learn
-```
-
-This indexes all documents in `knowledge/` and `vulnerabilities/` into a local vector database for retrieval during analysis.
-
-### 3. Run Freddy
-
-```bash
-python3 freddy.py                  # Interactive welcome menu
-python3 freddy.py --help           # See all commands
-python3 freddy.py walkthrough      # Guided step-by-step menu
-```
-
----
-
 ## 🛡️ What This AI Is For
 
 Freddy is built to help defenders understand security data faster and take action with confidence.
@@ -65,24 +33,28 @@ Freddy is built to help defenders understand security data faster and take actio
 
 ## 🎯 What Freddy Can Do
 
-| Category | Capabilities |
+| Category | What It Does |
 |---|---|
-| **Scan & Recon** | Nmap port scanning, full reconnaissance, web checks, TLS/SSL inspection, DNS analysis, WHOIS lookups |
-| **Log Analysis** | Parse auth.log, web logs, syslog — detect brute force, intrusion indicators, suspicious patterns |
-| **System Auditing** | Local port review, firewall status, SSH config, user accounts, service exposure |
-| **File Analysis** | Analyze any security tool output from a saved file |
-| **MITRE ATT&CK** | Automatically map every finding to ATT&CK techniques and tactics |
-| **IOC Extraction** | Pull IPs, domains, URLs, file hashes, CVEs, suspicious paths from any evidence |
-| **Threat Intelligence** | Check IOCs against AbuseIPDB, VirusTotal, and AlienVault OTX |
-| **Incident Timeline** | Reconstruct chronological attack timelines from log timestamps |
-| **SIEM Correlation** | Detect cross-source patterns: brute-force chains, scan-to-exploit, lateral movement |
-| **Posture Scoring** | 0–100 security grade with letter rating (A–F) based on all findings |
-| **Auto Investigation** | Chain 6 recon tools into one command with full enrichment |
-| **Report Generation** | Export professional Markdown or JSON security reports |
-| **Security Mentor** | Educational notes with real-world context and NIST/CIS/OWASP references |
-| **Visualization** | ASCII charts, MITRE matrices, posture gauges, attack surface maps |
-| **Knowledge Search** | Semantic search across NIST, RFC, and OWASP documents |
-| **Scan Memory** | SQLite history with cross-scan correlation and recurring issue detection |
+| 🔎 **Scan & Recon** | Run Nmap port scans, full multi-tool reconnaissance, automated target profiling — discover open ports, running services, OS fingerprints, and exposed attack surface |
+| 📋 **Log Analysis** | Parse auth.log, Apache/Nginx web logs, syslog files — detect brute-force attempts, failed logins, intrusion indicators, and suspicious access patterns |
+| 🖥️ **System Auditing** | Audit local listening ports, firewall rules (UFW/iptables), SSH configuration, user accounts, sudo privileges, and active service exposure |
+| 📄 **File Analysis** | Analyze any saved security tool output — Nmap results, scan reports, packet captures, config dumps — through the full enrichment pipeline |
+| 🌐 **Web Security** | Inspect HTTP response headers, detect missing security headers, identify web technologies, check for known web vulnerabilities with Nikto |
+| 🔒 **TLS/SSL Inspection** | Evaluate certificates, cipher suites, protocol versions, expiration dates, and weak configurations using OpenSSL |
+| 🌍 **DNS Analysis** | Query DNS records (A, AAAA, MX, NS, TXT, CNAME), detect misconfigurations, check for dangling records and zone transfer risks |
+| 📇 **WHOIS Lookups** | Retrieve domain registration details, registrar info, creation/expiration dates, and nameserver configuration |
+| 🗺️ **MITRE ATT&CK Mapping** | Automatically map every finding to ATT&CK technique IDs and tactics — 25+ patterns across Credential Access, Initial Access, Discovery, Persistence, Lateral Movement, and more |
+| 🔍 **IOC Extraction** | Pull IP addresses, domains, URLs, email addresses, file hashes (MD5/SHA1/SHA256), CVE identifiers, suspicious file paths, and user agents from any evidence |
+| 🌐 **Threat Intelligence** | Check extracted IOCs against AbuseIPDB, VirusTotal, and AlienVault OTX — get abuse scores, detection ratios, and reputation data |
+| ⏱️ **Incident Timeline** | Reconstruct chronological attack timelines from log timestamps — classify events by phase (recon → initial access → execution → persistence → lateral movement → exfiltration) |
+| 📡 **SIEM Correlation** | Detect cross-source attack patterns with 7 correlation rules: brute-force chains, scan-to-exploit sequences, multi-source IP activity, service exposure chains, and more |
+| 🤖 **Auto Investigation** | Chain 6 recon tools (Nmap + web check + TLS + DNS + WHOIS + Nikto) into a single command — all evidence feeds through the full SOC pipeline automatically |
+| 📊 **Posture Scoring** | Calculate a 0–100 security posture score with letter grade (A–F) based on rule findings, MITRE mappings, IOC counts, and correlation results |
+| 📝 **Report Generation** | Export professional security reports in Markdown or JSON — includes executive summary, ATT&CK mappings, IOCs, timeline, correlations, posture score, and remediation steps |
+| 🎓 **Security Mentor** | Get educational learning notes alongside findings — plain-language explanations, real-world breach context, and references to NIST, CIS Benchmarks, MITRE ATT&CK, and OWASP |
+| 🎨 **Visualization** | See ASCII attack timeline charts, severity distribution bars, MITRE ATT&CK tactic matrices, posture gauges, IP activity maps, and attack surface diagrams in the terminal |
+| 🧠 **Knowledge Search** | Semantic search across 40+ indexed NIST, RFC, and OWASP documents — ask questions in natural language and get relevant cybersecurity guidance |
+| 🗂️ **Scan Memory** | SQLite history that remembers every scan — tracks targets over time, detects recurring vulnerabilities, correlates findings across weeks and months |
 
 ---
 
@@ -181,6 +153,38 @@ python3 freddy.py history --target example.com
 - MITRE ATT&CK mapping, IOC extraction, SIEM correlation, posture scoring, and learning notes run **automatically** on every analysis — no extra flags needed
 - For threat intel, optionally set `ABUSEIPDB_API_KEY` and `VIRUSTOTAL_API_KEY` environment variables (AlienVault OTX works free without a key)
 - Use `python3 freddy.py walkthrough` for a guided interactive menu
+
+---
+
+## ⚡ Quick Start
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/Fredler21/Freddy.git
+cd Freddy
+
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+pip install --no-cache-dir -r requirements.txt
+```
+
+### 2. Build the knowledge index
+
+```bash
+python3 freddy.py learn
+```
+
+This indexes all documents in `knowledge/` and `vulnerabilities/` into a local vector database for retrieval during analysis.
+
+### 3. Run Freddy
+
+```bash
+python3 freddy.py                  # Interactive welcome menu
+python3 freddy.py --help           # See all commands
+python3 freddy.py walkthrough      # Guided step-by-step menu
+```
 
 ---
 
