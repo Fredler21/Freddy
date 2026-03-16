@@ -1,8 +1,14 @@
-# Freddy
+# 🛡️ Freddy — AI-Powered Cybersecurity Terminal Copilot
 
-Freddy is a knowledge-driven AI cybersecurity copilot for authorized defensive environments. It combines real security tool output, deterministic rule checks, a local cybersecurity knowledge base (NIST, OWASP, RFCs), operational memory, and a full SOC enrichment pipeline to produce professional-grade security analysis from your terminal.
+> **Your personal SOC analyst, right in the terminal.**
 
-Freddy is for authorized defensive security work only: analysis, hardening, triage, and incident response support.
+Freddy is an enterprise-grade AI cybersecurity copilot that transforms raw security data into actionable intelligence. Built for defenders, it integrates real-time tool execution, MITRE ATT&CK mapping, IOC extraction, threat intelligence feeds, SIEM-style correlation, incident timeline reconstruction, and AI-driven analysis into a single command-line platform.
+
+Under the hood, Freddy runs a multi-stage intelligence pipeline: deterministic rule checks catch known patterns, a local knowledge engine retrieves relevant guidance from 40+ indexed NIST, OWASP, and RFC documents, and a SOC enrichment layer maps findings to ATT&CK techniques, extracts indicators of compromise, correlates events across sources, and scores your security posture — all before the AI model even sees the data. The result is analysis that's structured, repeatable, and backed by real evidence.
+
+Whether you're triaging an incident, auditing a server, analyzing logs, or investigating a target — Freddy handles the heavy lifting so you can focus on decisions, not data parsing.
+
+**Freddy is for authorized defensive security work only.**
 
 ---
 
@@ -20,15 +26,7 @@ python3 -m pip install --upgrade pip
 pip install --no-cache-dir -r requirements.txt
 ```
 
-### 2. Set your API key
-
-Freddy uses Claude for AI analysis. Set your Anthropic API key:
-
-```bash
-export ANTHROPIC_API_KEY="your-key-here"
-```
-
-### 3. Build the knowledge index
+### 2. Build the knowledge index
 
 ```bash
 python3 freddy.py learn
@@ -36,13 +34,32 @@ python3 freddy.py learn
 
 This indexes all documents in `knowledge/` and `vulnerabilities/` into a local vector database for retrieval during analysis.
 
-### 4. Run Freddy
+### 3. Run Freddy
 
 ```bash
 python3 freddy.py                  # Interactive welcome menu
 python3 freddy.py --help           # See all commands
 python3 freddy.py walkthrough      # Guided step-by-step menu
 ```
+
+---
+
+## 🛡️ What This AI Is For
+
+Freddy is built to help defenders understand security data faster and take action with confidence.
+
+- 🛡️ Explain raw security output in plain language (Nmap, logs, TLS, DNS, web scans)
+- 🚨 Detect likely risks and misconfigurations before they are missed
+- 📊 Prioritize issues by severity so you fix the most important problems first
+- 🧠 Use local cybersecurity knowledge during analysis (NIST, RFCs, OWASP, and more)
+- 🕒 Compare current findings with prior scans to catch recurring problems
+- ✅ Give step-by-step remediation and verification commands
+- 🗺️ Map findings to MITRE ATT&CK techniques and tactics
+- 🔍 Extract and check Indicators of Compromise against threat intel feeds
+- ⏱️ Reconstruct incident timelines from log evidence
+- 📡 Correlate findings across sources with SIEM-style rules
+- 📈 Score security posture with a 0–100 grading system
+- 📝 Generate professional exportable security reports
 
 ---
 
