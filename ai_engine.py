@@ -5,17 +5,49 @@ from __future__ import annotations
 import json
 import sys
 
-from anthropic import APIConnectionError, APIError, Anthropic
-
-from config import API_KEY, MAX_TOKENS, MODEL, SYSTEM_PROMPT_PATH
+from config import AI_PROVIDER, API_KEY, MAX_TOKENS, MODEL, OLLAMA_BASE_URL, OLLAMA_MODEL, SYSTEM_PROMPT_PATH
 
 
-def get_client() -> Anthropic:
+def get_client():
     """Create and return an authenticated Anthropic client."""
+    if AI_PROVIDER == "ollama":
+        return None  # Ollama uses HTTP directly
+    from anthropic import Anthropic
     if not API_KEY:
         print("\n[!] ANTHROPIC_API_KEY not set.\n")
         sys.exit(1)
     return Anthropic(api_key=API_KEY)
+
+
+def _ollama_chat(*, system: str, user_message: str, max_tokens: int = 4096) -> str:
+    """Send a chat request to a local Ollama instance."""
+    import urllib.request
+    import urllib.error
+
+    url = f"{OLLAMA_BASE_URL}/api/chat"
+    body = json.dumps({
+        "model": OLLAMA_MODEL,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user_message},
+        ],
+        "stream": False,
+        "options": {"num_predict": max_tokens},
+    }).encode("utf-8")
+
+    req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=300) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("message", {}).get("content", "[!] Empty response from Ollama.")
+    except urllib.error.URLError as exc:
+        return (
+            f"[!] Could not connect to Ollama at {OLLAMA_BASE_URL}.\n"
+            "    Make sure Ollama is running: ollama serve\n"
+            f"    Error: {exc}"
+        )
+    except Exception as exc:
+        return f"[!] Ollama error: {exc}"
 
 
 def load_system_prompt() -> str:
@@ -64,6 +96,10 @@ def analyze(
         prior_history=prior_history,
     )
 
+    if AI_PROVIDER == "ollama":
+        return _ollama_chat(system=system_prompt, user_message=payload, max_tokens=MAX_TOKENS)
+
+    from anthropic import APIConnectionError, APIError
     client = get_client()
     try:
         response = client.messages.create(
@@ -91,8 +127,8 @@ def answer_question(
         return "[!] Please provide a non-empty question."
     if not knowledge_context.strip():
         return "[!] No knowledge context available to answer this question."
-    if not API_KEY:
-        return "[!] ANTHROPIC_API_KEY not set. Set it to get direct AI answers."
+    if AI_PROVIDER == "anthropic" and not API_KEY:
+        return "[!] ANTHROPIC_API_KEY not set. Set it or switch to Ollama: export FREDDY_AI_PROVIDER=ollama"
 
     payload = (
         "You are Freddy, a defensive cybersecurity assistant.\n"
@@ -103,15 +139,21 @@ def answer_question(
         f"RETRIEVED KNOWLEDGE CONTEXT\n{knowledge_context}\n"
     )
 
+    system_msg = (
+        "You are Freddy. Provide concise, actionable defensive cybersecurity answers. "
+        "Do not invent facts not present in context."
+    )
+
+    if AI_PROVIDER == "ollama":
+        return _ollama_chat(system=system_msg, user_message=payload, max_tokens=min(MAX_TOKENS, 1200))
+
+    from anthropic import APIConnectionError, APIError
     client = get_client()
     try:
         response = client.messages.create(
             model=MODEL,
             max_tokens=min(MAX_TOKENS, 1200),
-            system=(
-                "You are Freddy. Provide concise, actionable defensive cybersecurity answers. "
-                "Do not invent facts not present in context."
-            ),
+            system=system_msg,
             messages=[{"role": "user", "content": payload}],
         )
         return response.content[0].text

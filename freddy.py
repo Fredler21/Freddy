@@ -50,12 +50,22 @@ def _confirm_action(prompt_text: str, assume_yes: bool = False) -> bool:
 
 def _prepare_model_prompt(action_label: str) -> str | None:
     """Return system prompt for model-backed commands or show guided API setup help."""
-    if not get_config().get("api_key_set", False):
+    cfg = get_config()
+    if not cfg.get("ai_ready", False):
         formatter.print_error(
-            f"{action_label} requires AI analysis, but ANTHROPIC_API_KEY is not set."
+            f"{action_label} requires AI analysis, but no AI provider is configured."
         )
         formatter.print_section(
-            "Enable AI Analysis",
+            "Option 1: Use Ollama (FREE, runs locally)",
+            "Install Ollama on Kali:\n"
+            "curl -fsSL https://ollama.com/install.sh | sh\n"
+            "ollama pull llama3\n"
+            "ollama serve\n\n"
+            "Then run Freddy — it auto-detects Ollama when no API key is set.",
+            style="green",
+        )
+        formatter.print_section(
+            "Option 2: Use Anthropic Claude (paid API)",
             "Set your API key in the current shell:\n"
             "export ANTHROPIC_API_KEY='your_key_here'\n\n"
             "Or place it in a local .env file:\n"
@@ -63,7 +73,7 @@ def _prepare_model_prompt(action_label: str) -> str | None:
             style="yellow",
         )
         formatter.print_section(
-            "Use Freddy Right Now (No API Key)",
+            "Use Freddy Right Now (No AI)",
             "- python3 freddy.py knowledge-search \"ssh hardening\"\n"
             "- python3 freddy.py learn\n"
             "- python3 freddy.py history\n"
@@ -72,6 +82,9 @@ def _prepare_model_prompt(action_label: str) -> str | None:
             style="cyan",
         )
         return None
+
+    if cfg.get("ai_provider") == "ollama":
+        formatter.print_info(f"Using Ollama ({cfg.get('ollama_model', 'llama3')}) — free local AI")
 
     validate_config()
     return load_system_prompt()

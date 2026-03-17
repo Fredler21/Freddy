@@ -26,10 +26,24 @@ DATA_RAW_DIR = BASE_DIR / "data" / "raw"
 DATA_REPORTS_DIR = BASE_DIR / "data" / "reports"
 SYSTEM_PROMPT_PATH = BASE_DIR / "prompts" / "system_prompt.txt"
 
+# --- AI Provider Configuration ---
+# Set FREDDY_AI_PROVIDER to "ollama" to use a free local model (no API key).
+# Default: "anthropic" if ANTHROPIC_API_KEY is set, otherwise "ollama".
 API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022").strip()
 MAX_TOKENS = int(os.environ.get("ANTHROPIC_MAX_TOKENS", "4096"))
 EMBEDDING_MODEL = os.environ.get("FREDDY_EMBEDDING_MODEL", "all-MiniLM-L6-v2").strip()
+
+# Ollama (local LLM) settings
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").strip()
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3").strip()
+
+# Auto-detect provider: use anthropic if key is set, otherwise ollama
+_provider_env = os.environ.get("FREDDY_AI_PROVIDER", "").strip().lower()
+if _provider_env in ("anthropic", "ollama"):
+    AI_PROVIDER = _provider_env
+else:
+    AI_PROVIDER = "anthropic" if API_KEY else "ollama"
 
 
 def ensure_runtime_directories() -> None:
@@ -45,8 +59,10 @@ def validate_config() -> None:
     """Validate configuration needed for model-backed analysis commands."""
     ensure_runtime_directories()
 
-    if not API_KEY:
+    if AI_PROVIDER == "anthropic" and not API_KEY:
         print("\n[!] ERROR: ANTHROPIC_API_KEY environment variable is not set.\n")
+        print("    Tip: Use Ollama instead (free, no API key):")
+        print("    export FREDDY_AI_PROVIDER=ollama\n")
         sys.exit(1)
 
     if not SYSTEM_PROMPT_PATH.exists():
@@ -71,7 +87,9 @@ def get_config() -> dict:
     ensure_runtime_directories()
     return {
         "api_key_set": bool(API_KEY),
-        "model": MODEL,
+        "ai_provider": AI_PROVIDER,
+        "ai_ready": AI_PROVIDER == "ollama" or bool(API_KEY),
+        "model": OLLAMA_MODEL if AI_PROVIDER == "ollama" else MODEL,
         "max_tokens": MAX_TOKENS,
         "system_prompt_path": str(SYSTEM_PROMPT_PATH),
         "knowledge_dir": str(KNOWLEDGE_DIR),
@@ -81,4 +99,6 @@ def get_config() -> dict:
         "data_raw_dir": str(DATA_RAW_DIR),
         "data_reports_dir": str(DATA_REPORTS_DIR),
         "embedding_model": EMBEDDING_MODEL,
+        "ollama_base_url": OLLAMA_BASE_URL,
+        "ollama_model": OLLAMA_MODEL,
     }

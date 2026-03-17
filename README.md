@@ -691,12 +691,6 @@ python3 freddy.py memory-stats                    # Database statistics
 
 ## ⚙️ Configuration
 
-### Required
-
-| Variable | Purpose |
-|---|---|
-| `ANTHROPIC_API_KEY` | Claude API key for AI analysis |
-
 ### Optional (for threat intelligence)
 
 | Variable | Purpose | Get it from |
