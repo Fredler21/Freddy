@@ -1,12 +1,14 @@
-# 🛡️ Freddy — AI-Powered Cybersecurity Terminal Copilot
+# 🛡️ Freddy, AI-Powered Cybersecurity Terminal Copilot
+
+![Cybersecurity](https://img.shields.io/badge/Cybersecurity-blue) ![Privacy](https://img.shields.io/badge/Privacy-red) ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-black?logo=linux) ![Kali Linux](https://img.shields.io/badge/Kali%20Linux-557C94?logo=kalilinux&logoColor=white) ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu&logoColor=white) ![License](https://img.shields.io/badge/License-Proprietary-red)
 
 > **Your personal SOC analyst, right in the terminal.**
 
 Freddy is an enterprise-grade AI cybersecurity copilot that transforms raw security data into actionable intelligence. Built for defenders, it integrates real-time tool execution, MITRE ATT&CK mapping, IOC extraction, threat intelligence feeds, SIEM-style correlation, incident timeline reconstruction, and AI-driven analysis into a single command-line platform.
 
-Under the hood, Freddy runs a multi-stage intelligence pipeline: deterministic rule checks catch known patterns, a local knowledge engine retrieves relevant guidance from 40+ indexed NIST, OWASP, and RFC documents, and a SOC enrichment layer maps findings to ATT&CK techniques, extracts indicators of compromise, correlates events across sources, and scores your security posture — all before the AI model even sees the data. The result is analysis that's structured, repeatable, and backed by real evidence.
+Under the hood, Freddy runs a multi-stage intelligence pipeline: deterministic rule checks catch known patterns, a local knowledge engine retrieves relevant guidance from 40+ indexed NIST, OWASP, and RFC documents, and a SOC enrichment layer maps findings to ATT&CK techniques, extracts indicators of compromise, correlates events across sources, and scores your security posture, all before the AI model even sees the data. The result is analysis that's structured, repeatable, and backed by real evidence.
 
-Whether you're triaging an incident, auditing a server, analyzing logs, or investigating a target — Freddy handles the heavy lifting so you can focus on decisions, not data parsing.
+Whether you're triaging an incident, auditing a server, analyzing logs, or investigating a target, Freddy handles the heavy lifting so you can focus on decisions, not data parsing.
 
 **Freddy is for authorized defensive security work only.**
 
@@ -35,26 +37,26 @@ Freddy is built to help defenders understand security data faster and take actio
 
 | Category | What It Does |
 |---|---|
-| 🔎 **Scan & Recon** | Run Nmap port scans, full multi-tool reconnaissance, automated target profiling — discover open ports, running services, OS fingerprints, and exposed attack surface |
-| 📋 **Log Analysis** | Parse auth.log, Apache/Nginx web logs, syslog files — detect brute-force attempts, failed logins, intrusion indicators, and suspicious access patterns |
+| 🔎 **Scan & Recon** | Run Nmap port scans, full multi-tool reconnaissance, automated target profiling to discover open ports, running services, OS fingerprints, and exposed attack surface |
+| 📋 **Log Analysis** | Parse auth.log, Apache/Nginx web logs, syslog files to detect brute-force attempts, failed logins, intrusion indicators, and suspicious access patterns |
 | 🖥️ **System Auditing** | Audit local listening ports, firewall rules (UFW/iptables), SSH configuration, user accounts, sudo privileges, and active service exposure |
-| 📄 **File Analysis** | Analyze any saved security tool output — Nmap results, scan reports, packet captures, config dumps — through the full enrichment pipeline |
+| 📄 **File Analysis** | Analyze any saved security tool output like Nmap results, scan reports, packet captures, config dumps through the full enrichment pipeline |
 | 🌐 **Web Security** | Inspect HTTP response headers, detect missing security headers, identify web technologies, check for known web vulnerabilities with Nikto |
 | 🔒 **TLS/SSL Inspection** | Evaluate certificates, cipher suites, protocol versions, expiration dates, and weak configurations using OpenSSL |
 | 🌍 **DNS Analysis** | Query DNS records (A, AAAA, MX, NS, TXT, CNAME), detect misconfigurations, check for dangling records and zone transfer risks |
 | 📇 **WHOIS Lookups** | Retrieve domain registration details, registrar info, creation/expiration dates, and nameserver configuration |
-| 🗺️ **MITRE ATT&CK Mapping** | Automatically map every finding to ATT&CK technique IDs and tactics — 25+ patterns across Credential Access, Initial Access, Discovery, Persistence, Lateral Movement, and more |
+| 🗺️ **MITRE ATT&CK Mapping** | Automatically map every finding to ATT&CK technique IDs and tactics, 25+ patterns across Credential Access, Initial Access, Discovery, Persistence, Lateral Movement, and more |
 | 🔍 **IOC Extraction** | Pull IP addresses, domains, URLs, email addresses, file hashes (MD5/SHA1/SHA256), CVE identifiers, suspicious file paths, and user agents from any evidence |
-| 🌐 **Threat Intelligence** | Check extracted IOCs against AbuseIPDB, VirusTotal, and AlienVault OTX — get abuse scores, detection ratios, and reputation data |
-| ⏱️ **Incident Timeline** | Reconstruct chronological attack timelines from log timestamps — classify events by phase (recon → initial access → execution → persistence → lateral movement → exfiltration) |
+| 🌐 **Threat Intelligence** | Check extracted IOCs against AbuseIPDB, VirusTotal, and AlienVault OTX to get abuse scores, detection ratios, and reputation data |
+| ⏱️ **Incident Timeline** | Reconstruct chronological attack timelines from log timestamps and classify events by phase (recon → initial access → execution → persistence → lateral movement → exfiltration) |
 | 📡 **SIEM Correlation** | Detect cross-source attack patterns with 7 correlation rules: brute-force chains, scan-to-exploit sequences, multi-source IP activity, service exposure chains, and more |
-| 🤖 **Auto Investigation** | Chain 6 recon tools (Nmap + web check + TLS + DNS + WHOIS + Nikto) into a single command — all evidence feeds through the full SOC pipeline automatically |
+| 🤖 **Auto Investigation** | Chain 6 recon tools (Nmap + web check + TLS + DNS + WHOIS + Nikto) into a single command. All evidence feeds through the full SOC pipeline automatically |
 | 📊 **Posture Scoring** | Calculate a 0–100 security posture score with letter grade (A–F) based on rule findings, MITRE mappings, IOC counts, and correlation results |
-| 📝 **Report Generation** | Export professional security reports in Markdown or JSON — includes executive summary, ATT&CK mappings, IOCs, timeline, correlations, posture score, and remediation steps |
-| 🎓 **Security Mentor** | Get educational learning notes alongside findings — plain-language explanations, real-world breach context, and references to NIST, CIS Benchmarks, MITRE ATT&CK, and OWASP |
+| 📝 **Report Generation** | Export professional security reports in Markdown or JSON including executive summary, ATT&CK mappings, IOCs, timeline, correlations, posture score, and remediation steps |
+| 🎓 **Security Mentor** | Get educational learning notes alongside findings: plain-language explanations, real-world breach context, and references to NIST, CIS Benchmarks, MITRE ATT&CK, and OWASP |
 | 🎨 **Visualization** | See ASCII attack timeline charts, severity distribution bars, MITRE ATT&CK tactic matrices, posture gauges, IP activity maps, and attack surface diagrams in the terminal |
-| 🧠 **Knowledge Search** | Semantic search across 40+ indexed NIST, RFC, and OWASP documents — ask questions in natural language and get relevant cybersecurity guidance |
-| 🗂️ **Scan Memory** | SQLite history that remembers every scan — tracks targets over time, detects recurring vulnerabilities, correlates findings across weeks and months |
+| 🧠 **Knowledge Search** | Semantic search across 40+ indexed NIST, RFC, and OWASP documents. Ask questions in natural language and get relevant cybersecurity guidance |
+| 🗂️ **Scan Memory** | SQLite history that remembers every scan, tracks targets over time, detects recurring vulnerabilities, correlates findings across weeks and months |
 
 ---
 
@@ -68,7 +70,7 @@ Once installed, here are the most common things you'll do with Freddy:
 python3 freddy.py scan 192.168.1.10
 ```
 
-Freddy runs Nmap, applies security rules, maps findings to MITRE ATT&CK, extracts IOCs, scores your posture, and generates a full AI-powered analysis — all in one command.
+Freddy runs Nmap, applies security rules, maps findings to MITRE ATT&CK, extracts IOCs, scores your posture, and generates a full AI-powered analysis, all in one command.
 
 ### 📄 Analyze a file
 
@@ -150,7 +152,7 @@ python3 freddy.py history --target example.com
 
 - Add `--yes` to skip confirmation prompts: `python3 freddy.py scan 192.168.1.10 --yes`
 - Add `--no-banner` to hide the startup banner
-- MITRE ATT&CK mapping, IOC extraction, SIEM correlation, posture scoring, and learning notes run **automatically** on every analysis — no extra flags needed
+- MITRE ATT&CK mapping, IOC extraction, SIEM correlation, posture scoring, and learning notes run **automatically** on every analysis, no extra flags needed
 - For threat intel, optionally set `ABUSEIPDB_API_KEY` and `VIRUSTOTAL_API_KEY` environment variables (AlienVault OTX works free without a key)
 - Use `python3 freddy.py walkthrough` for a guided interactive menu
 
@@ -348,10 +350,10 @@ Check extracted IOCs against external threat feeds:
 |---|---|---|---|
 | AbuseIPDB | Yes | `ABUSEIPDB_API_KEY` | Abuse confidence score, reports count, country |
 | VirusTotal | Yes | `VIRUSTOTAL_API_KEY` | Detection ratio, malicious/suspicious flags |
-| AlienVault OTX | No | — | Pulse count, reputation data |
+| AlienVault OTX | No | N/A | Pulse count, reputation data |
 
 ```bash
-# Set API keys (optional — AlienVault OTX works without any key)
+# Set API keys (optional, AlienVault OTX works without any key)
 export ABUSEIPDB_API_KEY="your-key"
 export VIRUSTOTAL_API_KEY="your-key"
 
@@ -362,7 +364,7 @@ python3 freddy.py threat-intel 45.33.32.156
 python3 freddy.py threat-intel suspicious-domain.com
 ```
 
-Threat intel runs automatically after every analysis too — it checks the IOCs extracted from evidence.
+Threat intel runs automatically after every analysis too. It checks the IOCs extracted from evidence.
 
 ### ⏱️ Incident Timeline Reconstruction
 
@@ -422,7 +424,7 @@ Every analysis receives a 0–100 score with a letter grade:
 | B | 80–89 | Good with minor issues |
 | C | 70–79 | Moderate risk, action needed |
 | D | 60–69 | Significant risk |
-| F | 0–59 | Critical — immediate action required |
+| F | 0–59 | Critical, immediate action required |
 
 Penalty weights: CRITICAL (−15), HIGH (−10), MEDIUM (−5), LOW (−2). Score factors include rule findings, MITRE ATT&CK mappings, IOC counts, and correlation findings.
 
@@ -466,13 +468,13 @@ Reports include:
 
 Terminal-based ASCII visualizations render during analysis:
 
-- **Attack Timeline Chart** — chronological event bar chart
-- **Severity Distribution** — bar chart of finding severities
-- **IP Activity Map** — which IPs are doing what
-- **Attack Surface Map** — exposed services and entry points
-- **Posture Gauge** — visual 0–100 score meter
-- **MITRE ATT&CK Matrix** — tactic/technique grid
-- **Connection Graph** — relationships between entities
+- **Attack Timeline Chart:** chronological event bar chart
+- **Severity Distribution:** bar chart of finding severities
+- **IP Activity Map:** which IPs are doing what
+- **Attack Surface Map:** exposed services and entry points
+- **Posture Gauge:** visual 0–100 score meter
+- **MITRE ATT&CK Matrix:** tactic/technique grid
+- **Connection Graph:** relationships between entities
 
 ---
 
@@ -551,8 +553,8 @@ Every analysis command (`scan`, `logs`, `audit`, `analyze`, etc.) runs this pipe
 
 Freddy loads cybersecurity reference material from two folders:
 
-- `knowledge/` — broad defensive guidance (Linux security, SSH hardening, web security, incident response, network protocols, and more)
-- `vulnerabilities/` — focused vulnerability intelligence (SSH exposure, weak TLS, Redis exposure, missing security headers, open ports)
+- `knowledge/` broad defensive guidance (Linux security, SSH hardening, web security, incident response, network protocols, and more)
+- `vulnerabilities/` focused vulnerability intelligence (SSH exposure, weak TLS, Redis exposure, missing security headers, open ports)
 
 Documents are chunked, embedded with `sentence-transformers`, and stored in a local Chroma vector database at `.freddy/vector_store`.
 
@@ -872,7 +874,7 @@ python3 freddy.py auto-investigate example.com
 
 ```bash
 python3 freddy.py scan 192.168.1.10          # Week 1
-python3 freddy.py scan 192.168.1.10          # Week 2 — Freddy notes recurring issues
+python3 freddy.py scan 192.168.1.10          # Week 2, Freddy notes recurring issues
 python3 freddy.py history --target 192.168.1.10   # Review scan history
 python3 freddy.py posture samples/latest.txt       # Check current score
 ```
@@ -926,7 +928,7 @@ python3 -u freddy.py learn
 
 ### Hugging Face warning about unauthenticated requests
 
-Informational only — Freddy works without a token. With a token, downloads are faster.
+Informational only, Freddy works without a token. With a token, downloads are faster.
 
 ### PDF dependencies
 
